@@ -1,0 +1,72 @@
+:root {
+    --lava-red: #E63946;
+    --volcanic-black: #1D1D1D;
+    --gold: #FFD700;
+    --ash-gray: #777777;
+    --text-light: #FFFFFF;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: var(--volcanic-black);
+    color: var(--text-light);
+}
+
+header, nav {
+    background-color: var(--lava-red);
+    color: var(--text-light);
+    padding: 1em;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+nav {
+    display: flex;
+    justify-content: space-around;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    border-top: 2px solid var(--gold);
+}
+
+nav a {
+    color: var(--text-light);
+    text-decoration: none;
+    font-size: 1em;
+    padding: 0.5em;
+    flex-grow: 1;
+    text-align: center;
+}
+
+nav a:hover {
+    background-color: var(--gold);
+    color: var(--volcanic-black);
+}
+
+main {
+    padding: 2em 1em 5em; /* Extra bottom margin for the fixed nav */
+}
+
+section {
+    margin-bottom: 2em;
+}
+
+button {
+    background-color: var(--lava-red);
+    color: var(--text-light);
+    border: none;
+    padding: 0.75em 1em;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: var(--gold);
+    color: var(--volcanic-black);
+}
