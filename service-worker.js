@@ -1,10 +1,10 @@
-const CACHE_NAME = 'local-grindz-v1';
+const CACHE_NAME = 'local-grindz-v2';
 const ASSETS_TO_CACHE = [
-    '/',
-    '/index.html',
-    '/styles/main.css',
-    '/scripts/app.js',
-    '/manifest.json'
+    './',
+    'index.html',
+    'styles/main.css',
+    'scripts/app.js',
+    'manifest.json'
 ];
 
 self.addEventListener('install', event => {
