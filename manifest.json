@@ -1,0 +1,21 @@
+{
+    "name": "Local Grindz - Ala's Kitchen",
+    "short_name": "Local Grindz",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#1D1D1D",
+    "theme_color": "#E63946",
+    "description": "Local Grindz PWA for Ala's Kitchen - Get Smashed",
+    "icons": [
+        {
+            "src": "/icons/icon-192x192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "/icons/icon-512x512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ]
+}
