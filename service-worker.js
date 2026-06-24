@@ -1,4 +1,4 @@
-const CACHE_NAME = 'local-grindz-v7';
+const CACHE_NAME = 'local-grindz-v8';
 const ASSETS_TO_CACHE = [
   './',
   'index.html',
@@ -11,6 +11,7 @@ const ASSETS_TO_CACHE = [
   'styles/dashboard.css',
   'styles/pages.css',
   'styles/vendor.css',
+  'scripts/api.js',
   'scripts/nav.js',
   'scripts/app.js',
   'scripts/dashboard.js',
