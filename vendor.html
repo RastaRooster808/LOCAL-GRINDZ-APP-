@@ -125,6 +125,52 @@
           <span id="update-type-error" aria-live="polite"></span>
         </fieldset>
 
+        <!-- Special Details (shown when "Special" type is selected) -->
+        <fieldset id="special-fields" class="hidden" aria-hidden="true">
+          <legend>Special Details</legend>
+
+          <label for="sp-title-input">Special Name / Title</label>
+          <input
+            type="text"
+            id="sp-title-input"
+            name="sp-title"
+            placeholder="e.g. Garlic Butter Volcano Smash"
+          >
+
+          <div class="two-col">
+            <div>
+              <label for="sp-price-input">Price ($)</label>
+              <input
+                type="number"
+                id="sp-price-input"
+                name="sp-price"
+                placeholder="15.00"
+                min="0"
+                step="0.01"
+              >
+            </div>
+            <div>
+              <label for="sp-qty-input">Quantity Available</label>
+              <input
+                type="number"
+                id="sp-qty-input"
+                name="sp-qty"
+                placeholder="25"
+                min="1"
+                step="1"
+              >
+            </div>
+          </div>
+
+          <label for="sp-end-input">End Time (e.g. 7:00 PM)</label>
+          <input
+            type="text"
+            id="sp-end-input"
+            name="sp-end"
+            placeholder="7:00 PM"
+          >
+        </fieldset>
+
         <!-- Update Details -->
         <fieldset>
           <legend>Your Update <span aria-hidden="true">*</span></legend>

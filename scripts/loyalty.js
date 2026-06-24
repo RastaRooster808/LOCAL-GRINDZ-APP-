@@ -1,11 +1,15 @@
-const STAMPS_NEEDED = 10;
 const STORAGE_KEY = 'lg_loyalty_v1';
 
 let state = { stamps: 0, history: [], lifetime: 0 };
-let vendorPin = '';
+let campaign = {
+  stamp_code: '',
+  stamps_required: 10,
+  reward_description: '1 Free Volcano Smash',
+  campaign_active: true,
+};
 
 document.addEventListener('DOMContentLoaded', () => {
-  loadVendorPin();
+  loadCampaign();
   loadState();
   render();
 
@@ -17,34 +21,49 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('reset-loyalty-btn')?.addEventListener('click', handleReset);
 });
 
-// ─── Data ──────────────────────────────────────────────────────────────────
+// ─── Load campaign config from loyalty.json ────────────────────────────────
 
-async function loadVendorPin() {
+async function loadCampaign() {
   try {
-    const res = await fetch('/data/vendors.json');
+    // Primary source: loyalty.json
+    const res = await fetch('/data/loyalty.json');
     if (!res.ok) throw new Error('fetch failed');
-    const vendors = await res.json();
-    vendorPin = String(vendors[0]?.loyalty_pin || '').toUpperCase().trim();
+    const data = await res.json();
+
+    campaign.stamp_code        = String(data.stamp_code || '').toUpperCase().trim();
+    campaign.stamps_required   = data.stamps_required   || 10;
+    campaign.reward_description= data.reward_description || '1 Free Volcano Smash';
+    campaign.campaign_active   = data.campaign_active !== false;
+    campaign.campaign_name     = data.campaign_name || 'Loyalty Program';
   } catch {
-    vendorPin = '';
+    // Fallback: try vendors.json for legacy loyalty_pin
+    try {
+      const res2 = await fetch('/data/vendors.json');
+      const vendors = await res2.json();
+      campaign.stamp_code = String(vendors[0]?.loyalty_pin || '').toUpperCase().trim();
+    } catch {
+      campaign.stamp_code = '';
+    }
   }
+
+  // Update UI with campaign details
+  const rewardEl = document.querySelector('.loyalty-goal strong');
+  if (rewardEl) rewardEl.textContent = campaign.reward_description;
 }
+
+// ─── State (localStorage) ──────────────────────────────────────────────────
 
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) state = { ...state, ...JSON.parse(raw) };
-  } catch {
-    // localStorage unavailable (private browsing on some iOS)
-  }
+  } catch {}
 }
 
 function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    // silently fail — stamps won't persist, inform user via feedback
-  }
+  } catch {}
 }
 
 // ─── Render ────────────────────────────────────────────────────────────────
@@ -60,16 +79,17 @@ function renderPunchCard() {
   const card = document.getElementById('punch-card');
   if (!card) return;
 
-  card.innerHTML = Array.from({ length: STAMPS_NEEDED }, (_, i) =>
+  const total = campaign.stamps_required;
+  card.innerHTML = Array.from({ length: total }, (_, i) =>
     `<span class="stamp-dot${i < state.stamps ? ' stamp-filled' : ''}" aria-hidden="true"></span>`
   ).join('');
 
-  card.setAttribute('aria-label', `${state.stamps} of ${STAMPS_NEEDED} stamps collected`);
+  card.setAttribute('aria-label', `${state.stamps} of ${total} stamps collected`);
 }
 
 function renderStampCount() {
   const el = document.getElementById('stamp-count');
-  if (el) el.textContent = `${state.stamps} / ${STAMPS_NEEDED} stamps`;
+  if (el) el.textContent = `${state.stamps} / ${campaign.stamps_required} stamps`;
 }
 
 function renderHistory() {
@@ -77,63 +97,66 @@ function renderHistory() {
   if (!list) return;
 
   if (!state.history || state.history.length === 0) {
-    list.innerHTML = '<li style="color:var(--ash-gray);font-size:0.88rem;padding:0.25rem 0">No stamps yet. Make a purchase and ask for the stamp code!</li>';
+    list.innerHTML = '<li style="color:var(--ash-gray);font-size:.88rem;padding:.25rem 0">No stamps yet. Make a purchase and ask for the stamp code!</li>';
     return;
   }
 
-  list.innerHTML = [...state.history]
-    .reverse()
-    .map(entry => `
-      <li class="history-entry">
-        <span class="history-icon">${entry.redeemed ? '🎁' : '⭐'}</span>
-        <span class="history-detail">
-          <strong>${entry.redeemed ? 'Redeemed — free burger earned!' : 'Stamp earned'}</strong>
-          <span>${entry.date}</span>
-        </span>
-      </li>
-    `)
-    .join('');
+  list.innerHTML = [...state.history].reverse().map(entry => `
+    <li class="history-entry">
+      <span class="history-icon">${entry.redeemed ? '🎁' : '⭐'}</span>
+      <span class="history-detail">
+        <strong>${entry.redeemed ? 'Redeemed — ' + campaign.reward_description : 'Stamp earned'}</strong>
+        <span>${entry.date}</span>
+      </span>
+    </li>
+  `).join('');
 }
 
 function renderRedeemSection() {
   const redeemSec = document.getElementById('redeem-section');
-  const addSec = document.getElementById('add-stamp-section');
-  const full = state.stamps >= STAMPS_NEEDED;
+  const addSec    = document.getElementById('add-stamp-section');
+  const full = state.stamps >= campaign.stamps_required;
 
   if (redeemSec) redeemSec.classList.toggle('hidden', !full);
-  if (addSec) addSec.classList.toggle('hidden', full);
+  if (addSec)    addSec.classList.toggle('hidden', full);
 }
 
 // ─── Stamp Actions ─────────────────────────────────────────────────────────
 
 function handleAddStamp() {
-  const input = document.getElementById('stamp-code-input');
-  const entered = input.value.trim().toUpperCase();
+  const input    = document.getElementById('stamp-code-input');
+  const entered  = input.value.trim().toUpperCase();
 
   if (!entered) {
-    showFeedback('Enter the stamp code you got from the vendor.', 'error');
+    showFeedback('Enter the stamp code from the vendor.', 'error');
     input.focus();
     return;
   }
 
-  if (state.stamps >= STAMPS_NEEDED) {
-    showFeedback('Your card is full! Redeem your free burger first.', 'error');
+  if (!campaign.campaign_active) {
+    showFeedback('The loyalty program is currently paused. Check back soon!', 'error');
     return;
   }
 
-  // Validate against vendor pin if loaded; accept any 2+ char code otherwise (fallback)
-  const isValid = vendorPin ? entered === vendorPin : entered.length >= 2;
+  if (state.stamps >= campaign.stamps_required) {
+    showFeedback('Your card is full! Redeem your reward first.', 'error');
+    return;
+  }
+
+  const isValid = campaign.stamp_code
+    ? entered === campaign.stamp_code
+    : entered.length >= 2;
 
   if (!isValid) {
-    showFeedback("Code doesn't match. Ask the vendor for the current stamp code.", 'error');
+    showFeedback("Code doesn't match. Ask the vendor for today's stamp code.", 'error');
     input.value = '';
     input.focus();
     return;
   }
 
-  state.stamps = (state.stamps || 0) + 1;
+  state.stamps   = (state.stamps || 0) + 1;
   state.lifetime = (state.lifetime || 0) + 1;
-  state.history = state.history || [];
+  state.history  = state.history || [];
   state.history.push({
     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
     redeemed: false,
@@ -143,19 +166,19 @@ function handleAddStamp() {
   render();
   input.value = '';
 
-  if (state.stamps >= STAMPS_NEEDED) {
-    showFeedback('Card complete! You earned a free Volcano Smash! 🎉', 'success');
+  if (state.stamps >= campaign.stamps_required) {
+    showFeedback(`Card complete! You earned ${campaign.reward_description}! 🎉`, 'success');
   } else {
-    const left = STAMPS_NEEDED - state.stamps;
-    showFeedback(`Stamp added! ${left} more until your free burger.`, 'success');
+    const left = campaign.stamps_required - state.stamps;
+    showFeedback(`Stamp added! ${left} more until your ${campaign.reward_description}.`, 'success');
   }
 }
 
 function handleRedeem() {
-  if (state.stamps < STAMPS_NEEDED) return;
+  if (state.stamps < campaign.stamps_required) return;
 
   const confirmed = window.confirm(
-    'Show this to the vendor and confirm your free Volcano Smash.\n\nOnce you tap OK, your card resets. Did the vendor confirm your reward?'
+    `Show this to the vendor and confirm your ${campaign.reward_description}.\n\nOnce you tap OK, your card resets. Did the vendor confirm your reward?`
   );
   if (!confirmed) return;
 
@@ -166,7 +189,7 @@ function handleRedeem() {
   state.stamps = 0;
   saveState();
   render();
-  showFeedback('Redeemed! Enjoy your free Volcano Smash. Starting a new card now. 🍔', 'success');
+  showFeedback(`Redeemed! Enjoy your ${campaign.reward_description}. Starting a new card. 🍔`, 'success');
 }
 
 function handleReset() {
@@ -178,8 +201,6 @@ function handleReset() {
   render();
   showFeedback('Card reset. Ready for your next burger journey!', 'success');
 }
-
-// ─── Feedback ──────────────────────────────────────────────────────────────
 
 function showFeedback(message, type) {
   const el = document.getElementById('stamp-feedback');

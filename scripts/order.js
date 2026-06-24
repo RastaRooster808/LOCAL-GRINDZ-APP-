@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadMenu() {
   try {
-    const res = await fetch('/data/menu.json');
+    const res = await fetch('/data/menus.json');
     if (!res.ok) throw new Error('fetch failed');
     menuItems = await res.json();
   } catch {

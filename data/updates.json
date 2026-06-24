@@ -1,12 +1,27 @@
 [
   {
     "update_id": "u001",
+    "vendor": "Ala's Kitchen",
     "vendor_id": "v001",
-    "update_type": "special",
-    "message": "Weekend special: Double Volcano Smash for $18 with free Puna Fries. Available Saturday and Sunday only while supplies last.",
-    "submitted_by": "Ala",
-    "date_submitted": "2026-06-23",
-    "developer_status": "pending",
-    "notes": "Please add to the featured section and social feed before Friday evening."
+    "type": "location",
+    "message": "Kalapana Night Market",
+    "hours": "4PM-9PM",
+    "timestamp": "2026-06-23T18:00:00",
+    "developer_status": "completed",
+    "notes": "Updated in locations.json."
+  },
+  {
+    "update_id": "u002",
+    "vendor": "Ala's Kitchen",
+    "vendor_id": "v001",
+    "type": "special",
+    "message": "Garlic Butter Volcano Smash — $15, 25 available, ends 7PM.",
+    "price": 15.00,
+    "quantity": 25,
+    "end_time": "7:00 PM",
+    "hours": null,
+    "timestamp": "2026-06-24T10:00:00",
+    "developer_status": "completed",
+    "notes": "Added to specials.json. Set active: true."
   }
 ]

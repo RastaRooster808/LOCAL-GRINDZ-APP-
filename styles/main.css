@@ -101,3 +101,79 @@ nav a:hover {
   background: var(--gold);
   color: var(--volcanic-black);
 }
+
+/* ─── Today's Special (index.html) ───────────────── */
+
+.hidden {
+  display: none !important;
+}
+
+.sp-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--gold);
+  margin: 0.1rem 0 0.35rem;
+}
+
+.sp-desc {
+  font-size: 0.88rem;
+  color: var(--ash-gray);
+  margin: 0 0 0.65rem;
+  line-height: 1.5;
+}
+
+.sp-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin-bottom: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.sp-price {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--text-light);
+}
+
+.sp-was {
+  font-size: 0.85rem;
+  color: var(--ash-gray);
+  text-decoration: line-through;
+}
+
+.sp-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--ash-gray);
+  margin-bottom: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.sp-qty {
+  background: rgba(255,215,0,0.12);
+  color: var(--gold);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+.sp-dot {
+  color: var(--ash-gray);
+}
+
+.sp-end {
+  font-style: italic;
+}
+
+.sp-cta {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+}

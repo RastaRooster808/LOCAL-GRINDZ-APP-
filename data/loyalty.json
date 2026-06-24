@@ -1,0 +1,12 @@
+{
+  "vendor_id": "v001",
+  "vendor": "Ala's Kitchen",
+  "campaign_name": "Smash Club",
+  "stamp_code": "808",
+  "stamps_required": 10,
+  "reward_description": "1 Free Volcano Smash",
+  "reward_item_id": "m001",
+  "campaign_active": true,
+  "start_date": "2026-06-01",
+  "notes": "One stamp per purchase. Ask the vendor for the current stamp code after ordering."
+}

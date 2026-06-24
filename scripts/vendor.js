@@ -61,6 +61,17 @@ function setupForm() {
     if (text) copyToClipboard(text);
   });
   if (resetBtn) resetBtn.addEventListener('click', resetForm);
+
+  // Show/hide special detail fields when "Special" radio is selected
+  form?.querySelectorAll('input[name="update-type"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const specialFields = document.getElementById('special-fields');
+      if (!specialFields) return;
+      const isSpecial = form.querySelector('input[name="update-type"]:checked')?.value === 'special';
+      specialFields.classList.toggle('hidden', !isSpecial);
+      specialFields.setAttribute('aria-hidden', String(!isSpecial));
+    });
+  });
 }
 
 // ─── Submit Handler ────────────────────────────────────────────────────────
@@ -162,6 +173,11 @@ function collectFormData(form) {
     urgencyLabel: URGENCY_LABELS[urgencyVal] || urgencyVal,
     message: getVal(form, '#form-message'),
     devNotes: getVal(form, '#form-dev-notes'),
+    // Special fields (only populated when update type is "special")
+    spTitle: getVal(form, '#sp-title-input'),
+    spPrice: getVal(form, '#sp-price-input'),
+    spQty: getVal(form, '#sp-qty-input'),
+    spEnd: getVal(form, '#sp-end-input'),
     timestamp: new Date().toLocaleString('en-US', {
       timeZone: 'Pacific/Honolulu',
       weekday: 'short',
@@ -194,10 +210,20 @@ function generateSummary(d) {
     `UPDATE TYPE:  ${d.updateTypeLabel}`,
     `URGENCY:      ${d.urgencyLabel}`,
     '',
-    'MESSAGE:',
-    d.message,
-    '',
   ];
+
+  if (d.updateType === 'special' && (d.spTitle || d.spPrice || d.spQty || d.spEnd)) {
+    lines.push('SPECIAL DETAILS:');
+    if (d.spTitle) lines.push(`  Title:     ${d.spTitle}`);
+    if (d.spPrice) lines.push(`  Price:     $${d.spPrice}`);
+    if (d.spQty)   lines.push(`  Quantity:  ${d.spQty} available`);
+    if (d.spEnd)   lines.push(`  Ends:      ${d.spEnd}`);
+    lines.push('');
+  }
+
+  lines.push('MESSAGE:');
+  lines.push(d.message);
+  lines.push('');
 
   if (d.devNotes) {
     lines.push('DEVELOPER NOTES:');
@@ -277,11 +303,11 @@ function setupOrderPortal() {
   const orderUrl = window.location.origin + '/order.html';
   if (urlEl) urlEl.textContent = orderUrl;
 
-  // Load and display loyalty pin
-  fetch('/data/vendors.json')
+  // Load and display loyalty stamp code
+  fetch('/data/loyalty.json')
     .then(r => r.json())
-    .then(vendors => {
-      const pin = vendors[0]?.loyalty_pin;
+    .then(loyalty => {
+      const pin = loyalty?.stamp_code;
       const pinEl = document.getElementById('loyalty-pin-display');
       if (pinEl && pin) pinEl.textContent = String(pin).toUpperCase();
     })

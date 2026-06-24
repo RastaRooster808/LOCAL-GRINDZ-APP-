@@ -1,4 +1,12 @@
-/* Vendor Dashboard — extends /styles/main.css */
+/* Vendor Portal — extends /styles/main.css */
+
+/* ─── Two-column grid for special detail inputs ── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
 
 /* ─── Header ─────────────────────────────────── */
 .header-content {

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'local-grindz-v5';
+const CACHE_NAME = 'local-grindz-v6';
 const ASSETS_TO_CACHE = [
   './',
   'index.html',
@@ -19,9 +19,11 @@ const ASSETS_TO_CACHE = [
   'scripts/vendor.js',
   'manifest.json',
   'data/vendors.json',
-  'data/menu.json',
+  'data/menus.json',
   'data/locations.json',
   'data/updates.json',
+  'data/specials.json',
+  'data/loyalty.json',
 ];
 
 self.addEventListener('install', event => {

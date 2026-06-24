@@ -1,0 +1,17 @@
+[
+  {
+    "special_id": "sp001",
+    "vendor_id": "v001",
+    "vendor": "Ala's Kitchen",
+    "type": "special",
+    "title": "Garlic Butter Volcano Smash",
+    "description": "Our classic double smash elevated with roasted garlic compound butter, crispy shallots, and fresh chives on a toasted brioche bun.",
+    "price": 15.00,
+    "original_price": 14.00,
+    "quantity_available": 25,
+    "quantity_remaining": 25,
+    "start_time": "2026-06-24T11:00:00-10:00",
+    "end_time": "2026-06-24T19:00:00-10:00",
+    "active": true
+  }
+]

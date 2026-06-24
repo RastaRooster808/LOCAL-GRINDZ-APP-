@@ -257,6 +257,52 @@
   margin: 0 0 0.45rem;
 }
 
+.special-subdesc {
+  font-size: 0.82rem;
+  color: var(--ash-gray);
+  line-height: 1.5;
+  margin: 0.25rem 0 0.55rem;
+}
+
+.special-data-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.sdval {
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+}
+
+.sdval-price {
+  background: rgba(255,215,0,0.12);
+  color: var(--gold);
+  font-size: 1rem;
+}
+
+.sdval-qty {
+  background: rgba(39,174,96,0.12);
+  color: #27ae60;
+}
+
+.sdval-end {
+  background: transparent;
+  color: var(--ash-gray);
+  font-style: italic;
+  padding: 0;
+}
+
+.dash-was {
+  font-size: 0.78rem;
+  color: var(--ash-gray);
+  text-decoration: line-through;
+}
+
 .special-footer {
   display: flex;
   align-items: center;
@@ -445,6 +491,16 @@
 
 .lc-eq {
   color: var(--gold) !important;
+}
+
+.lc-reward-line {
+  font-size: 0.85rem;
+  color: var(--ash-gray);
+  margin: 0 0 0.5rem;
+}
+
+.lc-reward-line strong {
+  color: var(--gold);
 }
 
 .lc-note {
