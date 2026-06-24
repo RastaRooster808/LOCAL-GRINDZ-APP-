@@ -1,0 +1,481 @@
+/* Vendor Dashboard — extends /styles/main.css */
+
+/* ─── Header ─────────────────────────────────── */
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.header-content h1 {
+  margin: 0;
+  font-size: 1.15rem;
+  flex: 1;
+  text-align: center;
+}
+
+.back-link {
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1rem;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 0.25rem;
+  border-radius: 8px;
+}
+
+.back-link:hover,
+.back-link:focus {
+  color: var(--text-light);
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.header-sub {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.55);
+  white-space: nowrap;
+}
+
+/* ─── Section headings ───────────────────────── */
+.card h2 {
+  font-size: 1.1rem;
+  margin-top: 0;
+}
+
+/* ─── Vendor Profile ─────────────────────────── */
+.profile-grid {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.profile-grid p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--ash-gray);
+}
+
+.profile-grid p strong {
+  color: var(--text-light);
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.status-approved {
+  background: #27ae60;
+  color: #fff;
+}
+
+.status-pending {
+  background: var(--ash-gray);
+  color: #000;
+}
+
+/* ─── Form intro ─────────────────────────────── */
+.form-intro {
+  color: var(--ash-gray);
+  font-size: 0.88rem;
+  margin: 0 0 1.25rem;
+  line-height: 1.5;
+}
+
+/* ─── Fieldsets ──────────────────────────────── */
+fieldset {
+  border: 1px solid rgba(255, 215, 0, 0.18);
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 0 0 1rem;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+legend {
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0 0.4rem;
+}
+
+/* ─── Labels ─────────────────────────────────── */
+label {
+  display: block;
+  color: var(--ash-gray);
+  font-size: 0.83rem;
+  margin: 0.8rem 0 0.3rem;
+}
+
+label:first-of-type {
+  margin-top: 0;
+}
+
+/* ─── Text / Email / Tel Inputs ──────────────── */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+textarea {
+  width: 100%;
+  background: #161616;
+  border: 1px solid rgba(255, 215, 0, 0.28);
+  border-radius: 8px;
+  color: var(--text-light);
+  font-family: Arial, sans-serif;
+  font-size: 1rem;
+  padding: 0.65rem 0.8rem;
+  min-height: 44px;
+  transition: border-color 0.15s, outline-color 0.15s;
+}
+
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="tel"]::placeholder,
+textarea::placeholder {
+  color: rgba(184,184,184,0.45);
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+textarea:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-color: var(--gold);
+}
+
+textarea {
+  min-height: 110px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* ─── Validation states ──────────────────────── */
+.input-error {
+  border-color: var(--lava-red) !important;
+}
+
+.input-error:focus {
+  outline-color: var(--lava-red) !important;
+}
+
+.field-error {
+  color: var(--lava-red);
+  font-size: 0.78rem;
+  margin: 0.25rem 0 0;
+  padding: 0;
+}
+
+/* ─── Radio Card Groups ──────────────────────── */
+.radio-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+  margin-top: 0.25rem;
+}
+
+.radio-group.three-col {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.radio-card {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: #161616;
+  border: 1px solid rgba(255, 215, 0, 0.18);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--ash-gray);
+  min-height: 44px;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  margin: 0;
+  user-select: none;
+}
+
+.radio-card:hover {
+  border-color: var(--gold);
+  background: rgba(255, 215, 0, 0.05);
+}
+
+.radio-card input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  min-height: unset;
+  accent-color: var(--gold);
+  margin: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.radio-card:has(input:checked) {
+  border-color: var(--gold);
+  background: rgba(255, 215, 0, 0.09);
+  color: var(--gold);
+}
+
+.radio-card:focus-within {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.radio-icon {
+  font-size: 1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* ─── Submit Button ──────────────────────────── */
+.submit-btn {
+  width: 100%;
+  font-size: 1rem;
+  padding: 0.95rem 1.2rem;
+  margin-top: 0.25rem;
+  border-radius: 12px;
+  min-height: 52px;
+  letter-spacing: 0.02em;
+}
+
+/* ─── Confirmation Area ──────────────────────── */
+.hidden {
+  display: none !important;
+}
+
+.confirmation-box {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 215, 0, 0.18);
+}
+
+.confirmation-box h3 {
+  color: var(--gold);
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.summary-output {
+  background: #0c0c0c;
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.76rem;
+  color: #d8d8d8;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: auto;
+  line-height: 1.65;
+  margin: 0 0 0.75rem;
+}
+
+#copy-btn {
+  width: 100%;
+  margin-bottom: 0.6rem;
+  border-radius: 10px;
+  min-height: 48px;
+}
+
+.copy-status {
+  font-size: 0.85rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+.copy-status.success {
+  background: rgba(39, 174, 96, 0.14);
+  color: #27ae60;
+  border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+.copy-status.error {
+  background: rgba(230, 57, 70, 0.12);
+  color: var(--lava-red);
+  border: 1px solid rgba(230, 57, 70, 0.25);
+}
+
+#reset-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  color: var(--ash-gray);
+  border-radius: 10px;
+  min-height: 44px;
+  font-size: 0.88rem;
+  margin-top: 0.5rem;
+}
+
+#reset-btn:hover {
+  background: rgba(255, 215, 0, 0.08);
+  color: var(--gold);
+}
+
+/* ─── Send Instructions ──────────────────────── */
+.send-instructions {
+  background: rgba(255, 215, 0, 0.04);
+  border: 1px solid rgba(255, 215, 0, 0.14);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  margin-top: 0.75rem;
+}
+
+.send-instructions h3 {
+  color: var(--gold);
+  font-size: 0.9rem;
+  margin: 0 0 0.5rem;
+}
+
+.send-instructions ol {
+  margin: 0;
+  padding-left: 1.3rem;
+  color: var(--ash-gray);
+  font-size: 0.85rem;
+  line-height: 1.75;
+}
+
+.send-instructions li strong {
+  color: var(--text-light);
+}
+
+/* ─── Photo Instructions ─────────────────────── */
+.photo-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+
+.photo-steps li {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 0.85rem;
+  color: var(--ash-gray);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.step-num {
+  background: var(--lava-red);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.7rem;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.photo-note {
+  background: rgba(230, 57, 70, 0.08);
+  border: 1px solid rgba(230, 57, 70, 0.2);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.82rem;
+  color: var(--ash-gray);
+  margin-top: 0.75rem;
+  line-height: 1.5;
+}
+
+/* ─── Developer Intake ───────────────────────── */
+.intake-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  counter-reset: intake;
+}
+
+.intake-steps li {
+  counter-increment: intake;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 0.9rem;
+  font-size: 0.88rem;
+  color: var(--ash-gray);
+  line-height: 1.55;
+}
+
+.intake-steps li::before {
+  content: counter(intake);
+  background: var(--gold);
+  color: var(--volcanic-black);
+  font-weight: 800;
+  font-size: 0.7rem;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.intake-steps li strong {
+  color: var(--text-light);
+}
+
+.code-inline {
+  background: rgba(255, 255, 255, 0.07);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.82em;
+  color: var(--gold);
+  word-break: break-all;
+}
+
+/* ─── Limitations ────────────────────────────── */
+.limitations-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+
+.limitations-list li {
+  padding: 0.3rem 0 0.3rem 1.35rem;
+  position: relative;
+  color: var(--ash-gray);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.limitations-list li::before {
+  content: '⚡';
+  position: absolute;
+  left: 0;
+  font-size: 0.72rem;
+  top: 0.35rem;
+}
+
+/* ─── Upgrade path callout ───────────────────── */
+.upgrade-callout {
+  background: rgba(255, 215, 0, 0.06);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.82rem;
+  color: var(--ash-gray);
+  margin-top: 0.75rem;
+  line-height: 1.55;
+}
+
+.upgrade-callout strong {
+  color: var(--gold);
+}

@@ -1,0 +1,15 @@
+[
+  {
+    "vendor_id": "v001",
+    "business_name": "Ala's Kitchen",
+    "tagline": "Get Smashed",
+    "contact_name": "Ala",
+    "phone": "",
+    "email": "",
+    "social_links": {
+      "instagram": "",
+      "facebook": ""
+    },
+    "approved_status": true
+  }
+]

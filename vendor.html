@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendor Dashboard — Local Grindz</title>
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/vendor.css">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#e63946">
+</head>
+<body>
+
+  <header>
+    <div class="header-content">
+      <a href="/" class="back-link" aria-label="Back to Local Grindz app">&#8592; App</a>
+      <h1>Vendor Dashboard</h1>
+      <span class="header-sub" aria-hidden="true">Local Grindz</span>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ── Vendor Profile ───────────────────────────── -->
+    <section class="card" id="vendor-profile" aria-label="Vendor profile">
+      <div class="profile-header">
+        <h2>Vendor Profile</h2>
+        <span class="status-badge status-approved" id="profile-status">Approved</span>
+      </div>
+      <div class="profile-grid">
+        <p><strong>Business:</strong> <span id="profile-biz-name">Ala's Kitchen</span></p>
+        <p><strong>Tagline:</strong> <span id="profile-tagline">Get Smashed</span></p>
+        <p><strong>Contact:</strong> <span id="profile-contact">Ala</span></p>
+      </div>
+    </section>
+
+    <!-- ── Submit Update Form ───────────────────────── -->
+    <section class="card" id="update-form-section" aria-label="Submit a vendor update">
+      <h2>Submit an Update</h2>
+      <p class="form-intro">
+        Fill out the form below. When you tap <strong>Generate Update</strong>, this app
+        builds a ready-to-send message you can text, email, or paste into a GitHub issue
+        for the Local Grindz developer.
+      </p>
+
+      <form id="vendor-update-form" novalidate>
+
+        <!-- Your Info -->
+        <fieldset>
+          <legend>Your Info</legend>
+
+          <label for="form-biz-name">Business Name <span aria-hidden="true">*</span></label>
+          <input
+            type="text"
+            id="form-biz-name"
+            name="biz-name"
+            placeholder="e.g. Ala's Kitchen"
+            autocomplete="organization"
+            required
+            aria-required="true"
+          >
+
+          <label for="form-contact">Contact Name</label>
+          <input
+            type="text"
+            id="form-contact"
+            name="contact"
+            placeholder="Your name"
+            autocomplete="name"
+          >
+
+          <label for="form-phone">Phone Number</label>
+          <input
+            type="tel"
+            id="form-phone"
+            name="phone"
+            placeholder="(808) 555-0100"
+            autocomplete="tel"
+          >
+
+          <label for="form-email">Email Address</label>
+          <input
+            type="email"
+            id="form-email"
+            name="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+          >
+        </fieldset>
+
+        <!-- Update Type -->
+        <fieldset>
+          <legend>Update Type <span aria-hidden="true">*</span></legend>
+          <div class="radio-group" role="group" aria-label="Select update type">
+            <label class="radio-card">
+              <input type="radio" name="update-type" value="menu" aria-label="Menu update">
+              <span class="radio-icon" aria-hidden="true">🍔</span> Menu
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="update-type" value="location" aria-label="Location update">
+              <span class="radio-icon" aria-hidden="true">📍</span> Location
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="update-type" value="hours" aria-label="Hours update">
+              <span class="radio-icon" aria-hidden="true">🕐</span> Hours
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="update-type" value="special" aria-label="Special or drop announcement">
+              <span class="radio-icon" aria-hidden="true">🔥</span> Special
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="update-type" value="photo" aria-label="Photo update">
+              <span class="radio-icon" aria-hidden="true">📸</span> Photo
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="update-type" value="general" aria-label="General announcement">
+              <span class="radio-icon" aria-hidden="true">📣</span> General
+            </label>
+          </div>
+          <!-- Error anchor for radio group -->
+          <span id="update-type-error" aria-live="polite"></span>
+        </fieldset>
+
+        <!-- Update Details -->
+        <fieldset>
+          <legend>Your Update <span aria-hidden="true">*</span></legend>
+
+          <label for="form-message">
+            Describe your update — be specific! Include item names, prices,
+            new address, hours, or any details the developer needs.
+          </label>
+          <textarea
+            id="form-message"
+            name="message"
+            placeholder="e.g. New item: Spicy Kalua Smash, $13, available starting Friday. It has pulled pork, ghost pepper sauce, and cabbage slaw."
+            rows="5"
+            required
+            aria-required="true"
+          ></textarea>
+        </fieldset>
+
+        <!-- Urgency -->
+        <fieldset>
+          <legend>Urgency</legend>
+          <div class="radio-group three-col" role="group" aria-label="Select urgency level">
+            <label class="radio-card">
+              <input type="radio" name="urgency" value="low" aria-label="Low urgency">
+              Low
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="urgency" value="normal" checked aria-label="Normal urgency">
+              Normal
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="urgency" value="urgent" aria-label="Urgent">
+              Urgent
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- Developer Notes -->
+        <fieldset>
+          <legend>Notes for Developer (optional)</legend>
+
+          <label for="form-dev-notes">
+            Anything specific you want the developer to know — where to show
+            it on the app, timing, or special instructions.
+          </label>
+          <textarea
+            id="form-dev-notes"
+            name="dev-notes"
+            placeholder="e.g. Please make this the featured item on the home screen until Sunday night."
+            rows="3"
+          ></textarea>
+        </fieldset>
+
+        <button type="submit" class="submit-btn">
+          Generate Update &#8594;
+        </button>
+
+      </form>
+
+      <!-- ── Confirmation / Output ────────────────── -->
+      <div
+        id="form-confirmation"
+        class="confirmation-box hidden"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        <h3>&#10003; Update Ready to Send</h3>
+
+        <pre id="update-summary" class="summary-output" tabindex="0" aria-label="Generated update summary text"></pre>
+
+        <button type="button" id="copy-btn">
+          Copy to Clipboard
+        </button>
+
+        <div id="copy-status" class="copy-status" role="alert" aria-live="assertive"></div>
+
+        <div class="send-instructions" aria-label="How to send this update">
+          <h3>How to Send This Update</h3>
+          <ol>
+            <li><strong>Copy</strong> the text above (tap the button or select all &amp; copy).</li>
+            <li><strong>Text</strong> it to the Local Grindz developer at the number they gave you.</li>
+            <li><strong>Email</strong> it to the developer if you prefer — paste and send.</li>
+            <li><strong>GitHub</strong> — open a new issue at the Local Grindz repo and paste it there.</li>
+            <li>The developer will review, update the JSON files, and push the change live.</li>
+          </ol>
+        </div>
+
+        <button type="button" id="reset-btn">
+          Submit Another Update
+        </button>
+      </div>
+
+    </section>
+
+    <!-- ── Photo Upload Instructions ────────────────── -->
+    <section class="card" id="photo-instructions" aria-label="How to submit photo updates">
+      <h2>Photo Updates</h2>
+      <p class="form-intro">
+        Photos go through the developer for now. Here's how to send them:
+      </p>
+      <ul class="photo-steps" aria-label="Steps to submit photos">
+        <li>
+          <span class="step-num" aria-hidden="true">1</span>
+          <span>Take your photo — great lighting makes the food pop. Natural light or near a window works best.</span>
+        </li>
+        <li>
+          <span class="step-num" aria-hidden="true">2</span>
+          <span>Make sure the image is clear and at least <strong>800px wide</strong> for best display quality.</span>
+        </li>
+        <li>
+          <span class="step-num" aria-hidden="true">3</span>
+          <span>Text or email the photo to the developer with the item name and where it should appear on the app.</span>
+        </li>
+        <li>
+          <span class="step-num" aria-hidden="true">4</span>
+          <span>The developer uploads it to the app's image folder and links it to the correct menu item in <span class="code-inline">menu.json</span>.</span>
+        </li>
+        <li>
+          <span class="step-num" aria-hidden="true">5</span>
+          <span>Your photo goes live once the change is pushed to GitHub Pages — usually within a few hours.</span>
+        </li>
+      </ul>
+      <div class="photo-note" role="note">
+        <strong>Tip:</strong> Use the update form above with type "Photo" and describe which item the photo is for.
+        Send the actual image separately by text or email.
+      </div>
+    </section>
+
+    <!-- ── Developer Intake Section ──────────────────── -->
+    <section class="card" id="developer-intake" aria-label="Developer intake workflow">
+      <h2>Developer Intake</h2>
+      <p class="form-intro">
+        How a vendor update goes from form submission to live on the app:
+      </p>
+      <ol class="intake-steps" aria-label="Developer workflow steps">
+        <li>
+          <span><strong>Vendor submits</strong> — fills out this form, copies the generated text, and sends it by text, email, or GitHub issue.</span>
+        </li>
+        <li>
+          <span><strong>Developer reviews</strong> — reads the update and decides if any clarification is needed before making changes.</span>
+        </li>
+        <li>
+          <span><strong>Developer edits JSON</strong> — opens the correct file in <span class="code-inline">/data/</span> and updates the relevant fields. Menu changes go in <span class="code-inline">menu.json</span>, location changes in <span class="code-inline">locations.json</span>, etc.</span>
+        </li>
+        <li>
+          <span><strong>Developer logs it</strong> — adds an entry to <span class="code-inline">updates.json</span> with status <span class="code-inline">"completed"</span> so there's a record of all changes.</span>
+        </li>
+        <li>
+          <span><strong>Push to GitHub</strong> — commits the changes and pushes to the main branch. GitHub Pages deploys automatically, usually within 1–2 minutes.</span>
+        </li>
+        <li>
+          <span><strong>Confirm with vendor</strong> — lets the vendor know the update is live and asks them to check the app.</span>
+        </li>
+      </ol>
+
+      <div class="upgrade-callout" role="note">
+        <strong>Future upgrade path:</strong> This static system can be upgraded to
+        Firebase Realtime Database, Supabase, Airtable, or GitHub Issues API so vendors
+        can submit updates that deploy automatically — no developer in the loop needed.
+      </div>
+    </section>
+
+    <!-- ── GitHub Pages Limitations ──────────────────── -->
+    <section class="card" id="static-limitations" aria-label="Static site limitations">
+      <h2>Static Site Notes</h2>
+      <p class="form-intro">
+        Because Local Grindz runs on GitHub Pages (no server), there are some limitations to know:
+      </p>
+      <ul class="limitations-list">
+        <li>This form does <strong>not</strong> save or send data automatically — the vendor must copy and send the text manually.</li>
+        <li>There is no login or authentication — this page is public, so avoid putting sensitive info in the form.</li>
+        <li>Photos cannot be uploaded directly — they must be sent to the developer separately.</li>
+        <li>Changes only go live after the developer edits the JSON files and pushes to GitHub.</li>
+        <li>All data is read-only from the app — the JSON files are the source of truth.</li>
+        <li>The service worker caches files for offline use — after an update, vendors and customers may need to refresh twice to see the latest.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <nav aria-label="Vendor dashboard navigation">
+    <a href="/">&#8592; App</a>
+    <a href="#vendor-profile">Profile</a>
+    <a href="#update-form-section">Update</a>
+    <a href="#photo-instructions">Photos</a>
+    <a href="#developer-intake">Dev</a>
+  </nav>
+
+  <script src="/scripts/vendor.js"></script>
+</body>
+</html>

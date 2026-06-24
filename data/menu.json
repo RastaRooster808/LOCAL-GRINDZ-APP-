@@ -1,0 +1,57 @@
+[
+  {
+    "item_id": "m001",
+    "vendor_id": "v001",
+    "name": "Volcano Smash",
+    "description": "Double smash patty with ghost pepper aioli, caramelized onions, and lava sauce on a brioche bun.",
+    "price": 14.00,
+    "category": "burgers",
+    "spicy_level": 3,
+    "available": true,
+    "featured": true
+  },
+  {
+    "item_id": "m002",
+    "vendor_id": "v001",
+    "name": "Classic Smash",
+    "description": "Single smash patty with American cheese, pickles, mustard, and ketchup on a potato bun.",
+    "price": 10.00,
+    "category": "burgers",
+    "spicy_level": 0,
+    "available": true,
+    "featured": false
+  },
+  {
+    "item_id": "m003",
+    "vendor_id": "v001",
+    "name": "Loco Moco Smash",
+    "description": "Smash patty over rice with brown gravy and a fried egg. Local style done right.",
+    "price": 13.00,
+    "category": "plates",
+    "spicy_level": 0,
+    "available": true,
+    "featured": false
+  },
+  {
+    "item_id": "m004",
+    "vendor_id": "v001",
+    "name": "Puna Fries",
+    "description": "Thick-cut fries tossed in island seasoning with your choice of dipping sauce.",
+    "price": 5.00,
+    "category": "sides",
+    "spicy_level": 1,
+    "available": true,
+    "featured": false
+  },
+  {
+    "item_id": "m005",
+    "vendor_id": "v001",
+    "name": "Lilikoi Lemonade",
+    "description": "Fresh-squeezed lemonade with passion fruit syrup. Perfectly chilled.",
+    "price": 4.00,
+    "category": "drinks",
+    "spicy_level": 0,
+    "available": true,
+    "featured": false
+  }
+]
