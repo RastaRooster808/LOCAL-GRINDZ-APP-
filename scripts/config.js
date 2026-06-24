@@ -1,1 +1,2 @@
-https://pqzygehnnojdttmqadrz.supabase.co
+const SUPABASE_URL = 'https://pqzygehnnojdttmqadrz.supabase.co
+const SUPABASE_ANON_KEY =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxenlnZWhubm9qZHR0bXFhZHJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNjgwMzUsImV4cCI6MjA5Nzg0NDAzNX0.cPfyikzKbnP8-u3rBvUzR_UlKNf5fAgLIUWYZ3Bm0YM
