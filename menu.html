@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu — Local Grindz</title>
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/pages.css">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#e63946">
+</head>
+<body>
+
+  <header>
+    <div class="ph-header">
+      <a href="/" class="ph-back" aria-label="Back to Local Grindz">&#8592;</a>
+      <h1>Menu</h1>
+      <span class="ph-sub" aria-hidden="true">Ala's Kitchen</span>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Category filter tabs -->
+    <div class="cat-tabs" role="tablist" aria-label="Filter menu by category">
+      <button class="cat-tab active" data-cat="all"     role="tab" aria-selected="true">All</button>
+      <button class="cat-tab"        data-cat="burgers" role="tab" aria-selected="false">Burgers</button>
+      <button class="cat-tab"        data-cat="plates"  role="tab" aria-selected="false">Plates</button>
+      <button class="cat-tab"        data-cat="sides"   role="tab" aria-selected="false">Sides</button>
+      <button class="cat-tab"        data-cat="drinks"  role="tab" aria-selected="false">Drinks</button>
+    </div>
+
+    <!-- Menu items — rendered by menu.js -->
+    <div id="menu-container" aria-live="polite" aria-label="Menu items">
+      <p class="loading-msg">Loading menu&hellip;</p>
+    </div>
+
+  </main>
+
+  <nav aria-label="Main navigation">
+    <a href="/">Home</a>
+    <a href="/menu.html" aria-current="page">Menu</a>
+    <a href="/order.html">Order</a>
+    <a href="/loyalty.html">Loyalty</a>
+    <a href="/vendor.html">Vendor</a>
+  </nav>
+
+  <script src="/scripts/menu.js"></script>
+</body>
+</html>

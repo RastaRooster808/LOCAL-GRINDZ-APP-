@@ -1,11 +1,18 @@
-const CACHE_NAME = 'local-grindz-v3';
+const CACHE_NAME = 'local-grindz-v4';
 const ASSETS_TO_CACHE = [
   './',
   'index.html',
+  'menu.html',
+  'order.html',
+  'loyalty.html',
   'vendor.html',
   'styles/main.css',
+  'styles/pages.css',
   'styles/vendor.css',
   'scripts/app.js',
+  'scripts/menu.js',
+  'scripts/order.js',
+  'scripts/loyalty.js',
   'scripts/vendor.js',
   'manifest.json',
   'data/vendors.json',

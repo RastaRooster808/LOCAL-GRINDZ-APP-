@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order — Ala's Kitchen</title>
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/pages.css">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#e63946">
+</head>
+<body>
+
+  <header>
+    <div class="ph-header">
+      <a href="/" class="ph-back" aria-label="Back to Local Grindz">&#8592;</a>
+      <h1>Order</h1>
+      <span class="ph-sub" aria-hidden="true">Ala's Kitchen</span>
+    </div>
+  </header>
+
+  <main id="order-main" class="has-cart-bar">
+
+    <!-- Step 1 — Build your order -->
+    <div id="order-view">
+      <p class="page-intro">
+        Tap <strong>+</strong> to add items. When you're ready, tap <strong>Place Order</strong>
+        and show your ticket at the window.
+      </p>
+      <div id="order-menu" aria-label="Menu items for ordering">
+        <p class="loading-msg">Loading menu&hellip;</p>
+      </div>
+    </div>
+
+    <!-- Step 2 — Order ticket (shown after placing order) -->
+    <div id="ticket-view" class="hidden" role="region" aria-label="Your order ticket" aria-live="polite">
+
+      <div class="ticket-box">
+        <div class="ticket-brand">ALA'S KITCHEN</div>
+        <div class="ticket-label">ORDER TICKET</div>
+        <div class="ticket-number" id="ticket-number">#0000</div>
+
+        <hr class="ticket-divider">
+
+        <ul id="ticket-items" class="ticket-items" aria-label="Your order items"></ul>
+
+        <hr class="ticket-divider">
+
+        <div class="ticket-total-row">
+          <span>TOTAL</span>
+          <span id="ticket-total-amt">$0.00</span>
+        </div>
+        <div class="ticket-time" id="ticket-time"></div>
+        <p class="ticket-cta">Show this screen at the window &#128467;</p>
+      </div>
+
+      <button id="new-order-btn" class="full-btn">
+        Start New Order
+      </button>
+
+    </div>
+
+  </main>
+
+  <!-- Sticky cart bar — appears when cart has items -->
+  <div id="cart-bar" class="cart-bar hidden" role="complementary" aria-label="Cart summary">
+    <div class="cart-bar-inner">
+      <span id="cart-count" aria-live="polite">0 items</span>
+      <span id="cart-total">$0.00</span>
+      <button id="place-order-btn">Place Order &#8594;</button>
+    </div>
+  </div>
+
+  <nav aria-label="Main navigation">
+    <a href="/">Home</a>
+    <a href="/menu.html">Menu</a>
+    <a href="/order.html" aria-current="page">Order</a>
+    <a href="/loyalty.html">Loyalty</a>
+    <a href="/vendor.html">Vendor</a>
+  </nav>
+
+  <script src="/scripts/order.js"></script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loyalty Card — Local Grindz</title>
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/pages.css">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#e63946">
+</head>
+<body>
+
+  <header>
+    <div class="ph-header">
+      <a href="/" class="ph-back" aria-label="Back to Local Grindz">&#8592;</a>
+      <h1>Loyalty Card</h1>
+      <span class="ph-sub" aria-hidden="true">Ala's Kitchen</span>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Punch Card Visual -->
+    <section class="card" aria-label="Your loyalty punch card">
+      <h2 style="margin-top:0;color:var(--gold)">Your Punch Card</h2>
+      <div
+        class="punch-card"
+        id="punch-card"
+        role="img"
+        aria-label="0 of 10 stamps collected"
+      ></div>
+      <div class="stamp-count" id="stamp-count" aria-live="polite">0 / 10 stamps</div>
+      <p class="loyalty-goal">10 stamps = <strong>1 FREE Volcano Smash</strong></p>
+    </section>
+
+    <!-- Add Stamp -->
+    <section class="card" id="add-stamp-section" aria-label="Add a stamp to your card">
+      <h2 style="margin-top:0;color:var(--gold)">Add a Stamp</h2>
+      <p style="color:var(--ash-gray);font-size:0.88rem;margin:0 0 0.85rem;line-height:1.5">
+        After your purchase, ask the vendor for today's stamp code. Enter it below to add your stamp.
+      </p>
+
+      <label for="stamp-code-input" style="color:var(--ash-gray);font-size:0.82rem;display:block;margin-bottom:0.3rem">
+        Vendor Stamp Code
+      </label>
+      <input
+        type="text"
+        id="stamp-code-input"
+        class="stamp-input"
+        maxlength="6"
+        placeholder="e.g. 808"
+        autocomplete="off"
+        inputmode="text"
+        aria-label="Enter vendor stamp code"
+        aria-required="true"
+      >
+
+      <button
+        id="add-stamp-btn"
+        style="width:100%;min-height:52px;border-radius:12px;font-size:1rem"
+        aria-label="Add stamp to card"
+      >
+        Add Stamp
+      </button>
+
+      <div
+        id="stamp-feedback"
+        class="stamp-feedback"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      ></div>
+    </section>
+
+    <!-- Redeem reward (only shown when card is full) -->
+    <section class="card hidden" id="redeem-section" aria-label="Redeem your free burger reward">
+      <h2 style="margin-top:0;color:var(--gold)">&#127873; Ready to Redeem!</h2>
+      <p style="color:var(--ash-gray);font-size:0.9rem;margin:0 0 1rem;line-height:1.5">
+        You've collected all 10 stamps! Show this screen to the vendor, then tap Redeem to claim your free burger.
+      </p>
+      <button class="redeem-btn" id="redeem-btn">
+        Redeem Free Volcano Smash &#127828;
+      </button>
+    </section>
+
+    <!-- Stamp History -->
+    <section class="card" aria-label="Stamp history">
+      <h2 style="margin-top:0;color:var(--gold)">History</h2>
+      <ul id="stamp-history" class="stamp-history-list" aria-label="List of earned stamps"></ul>
+      <button class="reset-btn" id="reset-loyalty-btn" aria-label="Reset loyalty card and start over">
+        Reset card (start fresh)
+      </button>
+    </section>
+
+    <!-- How it works -->
+    <section class="card" aria-label="How the loyalty program works">
+      <h2 style="margin-top:0;color:var(--gold)">How It Works</h2>
+      <ol style="margin:0;padding-left:1.3rem;color:var(--ash-gray);font-size:0.88rem;line-height:1.8">
+        <li>Make a purchase at the truck.</li>
+        <li>Ask the vendor for the stamp code.</li>
+        <li>Enter the code here to earn your stamp.</li>
+        <li>At 10 stamps, show your full card and tap Redeem.</li>
+        <li>Enjoy a free Volcano Smash on the house!</li>
+      </ol>
+      <p style="margin:0.75rem 0 0;font-size:0.78rem;color:#666;line-height:1.5">
+        Stamps are saved to this device. Clearing your browser storage or switching devices will reset your card.
+        This is an honor-based system &mdash; mahalo for keeping it real.
+      </p>
+    </section>
+
+  </main>
+
+  <nav aria-label="Main navigation">
+    <a href="/">Home</a>
+    <a href="/menu.html">Menu</a>
+    <a href="/order.html">Order</a>
+    <a href="/loyalty.html" aria-current="page">Loyalty</a>
+    <a href="/vendor.html">Vendor</a>
+  </nav>
+
+  <script src="/scripts/loyalty.js"></script>
+</body>
+</html>

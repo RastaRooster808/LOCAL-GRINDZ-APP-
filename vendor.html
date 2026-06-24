@@ -220,6 +220,47 @@
 
     </section>
 
+    <!-- ── Order Portal & QR Code ───────────────────── -->
+    <section class="card" id="order-portal" aria-label="Order portal link for QR code">
+      <h2>Order Portal & QR Code</h2>
+      <p class="form-intro">
+        Customers can scan a QR code at the truck to view your menu and place an order on their phone.
+        Generate a QR code that points to your order page, then print it and display it at the window.
+      </p>
+
+      <p style="color:var(--ash-gray);font-size:0.82rem;margin:0 0 0.3rem">Your order page URL:</p>
+      <div class="qr-url-box" id="order-page-url" aria-label="Order page URL" tabindex="0">
+        Loading&hellip;
+      </div>
+
+      <button type="button" id="copy-order-url-btn" style="width:100%;min-height:44px;border-radius:10px;font-size:0.9rem;margin-bottom:0.5rem">
+        Copy Order Page URL
+      </button>
+      <div id="copy-url-status" role="alert" aria-live="assertive" style="font-size:0.82rem;color:var(--ash-gray)"></div>
+
+      <div class="send-instructions" style="margin-top:0.85rem">
+        <h3>How to Create Your QR Code</h3>
+        <ol>
+          <li>Copy the URL above.</li>
+          <li><strong>Open any free QR generator</strong> on your phone or computer (search "free QR code generator").</li>
+          <li>Paste the URL and generate the QR code.</li>
+          <li>Download and print it. Laminate it and mount it at the window.</li>
+          <li>Customers scan it → they see your live menu → they build an order and show you the ticket.</li>
+        </ol>
+      </div>
+
+      <div style="margin-top:0.85rem;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.15);border-radius:8px;padding:0.75rem">
+        <p style="margin:0;font-size:0.82rem;color:var(--ash-gray)">
+          <strong style="color:var(--gold)">Loyalty Stamp Code:</strong>
+          The current stamp code for customer loyalty cards is set in the app data.
+          Ask the developer to update it anytime via a vendor update submission.
+        </p>
+        <p style="margin:0.4rem 0 0;font-size:1rem;font-weight:800;text-align:center;letter-spacing:0.15em;color:var(--gold)" id="loyalty-pin-display">
+          &mdash;
+        </p>
+      </div>
+    </section>
+
     <!-- ── Photo Upload Instructions ────────────────── -->
     <section class="card" id="photo-instructions" aria-label="How to submit photo updates">
       <h2>Photo Updates</h2>

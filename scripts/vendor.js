@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   loadVendorProfile();
   setupForm();
+  setupOrderPortal();
 });
 
 // ─── Data Loading ──────────────────────────────────────────────────────────
@@ -264,6 +265,47 @@ function fallbackCopy(text, onSuccess, onFail) {
     onFail();
   }
   document.body.removeChild(ta);
+}
+
+// ─── Order Portal ──────────────────────────────────────────────────────────
+
+function setupOrderPortal() {
+  const urlEl = document.getElementById('order-page-url');
+  const copyBtn = document.getElementById('copy-order-url-btn');
+  const statusEl = document.getElementById('copy-url-status');
+
+  const orderUrl = window.location.origin + '/order.html';
+  if (urlEl) urlEl.textContent = orderUrl;
+
+  // Load and display loyalty pin
+  fetch('/data/vendors.json')
+    .then(r => r.json())
+    .then(vendors => {
+      const pin = vendors[0]?.loyalty_pin;
+      const pinEl = document.getElementById('loyalty-pin-display');
+      if (pinEl && pin) pinEl.textContent = String(pin).toUpperCase();
+    })
+    .catch(() => {});
+
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(orderUrl).then(() => {
+          if (statusEl) statusEl.textContent = 'Copied! Paste it into your QR generator.';
+        });
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = orderUrl;
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (statusEl) statusEl.textContent = 'Copied!';
+      }
+    });
+  }
 }
 
 function resetForm() {
