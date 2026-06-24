@@ -59,6 +59,16 @@
           <label>Your Name
             <input type="text" id="order-name" required autocomplete="name">
           </label>
+          <label>Email <span class="label-hint">(earn loyalty points)</span>
+            <input type="email" id="order-email" autocomplete="email" placeholder="you@email.com">
+          </label>
+          <div id="loyalty-wrap" class="loyalty-wrap hidden">
+            <p id="loyalty-balance" class="loyalty-balance"></p>
+            <label id="redeem-label" class="checkbox-label hidden">
+              <input type="checkbox" id="redeem-points">
+              Redeem points for discount <span id="redeem-value" class="loyalty-discount"></span>
+            </label>
+          </div>
           <label>Special Instructions
             <textarea id="order-note" rows="2" placeholder="Allergies, substitutions…"></textarea>
           </label>
@@ -73,6 +83,9 @@
         <form id="review-form">
           <label>Your Name
             <input type="text" id="review-name" required autocomplete="name">
+          </label>
+          <label>Email <span class="label-hint">(earn 5 loyalty points)</span>
+            <input type="email" id="review-email" autocomplete="email" placeholder="you@email.com">
           </label>
           <label>Rating
             <select id="review-rating" required>

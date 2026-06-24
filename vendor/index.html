@@ -6,6 +6,8 @@
   <title>Local Grindz – Vendor Dashboard</title>
   <link rel="stylesheet" href="../styles/main.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body class="vendor-body">
 
@@ -37,6 +39,8 @@
       <button onclick="showTab('tab-location')">Location</button>
       <button onclick="showTab('tab-specials')">Specials</button>
       <button onclick="showTab('tab-orders')">Orders</button>
+      <button onclick="showTab('tab-qr')">QR Code</button>
+      <button onclick="showTab('tab-analytics')">Analytics</button>
     </nav>
 
     <!-- Menu Tab -->
@@ -100,6 +104,31 @@
       <button onclick="refreshOrders()" class="btn-secondary">Refresh</button>
     </div>
 
+    <!-- QR Code Tab -->
+    <div id="tab-qr" class="vendor-tab hidden">
+      <h2>Your QR Code</h2>
+      <p class="qr-hint">Print and display this QR code for customers to order directly from your storefront.</p>
+      <div id="qr-code-box" class="qr-code-box"></div>
+      <p id="qr-url" class="qr-url"></p>
+      <button id="qr-download-btn" class="btn-secondary hidden">Download PNG</button>
+    </div>
+
+    <!-- Analytics Tab -->
+    <div id="tab-analytics" class="vendor-tab hidden">
+      <h2>Analytics</h2>
+      <div class="analytics-stats">
+        <div class="stat-box"><p class="stat-value" id="stat-orders-7">–</p><p class="stat-label">Orders (7 days)</p></div>
+        <div class="stat-box"><p class="stat-value" id="stat-revenue-7">–</p><p class="stat-label">Revenue (7 days)</p></div>
+        <div class="stat-box"><p class="stat-value" id="stat-orders-30">–</p><p class="stat-label">Orders (30 days)</p></div>
+        <div class="stat-box"><p class="stat-value" id="stat-views-30">–</p><p class="stat-label">Page Views (30 days)</p></div>
+      </div>
+      <div class="analytics-chart-wrap">
+        <canvas id="orders-chart" height="200"></canvas>
+      </div>
+      <h3>Top Items (30 days)</h3>
+      <div id="top-items-list"></div>
+    </div>
+
   </section>
 
   <script type="module" src="../scripts/vendor.js"></script>
@@ -107,9 +136,12 @@
     function showTab(id) {
       document.querySelectorAll('.vendor-tab').forEach(t => t.classList.add('hidden'));
       document.getElementById(id)?.classList.remove('hidden');
+      if (id === 'tab-analytics') window.loadAnalytics?.();
+      if (id === 'tab-qr') window.initQR?.();
     }
-    function refreshOrders() { location.reload(); }
-    // Show logout button when logged in
+    function refreshOrders() {
+      if (window.reloadOrders) { window.reloadOrders(); } else { location.reload(); }
+    }
     document.addEventListener('DOMContentLoaded', () => {
       const dashboard = document.getElementById('dashboard-section');
       const observer = new MutationObserver(() => {

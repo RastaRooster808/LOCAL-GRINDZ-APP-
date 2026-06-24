@@ -113,8 +113,9 @@ async function fetchVendorReviews(vendorId) {
 async function submitVendorOrder(vendorId, order) {
   const db = getClient();
   if (!db) throw new Error('Database not configured');
-  const { error } = await db.from('orders').insert({ ...order, vendor_id: vendorId });
+  const { data, error } = await db.from('orders').insert({ ...order, vendor_id: vendorId }).select('id').single();
   if (error) throw error;
+  return data;
 }
 
 async function submitVendorReview(vendorId, review) {

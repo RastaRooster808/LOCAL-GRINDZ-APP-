@@ -3,9 +3,12 @@ import {
   fetchVendorSpecials, fetchVendorReviews,
   submitVendorOrder, submitVendorReview
 } from './vendors-client.js';
+import { getPointsBalance, earnPoints, redeemPoints, earnReviewPoints, dollarValue, POINTS_PER_REDEMPTION } from './loyalty.js';
+import { getClient } from './supabase-client.js';
 
 const params = new URLSearchParams(location.search);
 const slug = params.get('vendor');
+const source = params.get('source') || 'direct';
 let vendorId = null;
 let cart = [];
 
@@ -20,12 +23,20 @@ async function init() {
   document.getElementById('vendor-title').textContent = vendor.name;
   document.getElementById('vendor-cuisine').textContent = vendor.cuisine_type || '';
 
+  recordPageView(vendorId);
+
   await Promise.all([
     renderLocation(),
     renderSpecials(),
     renderMenu(),
     renderReviews()
   ]);
+}
+
+async function recordPageView(vid) {
+  const db = getClient();
+  if (!db || !vid) return;
+  db.from('vendor_events').insert({ vendor_id: vid, event_type: 'page_view', source });
 }
 
 function showNotFound() {
@@ -123,22 +134,76 @@ window.removeFromCart = function(id) {
   renderCart();
 };
 
+// Loyalty UI
+async function refreshLoyaltyUI(email) {
+  const wrap = document.getElementById('loyalty-wrap');
+  const balanceEl = document.getElementById('loyalty-balance');
+  const redeemLabel = document.getElementById('redeem-label');
+  const redeemValueEl = document.getElementById('redeem-value');
+  if (!wrap) return;
+  if (!email) { wrap.classList.add('hidden'); return; }
+  const points = await getPointsBalance(email);
+  wrap.classList.remove('hidden');
+  if (points > 0) {
+    balanceEl.textContent = `You have ${points} pts ($${dollarValue(points)} value)`;
+    if (points >= POINTS_PER_REDEMPTION) {
+      redeemLabel.classList.remove('hidden');
+      redeemValueEl.textContent = `(-$${dollarValue(points)})`;
+    } else {
+      redeemLabel.classList.add('hidden');
+    }
+  } else {
+    balanceEl.textContent = 'You have 0 pts — earn 1 pt per $1 spent';
+    redeemLabel.classList.add('hidden');
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   init();
+
+  const emailInput = document.getElementById('order-email');
+  emailInput?.addEventListener('blur', () => {
+    const email = emailInput.value.trim();
+    if (email) refreshLoyaltyUI(email);
+  });
 
   document.getElementById('order-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!cart.length) { alert('Add items to your cart first.'); return; }
     if (!vendorId) { alert('Vendor not loaded yet.'); return; }
     const name = document.getElementById('order-name').value.trim();
+    const email = document.getElementById('order-email').value.trim();
     const note = document.getElementById('order-note').value.trim();
-    const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    const shouldRedeem = document.getElementById('redeem-points')?.checked;
+    const rawTotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+
     try {
-      await submitVendorOrder(vendorId, { customer_name: name, customer_note: note, items: cart, total });
-      alert('Order placed! See you soon.');
+      const result = await submitVendorOrder(vendorId, {
+        customer_name: name,
+        customer_email: email || null,
+        customer_note: note,
+        items: cart,
+        total: rawTotal
+      });
+      const orderId = result?.id || null;
+
+      let discount = 0;
+      if (email) {
+        if (shouldRedeem) {
+          const balance = await getPointsBalance(email);
+          discount = await redeemPoints(email, balance, vendorId, orderId);
+        }
+        await earnPoints(email, vendorId, orderId, rawTotal);
+      }
+
+      const msg = discount > 0
+        ? `Order placed! $${discount} discount applied. See you soon.`
+        : 'Order placed! See you soon.';
+      alert(msg);
       cart = [];
       renderCart();
       e.target.reset();
+      if (email) refreshLoyaltyUI(email);
     } catch { alert('Could not place order. Please try again.'); }
   });
 
@@ -146,11 +211,13 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     if (!vendorId) return;
     const name = document.getElementById('review-name').value.trim();
+    const email = document.getElementById('review-email').value.trim();
     const rating = parseInt(document.getElementById('review-rating').value);
     const body = document.getElementById('review-body').value.trim();
     try {
       await submitVendorReview(vendorId, { customer_name: name, rating, body });
-      alert('Thanks for your review!');
+      if (email) await earnReviewPoints(email, vendorId);
+      alert(email ? 'Thanks for your review! You earned 5 loyalty points.' : 'Thanks for your review!');
       e.target.reset();
       renderReviews();
     } catch { alert('Could not submit review. Please try again.'); }
