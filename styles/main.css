@@ -249,3 +249,163 @@ footer {
   .bottom-nav a { font-size: 0.9rem; }
   .site-header h1 { font-size: 2.2rem; }
 }
+
+/* ── Phase 3: Landing page ───────────────────────────── */
+.landing-body { background: var(--ash); color: #fff; }
+.landing-header {
+  background: linear-gradient(135deg, var(--ash) 0%, #2d1a1a 100%);
+  padding: 3rem var(--gap) 2.5rem;
+  text-align: center;
+  border-bottom: 3px solid var(--lava);
+}
+.landing-header h1 { font-size: 2.8rem; color: var(--lava); letter-spacing: -0.02em; }
+.landing-header .tagline { opacity: 0.7; margin: 0.4rem 0 1.5rem; font-size: 1rem; }
+.header-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+.btn-lg { padding: 0.85rem 2rem; font-size: 1.1rem; }
+.btn-outline {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.4);
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn-outline:hover { border-color: #fff; }
+.landing-main { max-width: 800px; margin: 0 auto; padding: var(--gap); }
+.landing-section { margin-bottom: 2rem; }
+.landing-section h2 { color: #fff; font-size: 1.3rem; margin-bottom: 1rem; }
+.view-all-link { color: var(--lava); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+.view-all-link:hover { text-decoration: underline; }
+.featured-section h2::after { content: ' ⭐'; }
+.landing-cta { margin-top: 1rem; }
+.cta-box {
+  background: var(--lava);
+  border-radius: var(--radius);
+  padding: 2rem;
+  text-align: center;
+}
+.cta-box h2 { color: #fff; margin-bottom: 0.5rem; }
+.cta-box p { color: rgba(255,255,255,0.85); margin-bottom: 1.25rem; }
+.landing-body footer {
+  text-align: center;
+  padding: 1.5rem;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.8rem;
+}
+.footer-nav { display: flex; gap: 1rem; justify-content: center; margin-top: 0.5rem; }
+.footer-nav a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.8rem; }
+.footer-nav a:hover { color: var(--lava); }
+
+/* ── Phase 3: Vendor cards ───────────────────────────── */
+.vendor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.vendor-card {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 1rem;
+  text-decoration: none;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: relative;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.vendor-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.vendor-card--featured { border: 2px solid var(--lava); }
+.featured-badge {
+  position: absolute;
+  top: 0.6rem; right: 0.6rem;
+  background: var(--lava);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.vendor-card h3 { font-size: 1.1rem; margin: 0; }
+.vendor-cuisine { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 0; }
+.vendor-desc { font-size: 0.85rem; color: #555; margin: 0; }
+.vendor-location-line { font-size: 0.8rem; color: var(--ocean); margin: 0; }
+
+/* ── Phase 3: Directory page ─────────────────────────── */
+.back-link { font-size: 0.85rem; color: rgba(255,255,255,0.7); text-decoration: none; display: block; margin-bottom: 0.25rem; }
+.back-link:hover { color: #fff; }
+.directory-main { max-width: 860px; margin: 0 auto; padding: var(--gap); }
+.filter-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.filter-chip {
+  padding: 0.35rem 0.85rem;
+  border: 1.5px solid #ccc;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text);
+}
+.filter-chip.active, .filter-chip:hover { background: var(--lava); color: #fff; border-color: var(--lava); }
+.loading-msg { color: var(--muted); font-style: italic; }
+.empty-msg { color: var(--muted); }
+
+/* ── Phase 3: Apply page ─────────────────────────────── */
+.apply-main { max-width: 600px; margin: 0 auto; padding: var(--gap); }
+.apply-intro { margin-bottom: 1.5rem; }
+.apply-intro p { margin-bottom: 0.75rem; color: var(--muted); }
+.apply-benefits { padding-left: 1.25rem; color: var(--muted); font-size: 0.9rem; }
+.apply-benefits li { margin-bottom: 0.25rem; }
+.char-count { font-size: 0.75rem; color: var(--muted); text-align: right; }
+.checkbox-label { flex-direction: row; align-items: center; gap: 0.5rem; font-weight: normal; }
+.checkbox-label input { width: auto; }
+.success-box { text-align: center; padding: 2.5rem 1.5rem; }
+.success-icon { font-size: 3rem; margin-bottom: 1rem; }
+.success-box h2 { color: var(--lava); margin-bottom: 0.75rem; }
+.success-box p { color: var(--muted); margin-bottom: 1.5rem; }
+
+/* ── Phase 3: Admin dashboard ────────────────────────── */
+.admin-card {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+.admin-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; }
+.admin-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+.admin-desc { font-size: 0.85rem; color: #555; margin-top: 0.3rem; }
+.admin-date { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; }
+.admin-note { font-size: 0.8rem; color: var(--ocean); }
+.tab-filters { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.badge-pending { background: #fff3cd; color: #856404; }
+.badge-approved { background: #d4edda; color: #155724; }
+.badge-rejected { background: #f8d7da; color: #721c24; }
+.modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 999;
+}
+.modal-box {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  width: min(400px, 90vw);
+  display: flex; flex-direction: column; gap: 1rem;
+}
+.modal-box h3 { margin: 0; }
+.modal-actions { display: flex; gap: 0.5rem; }

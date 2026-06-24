@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Grindz – Admin</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body class="vendor-body">
+
+  <header>
+    <h1>Admin Dashboard</h1>
+    <button id="admin-logout-btn" class="hidden">Log Out</button>
+  </header>
+
+  <!-- Login (reuse vendor login UI) -->
+  <section id="admin-login-section" class="vendor-section">
+    <h2>Admin Login</h2>
+    <form id="admin-login-form">
+      <label>Email
+        <input type="email" id="admin-email" required autocomplete="email">
+      </label>
+      <label>Password
+        <input type="password" id="admin-password" required autocomplete="current-password">
+      </label>
+      <p id="admin-login-error" class="error-msg"></p>
+      <button type="submit" class="btn-primary">Log In</button>
+    </form>
+  </section>
+
+  <!-- Dashboard -->
+  <section id="admin-dashboard" class="vendor-section hidden">
+
+    <nav class="vendor-tabs">
+      <button onclick="adminTab('tab-applications')">
+        Applications <span id="pending-badge" class="badge hidden"></span>
+      </button>
+      <button onclick="adminTab('tab-vendors')">Vendors</button>
+      <button onclick="adminTab('tab-reviews')">Reviews</button>
+      <button onclick="adminTab('tab-featured')">Featured</button>
+    </nav>
+
+    <!-- Applications -->
+    <div id="tab-applications" class="vendor-tab">
+      <h2>Vendor Applications</h2>
+      <div class="tab-filters">
+        <button class="filter-chip active" onclick="loadApplications('pending')">Pending</button>
+        <button class="filter-chip" onclick="loadApplications('approved')">Approved</button>
+        <button class="filter-chip" onclick="loadApplications('rejected')">Rejected</button>
+      </div>
+      <div id="applications-list"></div>
+    </div>
+
+    <!-- Vendors -->
+    <div id="tab-vendors" class="vendor-tab hidden">
+      <h2>Active Vendors</h2>
+      <div id="admin-vendors-list"></div>
+    </div>
+
+    <!-- Reviews -->
+    <div id="tab-reviews" class="vendor-tab hidden">
+      <h2>Flagged Reviews</h2>
+      <div id="admin-reviews-list"></div>
+    </div>
+
+    <!-- Featured -->
+    <div id="tab-featured" class="vendor-tab hidden">
+      <h2>Featured Listings</h2>
+      <div id="admin-featured-list"></div>
+      <h3>Add Featured Vendor</h3>
+      <form id="featured-form">
+        <label>Vendor
+          <select id="featured-vendor-select"></select>
+        </label>
+        <label>Tier
+          <select id="featured-tier">
+            <option value="boost">Boost ($10 / 7 days)</option>
+            <option value="feature">Feature ($25 / 30 days)</option>
+            <option value="anchor">Anchor ($75 / 90 days)</option>
+          </select>
+        </label>
+        <label>Expires
+          <input type="date" id="featured-expires" required>
+        </label>
+        <button type="submit" class="btn-primary">Add Featured</button>
+      </form>
+    </div>
+
+  </section>
+
+  <!-- Reject modal -->
+  <div id="reject-modal" class="modal hidden">
+    <div class="modal-box">
+      <h3>Reject Application</h3>
+      <label>Reason (optional)
+        <textarea id="reject-reason" rows="3"></textarea>
+      </label>
+      <div class="modal-actions">
+        <button id="reject-confirm" class="btn-primary">Confirm Reject</button>
+        <button id="reject-cancel" class="btn-secondary" onclick="closeRejectModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="../scripts/admin.js"></script>
+  <script>
+    function adminTab(id) {
+      document.querySelectorAll('.vendor-tab').forEach(t => t.classList.add('hidden'));
+      document.getElementById(id)?.classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

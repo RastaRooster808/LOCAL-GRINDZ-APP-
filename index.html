@@ -3,105 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Local Grindz - Ala's Kitchen</title>
+  <title>Local Grindz – Big Island Food Trucks</title>
   <link rel="stylesheet" href="./styles/main.css">
   <link rel="manifest" href="./manifest.json">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
-<body>
+<body class="landing-body">
 
-  <header class="site-header">
-    <h1>Local Grindz</h1>
-    <p class="tagline">Ala's Kitchen – Get Smashed</p>
-    <a href="./vendor/" class="vendor-link">Vendor Login</a>
+  <header class="landing-header">
+    <div class="landing-header-inner">
+      <h1>Local Grindz</h1>
+      <p class="tagline">Big Island's food truck marketplace</p>
+      <div class="header-actions">
+        <a href="./vendors/" class="btn-primary btn-lg">Find a Truck</a>
+        <a href="./apply/" class="btn-outline">Join as Vendor</a>
+      </div>
+    </div>
   </header>
 
-  <nav class="bottom-nav">
-    <a href="#location">Location</a>
-    <a href="#specials">Specials</a>
-    <a href="#menu">Menu</a>
-    <a href="#order">Order</a>
-    <a href="#reviews">Reviews</a>
-  </nav>
+  <main class="landing-main">
 
-  <main>
+    <section class="landing-section">
+      <h2>Open Now</h2>
+      <div id="open-vendors" class="vendor-grid">
+        <p class="loading-msg">Loading…</p>
+      </div>
+      <a href="./vendors/" class="view-all-link">View all vendors →</a>
+    </section>
 
-    <!-- Live Location -->
-    <section id="location">
-      <h2>Live Truck Location</h2>
-      <div id="location-info">
-        <p>Loading location…</p>
+    <section class="landing-section featured-section">
+      <h2>Featured Trucks</h2>
+      <div id="featured-vendors" class="vendor-grid">
+        <p class="loading-msg">Loading…</p>
       </div>
     </section>
 
-    <!-- Specials -->
-    <section id="specials">
-      <h2>Today's Specials</h2>
-      <div id="specials-list">
-        <p>Loading specials…</p>
+    <section class="landing-cta">
+      <div class="cta-box">
+        <h2>Got a food truck?</h2>
+        <p>Join Local Grindz and connect with hungry customers across the Big Island.</p>
+        <a href="./apply/" class="btn-primary">Apply to Join</a>
       </div>
-    </section>
-
-    <!-- Menu -->
-    <section id="menu">
-      <h2>Menu</h2>
-      <div id="menu-list">
-        <p>Loading menu…</p>
-      </div>
-    </section>
-
-    <!-- Cart + Order -->
-    <section id="order">
-      <h2>Your Order</h2>
-      <div id="cart-items"></div>
-      <p id="cart-total"></p>
-
-      <h3>Place Order</h3>
-      <form id="order-form">
-        <label>Your Name
-          <input type="text" id="order-name" required autocomplete="name">
-        </label>
-        <label>Special Instructions
-          <textarea id="order-note" rows="2" placeholder="Allergies, substitutions…"></textarea>
-        </label>
-        <button type="submit" class="btn-primary">Place Order</button>
-      </form>
-    </section>
-
-    <!-- Reviews -->
-    <section id="reviews">
-      <h2>Reviews</h2>
-      <div id="reviews-list">
-        <p>Loading reviews…</p>
-      </div>
-
-      <h3>Leave a Review</h3>
-      <form id="review-form">
-        <label>Your Name
-          <input type="text" id="review-name" required autocomplete="name">
-        </label>
-        <label>Rating
-          <select id="review-rating" required>
-            <option value="5">★★★★★</option>
-            <option value="4">★★★★☆</option>
-            <option value="3">★★★☆☆</option>
-            <option value="2">★★☆☆☆</option>
-            <option value="1">★☆☆☆☆</option>
-          </select>
-        </label>
-        <label>Review
-          <textarea id="review-body" required rows="3" placeholder="Tell us about your experience…"></textarea>
-        </label>
-        <button type="submit" class="btn-primary">Submit Review</button>
-      </form>
     </section>
 
   </main>
 
   <footer>
-    <p>Local Grindz – Puna, Big Island, Hawaii</p>
+    <p>Local Grindz — Puna, Big Island, Hawaii</p>
+    <nav class="footer-nav">
+      <a href="./vendors/">All Vendors</a>
+      <a href="./apply/">Apply</a>
+      <a href="./vendor/">Vendor Login</a>
+    </nav>
   </footer>
 
-  <script type="module" src="./scripts/app.js"></script>
+  <script type="module" src="./scripts/landing.js"></script>
 </body>
 </html>

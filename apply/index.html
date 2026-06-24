@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Grindz – Apply to Join</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="../" class="back-link">← Local Grindz</a>
+    <h1>Apply to Join</h1>
+    <p class="tagline">Get your truck on the map</p>
+  </header>
+
+  <main class="apply-main">
+
+    <div id="apply-form-wrap">
+      <section>
+        <div class="apply-intro">
+          <p>Local Grindz is the Big Island's food truck marketplace. Listing is free — we just want to help people find you.</p>
+          <ul class="apply-benefits">
+            <li>Free menu and location management</li>
+            <li>Live specials and order inbox</li>
+            <li>Customer reviews and QR ordering</li>
+            <li>Loyalty program access</li>
+          </ul>
+        </div>
+
+        <form id="apply-form">
+          <h2>Your Application</h2>
+
+          <label>Business Name *
+            <input type="text" id="app-name" required placeholder="Ala's Kitchen">
+          </label>
+
+          <label>Cuisine Type *
+            <select id="app-cuisine" required>
+              <option value="">Select…</option>
+              <option value="burger">Smash Burgers</option>
+              <option value="plate">Plate Lunch</option>
+              <option value="tacos">Tacos</option>
+              <option value="shave-ice">Shave Ice</option>
+              <option value="seafood">Seafood</option>
+              <option value="bbq">BBQ</option>
+              <option value="vegan">Vegan</option>
+              <option value="dessert">Dessert</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+
+          <label>Primary Neighborhood *
+            <select id="app-neighborhood" required>
+              <option value="">Select…</option>
+              <option value="Puna">Puna</option>
+              <option value="Hilo">Hilo</option>
+              <option value="Kona">Kona</option>
+              <option value="Waimea">Waimea</option>
+              <option value="Hamakua">Hamakua</option>
+              <option value="Ka'u">Ka'u</option>
+              <option value="Kohala">Kohala</option>
+            </select>
+          </label>
+
+          <label>Contact Email *
+            <input type="email" id="app-email" required autocomplete="email" placeholder="you@example.com">
+          </label>
+
+          <label>Contact Phone
+            <input type="tel" id="app-phone" autocomplete="tel" placeholder="(808) 555-0100">
+          </label>
+
+          <label>Instagram Handle
+            <input type="text" id="app-instagram" placeholder="@yourhandle">
+          </label>
+
+          <label>Tell us about your truck (max 300 chars)
+            <textarea id="app-description" rows="3" maxlength="300" placeholder="What do you serve? What makes you special?"></textarea>
+            <span class="char-count"><span id="desc-count">0</span>/300</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="app-terms" required>
+            I agree to the Local Grindz vendor terms
+          </label>
+
+          <p id="apply-error" class="error-msg"></p>
+          <button type="submit" class="btn-primary">Submit Application</button>
+        </form>
+      </section>
+    </div>
+
+    <div id="apply-success" class="hidden">
+      <section class="success-box">
+        <div class="success-icon">🌺</div>
+        <h2>Application Received!</h2>
+        <p>We'll review your application and reach out to <strong id="success-email"></strong> within 2–3 days.</p>
+        <a href="../" class="btn-primary">Back to Local Grindz</a>
+      </section>
+    </div>
+
+  </main>
+
+  <script type="module" src="../scripts/apply.js"></script>
+</body>
+</html>
