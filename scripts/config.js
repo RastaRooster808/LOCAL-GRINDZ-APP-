@@ -1,0 +1,1 @@
+https://pqzygehnnojdttmqadrz.supabase.co
