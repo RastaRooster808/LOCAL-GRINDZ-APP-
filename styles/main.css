@@ -90,16 +90,26 @@ nav {
 
 nav a {
   flex: 1;
-  color: var(--text-light);
+  color: var(--ash-gray);
   text-decoration: none;
   text-align: center;
-  padding: 0.8rem 0.25rem;
-  font-size: 0.78rem;
+  padding: 0.6rem 0.15rem;
+  font-size: 0.62rem;
+  font-weight: 600;
+  line-height: 1.25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+nav a[aria-current="page"] {
+  color: var(--gold);
+  font-weight: 800;
 }
 
 nav a:hover {
-  background: var(--gold);
-  color: var(--volcanic-black);
+  color: var(--text-light);
+  background: rgba(255, 215, 0, 0.06);
 }
 
 /* ─── Today's Special (index.html) ───────────────── */
