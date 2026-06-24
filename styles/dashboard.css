@@ -1,0 +1,511 @@
+/* Vendor Dashboard — extends main.css */
+
+/* ─── Header Override ─────────────────────────── */
+.dh-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.dh-back {
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.88rem;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  padding: 0 0.25rem;
+  flex-shrink: 0;
+}
+
+.dh-back:hover,
+.dh-back:focus {
+  color: var(--text-light);
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.dh-title {
+  margin: 0;
+  font-size: 1.1rem;
+  flex: 1;
+  text-align: center;
+}
+
+.dh-badge {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+/* ─── Vendor Hero ─────────────────────────────── */
+.vendor-hero {
+  position: relative;
+  background: linear-gradient(155deg, #1c0808 0%, #2e0e0e 60%, #170606 100%);
+  border: 1px solid rgba(255, 215, 0, 0.18);
+  border-radius: 18px;
+  padding: 1.4rem 1.25rem 1.1rem;
+  margin-bottom: 0.7rem;
+  overflow: hidden;
+}
+
+/* Top accent bar — gold → lava → gold */
+.vendor-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--lava-red) 50%, var(--gold) 100%);
+}
+
+.hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.hero-name {
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: var(--text-light);
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+.hero-tagline {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  margin-top: 0.2rem;
+}
+
+.status-approved {
+  background: #27ae60;
+  color: #fff;
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+
+.status-pending {
+  background: var(--ash-gray);
+  color: #000;
+  flex-shrink: 0;
+}
+
+.hero-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#hero-contact {
+  font-size: 0.82rem;
+  color: var(--ash-gray);
+}
+
+.hero-refresh {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.28);
+}
+
+/* ─── Status Row ──────────────────────────────── */
+.status-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  margin-bottom: 0.65rem;
+}
+
+.status-card {
+  background: var(--card-dark);
+  border: 1px solid rgba(255, 215, 0, 0.14);
+  border-radius: 14px;
+  padding: 1rem 1rem 0.9rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  transition: border-color 0.2s;
+}
+
+.sc-label {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ash-gray);
+  margin-bottom: 0.4rem;
+}
+
+.sc-value {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--text-light);
+  line-height: 1.2;
+}
+
+.sc-open {
+  color: #27ae60;
+}
+
+.sc-closed {
+  color: var(--lava-red);
+}
+
+.sc-hours {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+/* ─── Shared card base ────────────────────────── */
+.dash-card {
+  margin-bottom: 0.65rem;
+}
+
+.dash-section-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ash-gray);
+  margin: 0 0 0.65rem;
+}
+
+/* ─── Location ────────────────────────────────── */
+.loc-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-light);
+  margin: 0 0 0.25rem;
+}
+
+.loc-addr {
+  font-size: 0.85rem;
+  color: var(--ash-gray);
+  margin: 0 0 0.4rem;
+  line-height: 1.45;
+}
+
+.loc-meta {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.28);
+  margin: 0;
+}
+
+/* ─── Menu list ───────────────────────────────── */
+.menu-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ml-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ml-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.ml-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.ml-price {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+/* ─── Active Special ──────────────────────────── */
+.special-banner {
+  background: rgba(230, 57, 70, 0.08);
+  border: 1px solid rgba(230, 57, 70, 0.22);
+  border-left: 3px solid var(--lava-red);
+  border-radius: 8px;
+  padding: 0.8rem 0.9rem;
+}
+
+.special-msg {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  line-height: 1.55;
+  margin: 0 0 0.45rem;
+}
+
+.special-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.special-date {
+  font-size: 0.73rem;
+  color: var(--ash-gray);
+}
+
+/* ─── Update card ─────────────────────────────── */
+.update-block {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.upd-type {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  display: inline-block;
+  margin-bottom: 0.45rem;
+}
+
+/* type color-coding */
+.ut-special  { background: rgba(230,57,70,0.18);   color: #e86372; border: 1px solid rgba(230,57,70,0.3);  }
+.ut-menu     { background: rgba(255,215,0,0.14);   color: var(--gold); border: 1px solid rgba(255,215,0,0.25); }
+.ut-location { background: rgba(100,180,255,0.12); color: #88c8ff; border: 1px solid rgba(100,180,255,0.22); }
+.ut-hours    { background: rgba(39,174,96,0.14);   color: #2ecc71; border: 1px solid rgba(39,174,96,0.25);  }
+.ut-photo    { background: rgba(255,215,0,0.1);    color: var(--gold); border: 1px solid rgba(255,215,0,0.2);  }
+.ut-general  { background: rgba(255,255,255,0.07); color: var(--ash-gray); border: 1px solid rgba(255,255,255,0.1); }
+
+.upd-msg {
+  font-size: 0.88rem;
+  color: var(--ash-gray);
+  line-height: 1.55;
+  margin: 0 0 0.5rem;
+}
+
+.upd-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.upd-date {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* developer status pills */
+.dev-pill {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+}
+
+.dp-pending   { background: rgba(255,165,0,0.18);  color: #f5a623; border: 1px solid rgba(255,165,0,0.28);  }
+.dp-completed { background: rgba(39,174,96,0.18);  color: #27ae60; border: 1px solid rgba(39,174,96,0.28);  }
+.dp-archived  { background: rgba(255,255,255,0.07); color: var(--ash-gray); border: 1px solid rgba(255,255,255,0.1); }
+
+/* ─── QR Link ─────────────────────────────────── */
+.qr-url-box {
+  background: #0c0c0c;
+  border: 1px solid rgba(255, 215, 0, 0.22);
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.78rem;
+  color: var(--gold);
+  word-break: break-all;
+  line-height: 1.5;
+  margin-bottom: 0.7rem;
+}
+
+.qr-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.qr-btn {
+  min-height: 44px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  background: var(--gold);
+  color: var(--volcanic-black);
+  border: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.qr-btn:hover {
+  background: var(--lava-red);
+  color: #fff;
+}
+
+.qr-btn:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.qr-btn-ghost {
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid rgba(255, 215, 0, 0.32);
+}
+
+.qr-btn-ghost:hover {
+  background: rgba(255, 215, 0, 0.08);
+  color: var(--gold);
+}
+
+.qr-copy-msg {
+  font-size: 0.8rem;
+  color: #27ae60;
+  min-height: 1.2em;
+  line-height: 1.4;
+}
+
+.qr-hint {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.3);
+  margin: 0.5rem 0 0;
+  line-height: 1.5;
+}
+
+/* ─── Loyalty ─────────────────────────────────── */
+.loyalty-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.65rem;
+}
+
+.lc-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--ash-gray);
+  margin: 0 0 0.2rem;
+}
+
+.lc-pin {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: var(--gold);
+  letter-spacing: 0.25em;
+  font-family: 'Courier New', monospace;
+  line-height: 1;
+  margin: 0;
+}
+
+.lc-rule {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding-top: 0.3rem;
+}
+
+.lc-rule span {
+  font-size: 0.88rem;
+  color: var(--ash-gray);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.lc-eq {
+  color: var(--gold) !important;
+}
+
+.lc-note {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.32);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ─── Quick Actions ───────────────────────────── */
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  margin-top: 0.25rem;
+  padding-bottom: 0.5rem;
+}
+
+.qa-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-decoration: none;
+  text-align: center;
+  padding: 0.75rem;
+  transition: background 0.15s, color 0.15s;
+}
+
+.qa-primary {
+  background: var(--gold);
+  color: var(--volcanic-black);
+}
+
+.qa-primary:hover {
+  background: var(--lava-red);
+  color: #fff;
+}
+
+.qa-ghost {
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid rgba(255, 215, 0, 0.32);
+}
+
+.qa-ghost:hover {
+  background: rgba(255, 215, 0, 0.08);
+}
+
+.qa-btn:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ─── Empty / error states ────────────────────── */
+.dash-empty {
+  color: var(--ash-gray);
+  font-size: 0.85rem;
+  font-style: italic;
+  margin: 0;
+}

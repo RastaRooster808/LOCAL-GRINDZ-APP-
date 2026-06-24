@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendor Dashboard — Local Grindz</title>
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/dashboard.css">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#e63946">
+</head>
+<body>
+
+  <header>
+    <div class="dh-inner">
+      <a href="/" class="dh-back" aria-label="Back to customer app">&#8592; App</a>
+      <h1 class="dh-title">Vendor Dashboard</h1>
+      <span class="dh-badge" aria-hidden="true">LIVE</span>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ── Vendor Hero ─────────────────────────── -->
+    <div class="vendor-hero" aria-label="Vendor overview">
+      <div class="hero-top">
+        <div>
+          <div class="hero-name" id="hero-name">Ala's Kitchen</div>
+          <div class="hero-tagline" id="hero-tagline">Get Smashed</div>
+        </div>
+        <span class="status-badge status-approved" id="hero-status">Approved ✓</span>
+      </div>
+      <div class="hero-meta">
+        <span id="hero-contact"></span>
+        <span class="hero-refresh" id="last-refreshed" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <!-- ── Status Row: Live Status + Hours ────── -->
+    <div class="status-row" role="region" aria-label="Live status and hours">
+
+      <div class="status-card" id="card-live-status">
+        <div class="sc-label">Status</div>
+        <div class="sc-value" id="sc-live-status">OPEN</div>
+      </div>
+
+      <div class="status-card">
+        <div class="sc-label">Hours Today</div>
+        <div class="sc-value sc-hours" id="sc-hours">11 AM – 7 PM</div>
+      </div>
+
+    </div>
+
+    <!-- ── Current Location ────────────────────── -->
+    <section class="card dash-card" aria-label="Current location">
+      <p class="dash-section-label">&#128205; Current Location</p>
+      <p class="loc-name" id="loc-name">Kalapana Black Sand Beach</p>
+      <p class="loc-addr" id="loc-addr">End of Hwy 130, Pahoa, HI 96778</p>
+      <p class="loc-meta" id="loc-updated">Last updated: —</p>
+    </section>
+
+    <!-- ── Featured Menu Items ─────────────────── -->
+    <section class="card dash-card" aria-label="Featured menu items">
+      <p class="dash-section-label">&#11088; Featured Items</p>
+      <ul class="menu-list" id="featured-list" aria-label="Featured menu items">
+        <li class="ml-row">
+          <span class="ml-name">Volcano Smash <span aria-hidden="true">🌶🌶🌶</span></span>
+          <span class="ml-price">$14.00</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ── Active Specials ─────────────────────── -->
+    <section class="card dash-card" aria-label="Active specials">
+      <p class="dash-section-label">&#128293; Active Special</p>
+      <div id="specials-content">
+        <p class="dash-empty">No active specials. Submit one via the Vendor Portal.</p>
+      </div>
+    </section>
+
+    <!-- ── Last Update Submitted ───────────────── -->
+    <section class="card dash-card" aria-label="Last update submitted">
+      <p class="dash-section-label">&#128203; Last Update Submitted</p>
+      <div id="last-update-content">
+        <p class="dash-empty">No updates on record yet.</p>
+      </div>
+    </section>
+
+    <!-- ── QR Order Link ───────────────────────── -->
+    <section class="card dash-card" aria-label="QR order link">
+      <p class="dash-section-label">&#128241; QR Order Link</p>
+      <div class="qr-url-box" id="qr-url-box" tabindex="0" aria-label="Order page URL">Loading&hellip;</div>
+      <div class="qr-actions">
+        <button id="copy-qr-btn" class="qr-btn" type="button">Copy URL</button>
+        <a id="view-order-link" href="/order.html" class="qr-btn qr-btn-ghost" target="_blank" rel="noopener noreferrer">
+          View Page
+        </a>
+      </div>
+      <div id="qr-copy-msg" role="alert" aria-live="polite" class="qr-copy-msg"></div>
+      <p class="qr-hint">
+        Paste the URL into any free QR generator, print it, and display it at the truck window.
+      </p>
+    </section>
+
+    <!-- ── Loyalty Campaign ────────────────────── -->
+    <section class="card dash-card" aria-label="Loyalty campaign status">
+      <p class="dash-section-label">&#127775; Loyalty Campaign</p>
+      <div class="loyalty-row">
+        <div>
+          <p class="lc-label">Stamp Code</p>
+          <p class="lc-pin" id="lc-pin">808</p>
+        </div>
+        <div class="lc-rule">
+          <span>10 stamps</span>
+          <span class="lc-eq">= 1 free burger</span>
+        </div>
+      </div>
+      <p class="lc-note">
+        Tell this code to customers after each purchase. They enter it on the Loyalty page
+        to add a stamp. Change the code anytime by submitting a vendor update.
+      </p>
+    </section>
+
+    <!-- ── Quick Actions ──────────────────────── -->
+    <div class="quick-actions" aria-label="Quick actions">
+      <a href="/vendor.html#update-form-section" class="qa-btn qa-primary">
+        Submit Update &#8594;
+      </a>
+      <a href="/order.html" class="qa-btn qa-ghost">
+        Order Page &#8594;
+      </a>
+    </div>
+
+  </main>
+
+  <nav aria-label="Vendor navigation">
+    <a href="/">App</a>
+    <a href="/dashboard.html" aria-current="page">Dashboard</a>
+    <a href="/vendor.html">Portal</a>
+    <a href="/order.html">Order</a>
+    <a href="/loyalty.html">Loyalty</a>
+  </nav>
+
+  <script src="/scripts/dashboard.js"></script>
+</body>
+</html>
