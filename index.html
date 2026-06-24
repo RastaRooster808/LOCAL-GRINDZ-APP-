@@ -1,62 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Local Grindz - Ala's Kitchen</title>
-    <link rel="stylesheet" href="/styles/main.css">
-    <link rel="manifest" href="/manifest.json">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Grindz - Ala's Kitchen</title>
+  <link rel="stylesheet" href="./styles/main.css">
+  <link rel="manifest" href="./manifest.json">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
-    <header>
-        <h1>Welcome to Local Grindz</h1>
-    </header>
 
-    <main>
-        <section id="welcome-hero">
-            <h2>Ala's Kitchen - Get Smashed</h2>
-            <p>Experience the best smash burgers in Puna and Kalapana.</p>
-        </section>
+  <header class="site-header">
+    <h1>Local Grindz</h1>
+    <p class="tagline">Ala's Kitchen – Get Smashed</p>
+    <a href="./vendor/" class="vendor-link">Vendor Login</a>
+  </header>
 
-        <section id="live-location">
-            <h2>Live Truck Location</h2>
-            <p>We're currently at: <strong>Beachside Park</strong>.</p>
-        </section>
+  <nav class="bottom-nav">
+    <a href="#location">Location</a>
+    <a href="#specials">Specials</a>
+    <a href="#menu">Menu</a>
+    <a href="#order">Order</a>
+    <a href="#reviews">Reviews</a>
+  </nav>
 
-        <section id="featured-burger">
-            <h2>Featured Smash Burger</h2>
-            <p>Try our Volcano Smash - a fiery blend of flavor and heat!</p>
-        </section>
+  <main>
 
-        <section id="reviews">
-            <h2>Reviews</h2>
-          <blockquote>"The best burger I've ever had!"</blockquote>
-        </section>
+    <!-- Live Location -->
+    <section id="location">
+      <h2>Live Truck Location</h2>
+      <div id="location-info">
+        <p>Loading location…</p>
+      </div>
+    </section>
 
-        <section id="loyalty-rewards">
-            <h2>Loyalty Rewards</h2>
-            <p>Earn points every time you order with us!</p>
-        </section>
+    <!-- Specials -->
+    <section id="specials">
+      <h2>Today's Specials</h2>
+      <div id="specials-list">
+        <p>Loading specials…</p>
+      </div>
+    </section>
 
-        <section id="social-feed">
-            <h2>Social Feed</h2>
-            <p>Stay connected and see what everyone's saying.</p>
-        </section>
+    <!-- Menu -->
+    <section id="menu">
+      <h2>Menu</h2>
+      <div id="menu-list">
+        <p>Loading menu…</p>
+      </div>
+    </section>
 
-        <section id="qr-order">
-            <h2>QR Order</h2>
-            <button>Scan and Order!</button>
-        </section>
-    </main>
+    <!-- Cart + Order -->
+    <section id="order">
+      <h2>Your Order</h2>
+      <div id="cart-items"></div>
+      <p id="cart-total"></p>
 
-    <nav>
-        <a href="#welcome-hero">Welcome</a>
-        <a href="#live-location">Location</a>
-        <a href="#featured-burger">Menu</a>
-        <a href="#reviews">Reviews</a>
-        <a href="#social-feed">Social</a>
-    </nav>
+      <h3>Place Order</h3>
+      <form id="order-form">
+        <label>Your Name
+          <input type="text" id="order-name" required autocomplete="name">
+        </label>
+        <label>Special Instructions
+          <textarea id="order-note" rows="2" placeholder="Allergies, substitutions…"></textarea>
+        </label>
+        <button type="submit" class="btn-primary">Place Order</button>
+      </form>
+    </section>
 
-    <script src="/scripts/app.js"></script>
+    <!-- Reviews -->
+    <section id="reviews">
+      <h2>Reviews</h2>
+      <div id="reviews-list">
+        <p>Loading reviews…</p>
+      </div>
+
+      <h3>Leave a Review</h3>
+      <form id="review-form">
+        <label>Your Name
+          <input type="text" id="review-name" required autocomplete="name">
+        </label>
+        <label>Rating
+          <select id="review-rating" required>
+            <option value="5">★★★★★</option>
+            <option value="4">★★★★☆</option>
+            <option value="3">★★★☆☆</option>
+            <option value="2">★★☆☆☆</option>
+            <option value="1">★☆☆☆☆</option>
+          </select>
+        </label>
+        <label>Review
+          <textarea id="review-body" required rows="3" placeholder="Tell us about your experience…"></textarea>
+        </label>
+        <button type="submit" class="btn-primary">Submit Review</button>
+      </form>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Local Grindz – Puna, Big Island, Hawaii</p>
+  </footer>
+
+  <script type="module" src="./scripts/app.js"></script>
 </body>
 </html>
