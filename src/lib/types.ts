@@ -8,6 +8,7 @@ export interface Vendor {
   logo_url?: string | null;
   neighborhood: string | null;
   is_active: boolean;
+  user_id?: string | null;
   badges?: string[];
   email?: string;
   locations?: Location[];

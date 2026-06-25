@@ -51,6 +51,11 @@ export function VendorDashboard() {
       .single()
       .then(({ data }) => {
         if (data) {
+          // Lazy backfill: link auth.uid() the first time this vendor logs in
+          if (!data.user_id) {
+            supabase.from('vendors').update({ user_id: user.id }).eq('id', data.id);
+            data.user_id = user.id;
+          }
           setVendor(data as Vendor);
           loadMenu(data.id);
           loadLocation(data.id);
