@@ -1,62 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Local Grindz – Big Island Food Trucks</title>
-  <link rel="stylesheet" href="./styles/main.css">
-  <link rel="manifest" href="./manifest.json">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-</head>
-<body class="landing-body">
-
-  <header class="landing-header">
-    <div class="landing-header-inner">
-      <h1>Local Grindz</h1>
-      <p class="tagline">Big Island's food truck marketplace</p>
-      <div class="header-actions">
-        <a href="./vendors/" class="btn-primary btn-lg">Find a Truck</a>
-        <a href="./apply/" class="btn-outline">Join as Vendor</a>
-      </div>
-    </div>
-  </header>
-
-  <main class="landing-main">
-
-    <section class="landing-section">
-      <h2>Open Now</h2>
-      <div id="open-vendors" class="vendor-grid">
-        <p class="loading-msg">Loading…</p>
-      </div>
-      <a href="./vendors/" class="view-all-link">View all vendors →</a>
-    </section>
-
-    <section class="landing-section featured-section">
-      <h2>Featured Trucks</h2>
-      <div id="featured-vendors" class="vendor-grid">
-        <p class="loading-msg">Loading…</p>
-      </div>
-    </section>
-
-    <section class="landing-cta">
-      <div class="cta-box">
-        <h2>Got a food truck?</h2>
-        <p>Join Local Grindz and connect with hungry customers across the Big Island.</p>
-        <a href="./apply/" class="btn-primary">Apply to Join</a>
-      </div>
-    </section>
-
-  </main>
-
-  <footer>
-    <p>Local Grindz — Puna, Big Island, Hawaii</p>
-    <nav class="footer-nav">
-      <a href="./vendors/">All Vendors</a>
-      <a href="./apply/">Apply</a>
-      <a href="./vendor/">Vendor Login</a>
-    </nav>
-  </footer>
-
-  <script type="module" src="./scripts/landing.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1D1D1D" />
+    <meta name="description" content="Discover Hawaiʻi's local food trucks and pop-up vendors. Order online, earn rewards, support your neighborhood." />
+    <title>Local Grindz – Hawaiʻi Food Truck Marketplace</title>
+    <link rel="manifest" href="./manifest.json" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
