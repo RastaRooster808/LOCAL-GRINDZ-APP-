@@ -5,6 +5,7 @@ export interface Vendor {
   cuisine_type: string | null;
   description: string | null;
   photo_url: string | null;
+  logo_url?: string | null;
   neighborhood: string | null;
   is_active: boolean;
   badges?: string[];

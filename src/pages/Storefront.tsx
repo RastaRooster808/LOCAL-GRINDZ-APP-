@@ -88,10 +88,16 @@ export function Storefront() {
 
   return (
     <div>
-      <header className="site-header" id="vendor-header">
-        <Link to="/vendors" className="back-link">← All Trucks</Link>
-        <h1 id="vendor-title">{vendor.name}</h1>
-        <p className="tagline">{vendor.cuisine_type || ''}</p>
+      <header className="storefront-header" id="vendor-header">
+        {vendor.photo_url && (
+          <div className="storefront-banner" style={{ backgroundImage: `url(${vendor.photo_url})` }} aria-hidden="true" />
+        )}
+        <div className={`storefront-header-content${vendor.photo_url ? ' has-banner' : ''}`}>
+          {vendor.logo_url && <img src={vendor.logo_url} alt={`${vendor.name} logo`} className="storefront-logo" loading="lazy" />}
+          <Link to="/vendors" className="back-link">← All Trucks</Link>
+          <h1 id="vendor-title">{vendor.name}</h1>
+          <p className="tagline">{vendor.cuisine_type || ''}</p>
+        </div>
       </header>
 
       <nav className="bottom-nav">
@@ -140,6 +146,9 @@ export function Storefront() {
               <h3>{cat.charAt(0).toUpperCase() + cat.slice(1)}s</h3>
               {menu.filter(i => i.category === cat).map(item => (
                 <div key={item.id} className="menu-item">
+                  {item.photo_url && (
+                    <img src={item.photo_url} alt={item.name} className="menu-item-photo" loading="lazy" />
+                  )}
                   <div className="menu-item-info">
                     <strong>{item.name}</strong>
                     <span className="menu-item-desc">{item.description}</span>

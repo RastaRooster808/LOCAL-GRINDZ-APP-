@@ -140,3 +140,114 @@
 .toast--success { background: #2d6a4f; color: #fff; }
 .toast--error { background: #c1121f; color: #fff; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── Image upload component ─────────────────────────────────── */
+.img-upload { margin-bottom: 1.5rem; }
+.img-upload-label { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--ash); }
+.img-upload-preview {
+  display: block;
+  max-width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: 0.5rem;
+  border: 1px solid #e0e0e0;
+}
+.profile-images { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+@media (max-width: 520px) { .profile-images { grid-template-columns: 1fr; } }
+
+/* ── Storefront header with banner ──────────────────────────── */
+.storefront-header { position: relative; overflow: hidden; }
+.storefront-banner {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.55);
+}
+.storefront-header-content {
+  position: relative;
+  padding: 1.5rem 1rem 1rem;
+}
+.storefront-header-content.has-banner {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  min-height: 180px;
+  color: #fff;
+}
+.storefront-header-content.has-banner h1,
+.storefront-header-content.has-banner p,
+.storefront-header-content.has-banner a { color: #fff; }
+.storefront-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* ── Vendor cards with photos ───────────────────────────────── */
+.vendor-card-photo-wrap { position: relative; }
+.vendor-card-photo {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  display: block;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: #f0f0f0;
+}
+.vendor-card-photo--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: #ccc;
+  background: #f8f8f8;
+}
+.card-status-dot {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.status-dot--open { background: #2d6a4f; }
+.status-dot--closed { background: #aaa; }
+
+/* ── Menu item photo (storefront) ───────────────────────────── */
+.menu-item-photo {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  flex-shrink: 0;
+  margin-right: 0.75rem;
+}
+.menu-item { display: flex; align-items: center; }
+
+/* ── Vendor menu item (dashboard) ───────────────────────────── */
+.vendor-menu-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0; border-bottom: 1px solid #eee; flex-wrap: wrap; }
+.vendor-menu-thumb { width: 56px; height: 56px; object-fit: cover; border-radius: var(--radius); flex-shrink: 0; }
+.vendor-menu-item-info { flex: 1; min-width: 0; }
+.vendor-menu-item-name { font-size: 0.9rem; }
+.vendor-menu-item-cat { color: var(--muted); font-size: 0.8rem; }
+.vendor-menu-item-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--lava);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.btn-link--danger { color: #c1121f; }

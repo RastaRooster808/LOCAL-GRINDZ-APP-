@@ -7,9 +7,17 @@ function VendorCard({ v, prefix = '' }: { v: Vendor; prefix?: string }) {
   const loc = v.locations?.[0];
   const isOpen = loc?.status === 'open';
   const isFeatured = v.vendor_features?.some(f => new Date(f.feature_expires_at) > new Date());
+  const cardImg = v.photo_url || v.logo_url;
   return (
     <Link to={`${prefix}/vendors/${v.slug}`} className={`vendor-card${isFeatured ? ' vendor-card--featured' : ''}`}>
       {isFeatured && <span className="featured-badge">Featured</span>}
+      <div className="vendor-card-photo-wrap">
+        {cardImg
+          ? <img src={cardImg} alt={v.name} className="vendor-card-photo" loading="lazy" />
+          : <div className="vendor-card-photo vendor-card-photo--placeholder">🍽</div>
+        }
+        <span className={`card-status-dot status-dot--${isOpen ? 'open' : 'closed'}`} />
+      </div>
       <div className="vendor-card-body">
         <h3>{v.name}</h3>
         <p className="vendor-cuisine">{v.cuisine_type}</p>
@@ -31,7 +39,7 @@ export function Landing() {
   useEffect(() => {
     supabase
       .from('vendors')
-      .select('id, slug, name, cuisine_type, description, neighborhood, locations(name, status), vendor_features(feature_expires_at, tier)')
+      .select('id, slug, name, cuisine_type, description, neighborhood, photo_url, logo_url, locations(name, status), vendor_features(feature_expires_at, tier)')
       .eq('is_active', true)
       .order('name')
       .then(({ data }) => {

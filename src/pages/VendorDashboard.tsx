@@ -1,17 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
-import { Navigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 import { useVendorOrders } from '../hooks/useOrders';
 import { OrderCard } from '../components/vendor/OrderCard';
 import { showToast } from '../components/ui/Toast';
+import { ImageUpload, compressImage } from '../components/ui/ImageUpload';
 import { MenuItem, Location, Special, Order, OrderStatus, Vendor } from '../lib/types';
 import QRCode from 'qrcode';
 import { Chart, BarController, BarElement, CategoryScale, LinearScale, Tooltip } from 'chart.js';
 
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip);
 
-type Tab = 'orders' | 'menu' | 'location' | 'specials' | 'qr' | 'analytics';
+type Tab = 'orders' | 'menu' | 'location' | 'specials' | 'profile' | 'qr' | 'analytics';
 
 export function VendorDashboard() {
   const { user, loading: authLoading, signIn, signOut } = useAuth();
@@ -179,7 +179,7 @@ export function VendorDashboard() {
 
       <section className="vendor-section">
         <nav className="vendor-tabs">
-          {(['orders', 'menu', 'location', 'specials', 'qr', 'analytics'] as Tab[]).map(t => (
+          {(['orders', 'menu', 'location', 'specials', 'profile', 'qr', 'analytics'] as Tab[]).map(t => (
             <button key={t} onClick={() => setTab(t)} className={tab === t ? 'tab-active' : ''}>
               {t === 'orders' ? `Orders${newOrderCount > 0 ? ` (${newOrderCount})` : ''}` : t.charAt(0).toUpperCase() + t.slice(1)}
             </button>
@@ -205,18 +205,40 @@ export function VendorDashboard() {
             <h2>Menu Items</h2>
             {menuItems.map(item => (
               <div key={item.id} className="vendor-menu-item">
-                <span>{item.name} — ${Number(item.price).toFixed(2)} ({item.category})</span>
-                <label>
-                  <input type="checkbox" checked={item.available} onChange={async e => {
-                    await supabase.from('menu_items').update({ available: e.target.checked }).eq('id', item.id);
-                    setMenuItems(prev => prev.map(i => i.id === item.id ? { ...i, available: e.target.checked } : i));
-                  }} /> Available
-                </label>
-                <button onClick={async () => {
-                  if (!confirm('Delete?')) return;
-                  await supabase.from('menu_items').delete().eq('id', item.id);
-                  setMenuItems(prev => prev.filter(i => i.id !== item.id));
-                }}>Delete</button>
+                {item.photo_url && <img src={item.photo_url} alt={item.name} className="vendor-menu-thumb" loading="lazy" />}
+                <div className="vendor-menu-item-info">
+                  <span className="vendor-menu-item-name">{item.name} — ${Number(item.price).toFixed(2)} <em className="vendor-menu-item-cat">({item.category})</em></span>
+                </div>
+                <div className="vendor-menu-item-actions">
+                  <label className="checkbox-label">
+                    <input type="checkbox" checked={item.available} onChange={async e => {
+                      await supabase.from('menu_items').update({ available: e.target.checked }).eq('id', item.id);
+                      setMenuItems(prev => prev.map(i => i.id === item.id ? { ...i, available: e.target.checked } : i));
+                    }} /> Available
+                  </label>
+                  <label className="btn-link">
+                    {item.photo_url ? 'Change Photo' : '+ Photo'}
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const compressed = await compressImage(file, 600, 600);
+                      const path = `${vendor.id}/menu/${item.id}.webp`;
+                      const { error } = await supabase.storage.from('vendor-assets').upload(path, compressed, { contentType: 'image/webp', upsert: true });
+                      if (error) { alert('Upload failed. Check that the vendor-assets bucket exists.'); return; }
+                      const { data } = supabase.storage.from('vendor-assets').getPublicUrl(path);
+                      const url = `${data.publicUrl}?t=${Date.now()}`;
+                      await supabase.from('menu_items').update({ photo_url: url }).eq('id', item.id);
+                      setMenuItems(prev => prev.map(i => i.id === item.id ? { ...i, photo_url: url } : i));
+                      showToast('Photo updated!', 'success');
+                      e.target.value = '';
+                    }} />
+                  </label>
+                  <button className="btn-link btn-link--danger" onClick={async () => {
+                    if (!confirm('Delete?')) return;
+                    await supabase.from('menu_items').delete().eq('id', item.id);
+                    setMenuItems(prev => prev.filter(i => i.id !== item.id));
+                  }}>Delete</button>
+                </div>
               </div>
             ))}
             <h3>Add Item</h3>
@@ -321,6 +343,60 @@ export function VendorDashboard() {
               <label>Description <textarea name="description"></textarea></label>
               <label>Expires <input name="expires" type="date" /></label>
               <button type="submit" className="btn-primary">Add Special</button>
+            </form>
+          </div>
+        )}
+
+        {/* PROFILE */}
+        {tab === 'profile' && (
+          <div className="vendor-tab">
+            <h2>Vendor Profile</h2>
+            <div className="profile-images">
+              <ImageUpload
+                bucket="vendor-assets"
+                path={`${vendor.id}/logo`}
+                label="Logo (square, shown on cards)"
+                currentUrl={vendor.logo_url}
+                maxWidth={400}
+                maxHeight={400}
+                onUpload={async url => {
+                  await supabase.from('vendors').update({ logo_url: url }).eq('id', vendor.id);
+                  setVendor(prev => prev ? { ...prev, logo_url: url } : prev);
+                  showToast('Logo updated!', 'success');
+                }}
+              />
+              <ImageUpload
+                bucket="vendor-assets"
+                path={`${vendor.id}/banner`}
+                label="Banner (shown on your storefront)"
+                currentUrl={vendor.photo_url}
+                maxWidth={1200}
+                maxHeight={400}
+                onUpload={async url => {
+                  await supabase.from('vendors').update({ photo_url: url }).eq('id', vendor.id);
+                  setVendor(prev => prev ? { ...prev, photo_url: url } : prev);
+                  showToast('Banner updated!', 'success');
+                }}
+              />
+            </div>
+            <form onSubmit={async e => {
+              e.preventDefault();
+              const fd = new FormData(e.currentTarget);
+              const updates = {
+                description: (fd.get('description') as string).trim() || null,
+                cuisine_type: (fd.get('cuisine') as string).trim() || null,
+              };
+              await supabase.from('vendors').update(updates).eq('id', vendor.id);
+              setVendor(prev => prev ? { ...prev, ...updates } : prev);
+              showToast('Profile saved!', 'success');
+            }}>
+              <label>Description
+                <textarea name="description" rows={3} defaultValue={vendor.description || ''} placeholder="Tell customers what makes your truck special…" />
+              </label>
+              <label>Cuisine Type
+                <input name="cuisine" defaultValue={vendor.cuisine_type || ''} placeholder="e.g. Hawaiian Plate, Burger, Tacos…" />
+              </label>
+              <button type="submit" className="btn-primary">Save Profile</button>
             </form>
           </div>
         )}
