@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/server": "^1.2.0",
     "@supabase/supabase-js": "^2.49.0",
     "chart.js": "^4.4.0",
     "qrcode": "^1.5.4",
