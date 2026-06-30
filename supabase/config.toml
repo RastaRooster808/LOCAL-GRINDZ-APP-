@@ -1,0 +1,5 @@
+[project]
+id = "LOCAL-GRINDZ-APP"
+
+[functions.order-notify]
+verify_jwt = false
