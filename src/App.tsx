@@ -6,6 +6,7 @@ import { OrderTracking } from './pages/OrderTracking';
 import { VendorDashboard } from './pages/VendorDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { Apply } from './pages/Apply';
+import { Account } from './pages/Account';
 import { ToastContainer } from './components/ui/Toast';
 
 export default function App() {
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/vendor" element={<VendorDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/apply" element={<Apply />} />
+        <Route path="/account" element={<Account />} />
       </Routes>
     </HashRouter>
   );
