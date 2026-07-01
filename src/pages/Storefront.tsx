@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Vendor, MenuItem, Location, Special, Review, CartItem } from '../lib/types';
@@ -47,6 +47,16 @@ export function Storefront() {
   const [loyaltyPoints, setLoyaltyPoints] = useState<number | null>(null);
   const [loyaltyEmail, setLoyaltyEmail] = useState('');
   const [redeemChecked, setRedeemChecked] = useState(false);
+
+  // Customer chat widget
+  type ChatMsg = { id: string; sender: string; body: string; created_at: string };
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatEmail, setChatEmail] = useState('');
+  const [chatConfirmed, setChatConfirmed] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMsg[]>([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatSending, setChatSending] = useState(false);
+  const chatBottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!slug) return;
@@ -128,6 +138,54 @@ export function Storefront() {
     const el = document.getElementById(tabTarget);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [tabTarget, vendor]);
+
+  // Load message history when customer confirms email
+  const loadChatMessages = useCallback(async () => {
+    if (!vendor || !chatEmail) return;
+    const { data } = await supabase
+      .from('vendor_messages')
+      .select('id, sender, body, created_at')
+      .eq('vendor_id', vendor.id)
+      .eq('customer_email', chatEmail)
+      .order('created_at', { ascending: true });
+    setChatMessages((data as ChatMsg[]) || []);
+  }, [vendor, chatEmail]);
+
+  useEffect(() => {
+    if (!chatConfirmed || !vendor) return;
+    loadChatMessages();
+    const channel = supabase
+      .channel(`customer-chat-${vendor.id}-${chatEmail}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'vendor_messages',
+        filter: `vendor_id=eq.${vendor.id}`,
+      }, payload => {
+        const msg = payload.new as ChatMsg & { customer_email: string };
+        if (msg.customer_email === chatEmail) setChatMessages(prev => [...prev, msg]);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [chatConfirmed, vendor, chatEmail, loadChatMessages]);
+
+  useEffect(() => {
+    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
+
+  async function sendChatMessage(e: React.FormEvent) {
+    e.preventDefault();
+    if (!chatInput.trim() || !vendor || chatSending) return;
+    setChatSending(true);
+    await supabase.from('vendor_messages').insert({
+      vendor_id: vendor.id,
+      customer_email: chatEmail,
+      sender: 'customer',
+      body: chatInput.trim(),
+    });
+    setChatInput('');
+    setChatSending(false);
+  }
 
   const categories = [...new Set(menu.map(i => i.category))];
 
@@ -462,6 +520,83 @@ export function Storefront() {
       </main>
 
       <footer><p>Local Grindz – Big Island, Hawaii</p></footer>
+
+      {/* Floating customer chat widget */}
+      <button
+        className="chat-bubble-btn"
+        onClick={() => setChatOpen(o => !o)}
+        aria-label={chatOpen ? 'Close chat' : 'Message vendor'}
+        aria-expanded={chatOpen}
+      >
+        💬 {chatOpen ? 'Close' : 'Message'}
+      </button>
+      {chatOpen && (
+        <div className="chat-panel" role="dialog" aria-label={`Message ${vendor.name}`}>
+          <div className="chat-panel-header">
+            <strong>Message {vendor.name}</strong>
+            <button className="chat-panel-close" onClick={() => setChatOpen(false)} aria-label="Close chat">✕</button>
+          </div>
+          {!chatConfirmed ? (
+            <div className="chat-panel-email-gate">
+              <label htmlFor="chat-email-input">Your email (so we can reply)</label>
+              <input
+                id="chat-email-input"
+                type="email"
+                value={chatEmail}
+                onChange={e => setChatEmail(e.target.value)}
+                placeholder="you@email.com"
+                autoComplete="email"
+                onKeyDown={e => { if (e.key === 'Enter' && chatEmail.trim()) setChatConfirmed(true); }}
+              />
+              <button
+                className="btn-primary"
+                disabled={!chatEmail.trim()}
+                onClick={() => { if (chatEmail.trim()) setChatConfirmed(true); }}
+              >
+                Start Chat
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="chat-panel-messages" role="log" aria-live="polite" aria-label="Messages">
+                {chatMessages.length === 0 && (
+                  <p style={{ color: 'var(--muted)', fontSize: '0.82rem', textAlign: 'center', marginTop: '1rem' }}>
+                    Send a message to start the conversation.
+                  </p>
+                )}
+                {chatMessages.map(m => (
+                  <div key={m.id} className={`chat-msg chat-msg--${m.sender}`}>
+                    <span className="chat-msg-body">{m.body}</span>
+                    <span className="chat-msg-time">
+                      {new Date(m.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                ))}
+                <div ref={chatBottomRef} />
+              </div>
+              <form className="chat-panel-form" onSubmit={sendChatMessage}>
+                <textarea
+                  className="chat-panel-input"
+                  value={chatInput}
+                  onChange={e => setChatInput(e.target.value)}
+                  placeholder="Type a message…"
+                  rows={2}
+                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(e as unknown as React.FormEvent); } }}
+                  aria-label="Message"
+                />
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  style={{ alignSelf: 'flex-end' }}
+                  disabled={!chatInput.trim() || chatSending}
+                >
+                  {chatSending ? '…' : 'Send'}
+                </button>
+              </form>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

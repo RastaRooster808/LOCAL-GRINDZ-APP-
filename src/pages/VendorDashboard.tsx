@@ -6,6 +6,7 @@ import { OrderCard } from '../components/vendor/OrderCard';
 import { showToast } from '../components/ui/Toast';
 import { ImageUpload, compressImage } from '../components/ui/ImageUpload';
 import { MenuItem, Location, Special, Order, OrderStatus, Vendor, Review } from '../lib/types';
+import { VendorInbox } from './VendorInbox';
 import QRCode from 'qrcode';
 import {
   Chart, BarController, BarElement, LineController, LineElement, PointElement,
@@ -19,7 +20,7 @@ interface AnalyticsState {
   orders30: Order[];
 }
 
-type Tab = 'orders' | 'menu' | 'location' | 'specials' | 'profile' | 'qr' | 'analytics' | 'reviews';
+type Tab = 'orders' | 'menu' | 'location' | 'specials' | 'profile' | 'qr' | 'analytics' | 'reviews' | 'inbox';
 
 export function VendorDashboard() {
   const { user, loading: authLoading, signIn, signOut } = useAuth();
@@ -209,7 +210,7 @@ export function VendorDashboard() {
 
       <section className="vendor-section">
         <nav className="vendor-tabs">
-          {(['orders', 'menu', 'location', 'specials', 'profile', 'reviews', 'qr', 'analytics'] as Tab[]).map(t => {
+          {(['orders', 'menu', 'location', 'specials', 'profile', 'reviews', 'qr', 'analytics', 'inbox'] as Tab[]).map(t => {
             const pendingReviews = reviews.filter(r => !r.approved).length;
             let label = t.charAt(0).toUpperCase() + t.slice(1);
             if (t === 'orders' && newOrderCount > 0) label = `Orders (${newOrderCount})`;
@@ -613,6 +614,13 @@ export function VendorDashboard() {
                   );
                 })()
             }
+          </div>
+        )}
+        {/* INBOX */}
+        {tab === 'inbox' && (
+          <div className="vendor-tab">
+            <h2>Customer Messages</h2>
+            <VendorInbox vendorId={vendor.id} />
           </div>
         )}
       </section>
