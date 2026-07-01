@@ -24,7 +24,7 @@ export function VendorDashboard() {
   const [location, setLocation] = useState<Partial<Location>>({});
   const [locationId, setLocationId] = useState<string | null>(null);
   const [specials, setSpecials] = useState<Special[]>([]);
-  const [qrDataUrl, setQrDataUrl] = useState('');
+  const [qrCodes, setQrCodes] = useState<Record<string, string>>({});
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
 
@@ -84,12 +84,22 @@ export function VendorDashboard() {
     showToast(`Order marked ${status}`);
   }
 
-  // QR Code
+  // QR Codes — generate all variants when entering the tab
   useEffect(() => {
     if (tab !== 'qr' || !vendor?.slug) return;
-    const url = `${window.location.origin}${window.location.pathname.replace(/\/$/, '')}#/vendors/${vendor.slug}?source=qr`;
-    QRCode.toDataURL(url, { errorCorrectionLevel: 'H', width: 220, margin: 2 })
-      .then(setQrDataUrl);
+    const base = `${window.location.origin}${window.location.pathname.replace(/\/$/, '')}#/vendors/${vendor.slug}`;
+    const types: Record<string, string> = {
+      Storefront: base,
+      Menu: `${base}?tab=menu`,
+      Order: `${base}?tab=order`,
+      Reviews: `${base}?tab=reviews`,
+    };
+    Promise.all(
+      Object.entries(types).map(async ([label, url]) => {
+        const dataUrl = await QRCode.toDataURL(url, { errorCorrectionLevel: 'H', width: 240, margin: 2 });
+        return [label, dataUrl] as [string, string];
+      }),
+    ).then(pairs => setQrCodes(Object.fromEntries(pairs)));
   }, [tab, vendor]);
 
   // Analytics
@@ -409,15 +419,35 @@ export function VendorDashboard() {
         {/* QR CODE */}
         {tab === 'qr' && (
           <div className="vendor-tab">
-            <h2>Your QR Code</h2>
-            <p className="qr-hint">Display this for customers to order directly from your storefront.</p>
-            {qrDataUrl
-              ? <>
-                  <div className="qr-code-box"><img src={qrDataUrl} alt="QR Code" width={220} height={220} /></div>
-                  <p className="qr-url">{window.location.origin}/#/vendors/{vendor.slug}</p>
-                  <a href={qrDataUrl} download={`${vendor.slug}-qr.png`} className="btn-secondary">Download PNG</a>
+            <h2>QR Code Kit</h2>
+            <p className="qr-hint">Print these and post them at your truck — each code takes customers to a different action.</p>
+            {Object.keys(qrCodes).length === 0
+              ? <p className="loading-msg">Generating…</p>
+              : (
+                <>
+                  <div className="qr-grid">
+                    {Object.entries(qrCodes).map(([label, dataUrl]) => (
+                      <div key={label} className="qr-card">
+                        <img src={dataUrl} alt={`${label} QR code`} width={180} height={180} />
+                        <p className="qr-card-label">{label}</p>
+                        <a href={dataUrl} download={`${vendor.slug}-qr-${label.toLowerCase()}.png`} className="btn-link">
+                          ⬇ PNG
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="qr-url" style={{ marginTop: '1rem' }}>
+                    Base URL: {window.location.origin}/#/vendors/{vendor.slug}
+                  </p>
+                  <button
+                    className="btn-secondary"
+                    onClick={() => window.print()}
+                    style={{ marginTop: '0.5rem' }}
+                  >
+                    🖨 Print All QR Codes
+                  </button>
                 </>
-              : <p className="loading-msg">Generating…</p>
+              )
             }
           </div>
         )}

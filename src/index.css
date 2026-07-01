@@ -314,6 +314,32 @@
 
 .account-signout { margin-top: 1.5rem; width: 100%; }
 
+/* ── QR Code Kit ────────────────────────────────────────────── */
+.qr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+.qr-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  background: #fff;
+  border: 1.5px solid #e0e0e0;
+  border-radius: var(--radius);
+  padding: 1rem 0.75rem;
+  text-align: center;
+}
+.qr-card img { border-radius: 4px; }
+.qr-card-label { font-weight: 700; font-size: 0.9rem; color: var(--ash); }
+@media print {
+  .vendor-tabs, header, .btn-secondary, .btn-primary, .qr-hint, .qr-url { display: none !important; }
+  .qr-grid { grid-template-columns: repeat(2, 1fr); page-break-inside: avoid; }
+  .qr-card { border: 1px solid #ccc; padding: 0.5rem; }
+}
+
 /* ── Interactive Map page ───────────────────────────────────── */
 .map-page {
   display: flex;

@@ -8,6 +8,7 @@ export function Storefront() {
   const { slug } = useParams<{ slug: string }>();
   const [searchParams] = useSearchParams();
   const source = searchParams.get('source') || 'direct';
+  const tabTarget = searchParams.get('tab'); // 'menu' | 'order' | 'reviews'
   const navigate = useNavigate();
 
   const [vendor, setVendor] = useState<Vendor | null>(null);
@@ -62,6 +63,13 @@ export function Storefront() {
     const pts = await getPointsBalance(email);
     setLoyaltyPoints(pts);
   };
+
+  // Scroll to tab target from QR code links
+  useEffect(() => {
+    if (!tabTarget || !vendor) return;
+    const el = document.getElementById(tabTarget);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [tabTarget, vendor]);
 
   const categories = [...new Set(menu.map(i => i.category))];
 
