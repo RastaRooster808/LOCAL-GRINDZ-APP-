@@ -318,17 +318,33 @@ export function Storefront() {
                       <strong>Vendor reply:</strong> {r.vendor_reply}
                     </div>
                   )}
-                  <button
-                    className="review-helpful-btn"
-                    aria-label={`Mark this review as helpful. ${r.helpful_count ?? 0} people found this helpful`}
-                    onClick={async () => {
-                      const newCount = (r.helpful_count ?? 0) + 1;
-                      await supabase.from('reviews').update({ helpful_count: newCount }).eq('id', r.id);
-                      setReviews(prev => prev.map(x => x.id === r.id ? { ...x, helpful_count: newCount } : x));
-                    }}
-                  >
-                    👍 Helpful {r.helpful_count ? `(${r.helpful_count})` : ''}
-                  </button>
+                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.4rem', flexWrap: 'wrap' }}>
+                    <button
+                      className="review-helpful-btn"
+                      aria-label={`Mark this review as helpful. ${r.helpful_count ?? 0} people found this helpful`}
+                      onClick={async () => {
+                        const newCount = (r.helpful_count ?? 0) + 1;
+                        await supabase.from('reviews').update({ helpful_count: newCount }).eq('id', r.id);
+                        setReviews(prev => prev.map(x => x.id === r.id ? { ...x, helpful_count: newCount } : x));
+                      }}
+                    >
+                      👍 Helpful {r.helpful_count ? `(${r.helpful_count})` : ''}
+                    </button>
+                    {!r.reported && (
+                      <button
+                        className="review-helpful-btn"
+                        aria-label="Report this review"
+                        style={{ color: '#c1121f', borderColor: '#f9a8a8' }}
+                        onClick={async () => {
+                          if (!confirm('Report this review as inappropriate?')) return;
+                          await supabase.from('reviews').update({ reported: true }).eq('id', r.id);
+                          setReviews(prev => prev.map(x => x.id === r.id ? { ...x, reported: true } : x));
+                        }}
+                      >
+                        ⚑ Report
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))
             : <p>No reviews yet. Be the first!</p>

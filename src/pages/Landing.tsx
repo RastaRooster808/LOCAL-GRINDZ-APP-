@@ -3,6 +3,13 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Vendor, VendorFeature } from '../lib/types';
 
+interface Announcement {
+  id: string;
+  body: string;
+  active: boolean;
+  expires_at: string | null;
+}
+
 const TIER_LABEL: Record<string, string> = {
   spotlight: '✨ Spotlight',
   featured: '⭐ Featured',
@@ -122,6 +129,20 @@ export function Landing() {
   const [openVendors, setOpenVendors] = useState<Vendor[]>([]);
   const [featuredVendors, setFeaturedVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [dismissedAnnouncements, setDismissedAnnouncements] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const now = new Date().toISOString();
+    supabase
+      .from('announcements')
+      .select('id, body, active, expires_at')
+      .eq('active', true)
+      .or(`expires_at.is.null,expires_at.gt.${now}`)
+      .order('created_at', { ascending: false })
+      .limit(3)
+      .then(({ data }) => setAnnouncements((data as Announcement[]) || []));
+  }, []);
 
   useEffect(() => {
     supabase
@@ -159,6 +180,18 @@ export function Landing() {
           </div>
         </div>
       </header>
+
+      {/* Announcement banners */}
+      {announcements.filter(a => !dismissedAnnouncements.has(a.id)).map(a => (
+        <div key={a.id} className="announcement-banner" role="alert">
+          <span>{a.body}</span>
+          <button
+            className="announcement-close"
+            onClick={() => setDismissedAnnouncements(prev => new Set([...prev, a.id]))}
+            aria-label="Dismiss announcement"
+          >✕</button>
+        </div>
+      ))}
 
       <main className="landing-main">
         {/* Featured carousel — only shown when vendors have active features */}
