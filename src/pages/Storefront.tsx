@@ -2,6 +2,32 @@ import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Vendor, MenuItem, Location, Special, Review, CartItem } from '../lib/types';
+
+function Countdown({ expiresAt }: { expiresAt: string }) {
+  const [remaining, setRemaining] = useState(() => Math.max(0, new Date(expiresAt).getTime() - Date.now()));
+
+  useEffect(() => {
+    if (remaining <= 0) return;
+    const id = setInterval(() => {
+      const ms = Math.max(0, new Date(expiresAt).getTime() - Date.now());
+      setRemaining(ms);
+    }, 1000);
+    return () => clearInterval(id);
+  }, [expiresAt]);
+
+  if (remaining <= 0) return <span className="countdown expired">Expired</span>;
+
+  const h = Math.floor(remaining / 3600000);
+  const m = Math.floor((remaining % 3600000) / 60000);
+  const s = Math.floor((remaining % 60000) / 1000);
+
+  const urgent = remaining < 3600000; // less than 1 hour
+  return (
+    <span className={`countdown${urgent ? ' countdown--urgent' : ''}`} aria-live="polite" aria-label="Time remaining">
+      {h > 0 ? `${h}h ` : ''}{m}m {String(s).padStart(2, '0')}s left
+    </span>
+  );
+}
 import { getPointsBalance, earnPoints, redeemPoints, earnReviewPoints, dollarValue, POINTS_PER_REDEMPTION } from '../hooks/useLoyalty';
 
 export function Storefront() {
@@ -135,13 +161,18 @@ export function Storefront() {
         {/* Specials */}
         <section id="specials">
           <h2>Today's Specials</h2>
-          {specials.length > 0
-            ? specials.map(s => (
-                <div key={s.id} className="special-card">
-                  <strong>{s.title}</strong>
-                  <p>{s.description}</p>
-                </div>
-              ))
+          {specials.filter(s => !s.expires_at || new Date(s.expires_at) > new Date()).length > 0
+            ? specials
+                .filter(s => !s.expires_at || new Date(s.expires_at) > new Date())
+                .map(s => (
+                  <div key={s.id} className="special-card">
+                    <div className="special-card-header">
+                      <strong className="special-title">{s.title}</strong>
+                      {s.expires_at && <Countdown expiresAt={s.expires_at} />}
+                    </div>
+                    <p className="special-desc">{s.description}</p>
+                  </div>
+                ))
             : <p>No specials today.</p>
           }
         </section>

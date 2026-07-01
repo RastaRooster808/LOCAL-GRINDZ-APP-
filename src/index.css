@@ -314,6 +314,38 @@
 
 .account-signout { margin-top: 1.5rem; width: 100%; }
 
+/* ── Specials + Countdown ───────────────────────────────────── */
+.special-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.2rem;
+}
+.special-title { font-size: 1rem; color: var(--ash); }
+.special-desc { color: var(--muted); font-size: 0.88rem; margin: 0; }
+.countdown {
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: monospace;
+  background: #fff3e0;
+  color: #e65100;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.countdown--urgent {
+  background: #fce4e4;
+  color: #c1121f;
+  animation: pulse-urgent 1s ease-in-out infinite;
+}
+.countdown.expired { background: #eee; color: #999; }
+@keyframes pulse-urgent {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+
 /* ── Announcement Banner ────────────────────────────────────── */
 .announcement-banner {
   display: flex;
