@@ -300,9 +300,35 @@ export function Storefront() {
           {reviews.length > 0
             ? reviews.map(r => (
                 <div key={r.id} className="review-card">
-                  <div className="review-stars">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</div>
-                  <blockquote>"{r.body}"</blockquote>
-                  <cite>— {r.customer_name}</cite>
+                  <div className="review-card-header">
+                    <div className="review-stars" aria-label={`${r.rating} out of 5 stars`}>
+                      {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
+                    </div>
+                    <cite className="review-author">— {r.customer_name}</cite>
+                    <span className="review-date">
+                      {new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                  {r.photo_url && (
+                    <img src={r.photo_url} alt="Review photo" className="review-photo" loading="lazy" />
+                  )}
+                  <blockquote className="review-body">"{r.body}"</blockquote>
+                  {r.vendor_reply && (
+                    <div className="vendor-reply">
+                      <strong>Vendor reply:</strong> {r.vendor_reply}
+                    </div>
+                  )}
+                  <button
+                    className="review-helpful-btn"
+                    aria-label={`Mark this review as helpful. ${r.helpful_count ?? 0} people found this helpful`}
+                    onClick={async () => {
+                      const newCount = (r.helpful_count ?? 0) + 1;
+                      await supabase.from('reviews').update({ helpful_count: newCount }).eq('id', r.id);
+                      setReviews(prev => prev.map(x => x.id === r.id ? { ...x, helpful_count: newCount } : x));
+                    }}
+                  >
+                    👍 Helpful {r.helpful_count ? `(${r.helpful_count})` : ''}
+                  </button>
                 </div>
               ))
             : <p>No reviews yet. Be the first!</p>
@@ -312,14 +338,29 @@ export function Storefront() {
             e.preventDefault();
             const fd = new FormData(e.currentTarget);
             const email = fd.get('email') as string;
+            const photoFile = (fd.get('photo') as File | null);
+
+            let photoUrl: string | null = null;
+            if (photoFile && photoFile.size > 0) {
+              const { compressImage } = await import('../components/ui/ImageUpload');
+              const compressed = await compressImage(photoFile, 800, 800);
+              const path = `${vendor.id}/reviews/${Date.now()}.webp`;
+              const { error: upErr } = await supabase.storage.from('vendor-assets').upload(path, compressed, { contentType: 'image/webp', upsert: false });
+              if (!upErr) {
+                const { data: urlData } = supabase.storage.from('vendor-assets').getPublicUrl(path);
+                photoUrl = urlData.publicUrl;
+              }
+            }
+
             await supabase.from('reviews').insert({
               vendor_id: vendor.id,
               customer_name: fd.get('name') as string,
               rating: parseInt(fd.get('rating') as string),
               body: fd.get('body') as string,
+              photo_url: photoUrl,
             });
             if (email) await earnReviewPoints(email, vendor.id);
-            alert(email ? 'Thanks! You earned 5 loyalty points.' : 'Thanks for your review!');
+            alert(email ? 'Thanks! You earned 5 loyalty points. Your review will appear after approval.' : 'Thanks for your review! It will appear after approval.');
             e.currentTarget.reset();
             const { data } = await supabase.from('reviews').select('*').eq('vendor_id', vendor.id).eq('approved', true).order('created_at', { ascending: false }).limit(10);
             setReviews((data as Review[]) || []);
@@ -332,6 +373,10 @@ export function Storefront() {
               </select>
             </label>
             <label>Review <textarea name="body" required rows={3} placeholder="Tell us about your experience…"></textarea></label>
+            <label>
+              Photo <span className="label-hint">(optional)</span>
+              <input name="photo" type="file" accept="image/*" />
+            </label>
             <button type="submit" className="btn-primary">Submit Review</button>
           </form>
         </section>

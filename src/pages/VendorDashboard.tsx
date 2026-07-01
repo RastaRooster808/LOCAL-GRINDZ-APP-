@@ -5,7 +5,7 @@ import { useVendorOrders } from '../hooks/useOrders';
 import { OrderCard } from '../components/vendor/OrderCard';
 import { showToast } from '../components/ui/Toast';
 import { ImageUpload, compressImage } from '../components/ui/ImageUpload';
-import { MenuItem, Location, Special, Order, OrderStatus, Vendor } from '../lib/types';
+import { MenuItem, Location, Special, Order, OrderStatus, Vendor, Review } from '../lib/types';
 import QRCode from 'qrcode';
 import {
   Chart, BarController, BarElement, LineController, LineElement, PointElement,
@@ -19,7 +19,7 @@ interface AnalyticsState {
   orders30: Order[];
 }
 
-type Tab = 'orders' | 'menu' | 'location' | 'specials' | 'profile' | 'qr' | 'analytics';
+type Tab = 'orders' | 'menu' | 'location' | 'specials' | 'profile' | 'qr' | 'analytics' | 'reviews';
 
 export function VendorDashboard() {
   const { user, loading: authLoading, signIn, signOut } = useAuth();
@@ -33,6 +33,7 @@ export function VendorDashboard() {
   const [locationId, setLocationId] = useState<string | null>(null);
   const [specials, setSpecials] = useState<Special[]>([]);
   const [qrCodes, setQrCodes] = useState<Record<string, string>>({});
+  const [reviews, setReviews] = useState<Review[]>([]);
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
   const revenueChartRef = useRef<HTMLCanvasElement>(null);
@@ -71,6 +72,7 @@ export function VendorDashboard() {
           loadMenu(data.id);
           loadLocation(data.id);
           loadSpecials(data.id);
+          loadReviews(data.id);
         }
       });
   }, [user]);
@@ -88,6 +90,11 @@ export function VendorDashboard() {
   async function loadSpecials(vid: string) {
     const { data } = await supabase.from('specials').select('*').eq('vendor_id', vid).order('created_at', { ascending: false });
     setSpecials((data as Special[]) || []);
+  }
+
+  async function loadReviews(vid: string) {
+    const { data } = await supabase.from('reviews').select('*').eq('vendor_id', vid).order('created_at', { ascending: false });
+    setReviews((data as Review[]) || []);
   }
 
   async function handleStatusUpdate(id: string, status: OrderStatus, extra?: { estimated_minutes?: number; cancellation_reason?: string }) {
@@ -202,11 +209,17 @@ export function VendorDashboard() {
 
       <section className="vendor-section">
         <nav className="vendor-tabs">
-          {(['orders', 'menu', 'location', 'specials', 'profile', 'qr', 'analytics'] as Tab[]).map(t => (
-            <button key={t} onClick={() => setTab(t)} className={tab === t ? 'tab-active' : ''}>
-              {t === 'orders' ? `Orders${newOrderCount > 0 ? ` (${newOrderCount})` : ''}` : t.charAt(0).toUpperCase() + t.slice(1)}
-            </button>
-          ))}
+          {(['orders', 'menu', 'location', 'specials', 'profile', 'reviews', 'qr', 'analytics'] as Tab[]).map(t => {
+            const pendingReviews = reviews.filter(r => !r.approved).length;
+            let label = t.charAt(0).toUpperCase() + t.slice(1);
+            if (t === 'orders' && newOrderCount > 0) label = `Orders (${newOrderCount})`;
+            if (t === 'reviews' && pendingReviews > 0) label = `Reviews (${pendingReviews})`;
+            return (
+              <button key={t} onClick={() => setTab(t)} className={tab === t ? 'tab-active' : ''}>
+                {label}
+              </button>
+            );
+          })}
         </nav>
 
         {/* ORDERS */}
@@ -367,6 +380,74 @@ export function VendorDashboard() {
               <label>Expires <input name="expires" type="date" /></label>
               <button type="submit" className="btn-primary">Add Special</button>
             </form>
+          </div>
+        )}
+
+        {/* REVIEWS */}
+        {tab === 'reviews' && (
+          <div className="vendor-tab">
+            <h2>Customer Reviews</h2>
+            {reviews.length === 0
+              ? <p className="empty-msg">No reviews yet.</p>
+              : reviews.map(r => (
+                <div key={r.id} className={`review-card${r.approved ? '' : ' review-card--pending'}`}>
+                  <div className="review-card-header">
+                    <div className="review-stars" aria-label={`${r.rating} stars`}>
+                      {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
+                    </div>
+                    <strong>{r.customer_name}</strong>
+                    {!r.approved && <span className="order-badge order-badge--pending">Pending</span>}
+                    <span className="review-date" style={{ marginLeft: 'auto' }}>
+                      {new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                  {r.photo_url && <img src={r.photo_url} alt="Review photo" className="review-photo" loading="lazy" style={{ maxWidth: 200, borderRadius: 8, marginTop: '0.5rem' }} />}
+                  <p style={{ margin: '0.4rem 0', fontSize: '0.9rem' }}>{r.body}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>👍 {r.helpful_count ?? 0} found helpful</p>
+
+                  {/* Approval */}
+                  {!r.approved && (
+                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.4rem' }}>
+                      <button className="btn-primary" style={{ padding: '0.3rem 0.75rem', fontSize: '0.85rem' }} onClick={async () => {
+                        await supabase.from('reviews').update({ approved: true }).eq('id', r.id);
+                        setReviews(prev => prev.map(x => x.id === r.id ? { ...x, approved: true } : x));
+                      }}>Approve</button>
+                      <button className="btn-danger" style={{ padding: '0.3rem 0.75rem', fontSize: '0.85rem' }} onClick={async () => {
+                        if (!confirm('Delete this review?')) return;
+                        await supabase.from('reviews').delete().eq('id', r.id);
+                        setReviews(prev => prev.filter(x => x.id !== r.id));
+                      }}>Delete</button>
+                    </div>
+                  )}
+
+                  {/* Vendor reply */}
+                  {r.vendor_reply
+                    ? <div className="vendor-reply" style={{ marginTop: '0.5rem' }}>
+                        <strong>Your reply:</strong> {r.vendor_reply}
+                        <button className="btn-link btn-link--danger" onClick={async () => {
+                          await supabase.from('reviews').update({ vendor_reply: null, vendor_replied_at: null }).eq('id', r.id);
+                          setReviews(prev => prev.map(x => x.id === r.id ? { ...x, vendor_reply: null } : x));
+                        }} style={{ marginLeft: '0.5rem', fontSize: '0.8rem' }}>Remove reply</button>
+                      </div>
+                    : r.approved && (
+                      <form style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}
+                        onSubmit={async e => {
+                          e.preventDefault();
+                          const replyEl = (e.currentTarget.elements.namedItem('reply') as HTMLTextAreaElement);
+                          const reply = replyEl.value.trim();
+                          if (!reply) return;
+                          await supabase.from('reviews').update({ vendor_reply: reply, vendor_replied_at: new Date().toISOString() }).eq('id', r.id);
+                          setReviews(prev => prev.map(x => x.id === r.id ? { ...x, vendor_reply: reply } : x));
+                          replyEl.value = '';
+                        }}>
+                        <textarea name="reply" rows={2} placeholder="Reply to this review…" style={{ flex: 1, minWidth: '180px', padding: '0.4rem', borderRadius: 6, border: '1px solid #ccc', fontSize: '0.88rem' }} />
+                        <button type="submit" className="btn-secondary" style={{ alignSelf: 'flex-start' }}>Reply</button>
+                      </form>
+                    )
+                  }
+                </div>
+              ))
+            }
           </div>
         )}
 

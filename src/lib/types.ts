@@ -87,6 +87,11 @@ export interface Review {
   body: string;
   approved: boolean;
   created_at: string;
+  photo_url?: string | null;
+  vendor_reply?: string | null;
+  vendor_replied_at?: string | null;
+  helpful_count?: number;
+  reported?: boolean;
 }
 
 export interface VendorApplication {
