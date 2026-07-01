@@ -53,8 +53,40 @@ export function Storefront() {
     (async () => {
       const { data } = await supabase.from('vendors').select('*').eq('slug', slug).eq('is_active', true).single();
       if (!data) { setNotFound(true); return; }
-      setVendor(data as Vendor);
+      const v = data as Vendor;
+      setVendor(v);
       const vid = data.id;
+
+      // Update page title and meta for SEO
+      document.title = `${v.name} – Local Grindz Hawaiʻi`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) metaDesc.setAttribute('content', v.description ?? `Order from ${v.name} on Local Grindz – Hawaiʻi's food truck marketplace.`);
+
+      // JSON-LD structured data
+      const existingLd = document.getElementById('vendor-jsonld');
+      if (existingLd) existingLd.remove();
+      const script = document.createElement('script');
+      script.id = 'vendor-jsonld';
+      script.type = 'application/ld+json';
+      script.textContent = JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'FoodEstablishment',
+        name: v.name,
+        description: v.description,
+        servesCuisine: v.cuisine_type,
+        url: window.location.href,
+        image: v.photo_url || v.logo_url,
+        address: {
+          '@type': 'PostalAddress',
+          addressRegion: 'HI',
+          addressCountry: 'US',
+        },
+        potentialAction: {
+          '@type': 'OrderAction',
+          target: window.location.href,
+        },
+      });
+      document.head.appendChild(script);
 
       // Record page view
       supabase.from('vendor_events').insert({ vendor_id: vid, event_type: 'page_view', source });
