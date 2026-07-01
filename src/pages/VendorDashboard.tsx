@@ -7,9 +7,17 @@ import { showToast } from '../components/ui/Toast';
 import { ImageUpload, compressImage } from '../components/ui/ImageUpload';
 import { MenuItem, Location, Special, Order, OrderStatus, Vendor } from '../lib/types';
 import QRCode from 'qrcode';
-import { Chart, BarController, BarElement, CategoryScale, LinearScale, Tooltip } from 'chart.js';
+import {
+  Chart, BarController, BarElement, LineController, LineElement, PointElement,
+  CategoryScale, LinearScale, Tooltip, Legend,
+} from 'chart.js';
 
-Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip);
+Chart.register(BarController, BarElement, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
+
+interface AnalyticsState {
+  orders7: Order[];
+  orders30: Order[];
+}
 
 type Tab = 'orders' | 'menu' | 'location' | 'specials' | 'profile' | 'qr' | 'analytics';
 
@@ -27,6 +35,9 @@ export function VendorDashboard() {
   const [qrCodes, setQrCodes] = useState<Record<string, string>>({});
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
+  const revenueChartRef = useRef<HTMLCanvasElement>(null);
+  const revenueChartInstance = useRef<Chart | null>(null);
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsState | null>(null);
 
   const { orders, updateStatus } = useVendorOrders(vendor?.id ?? null);
 
@@ -102,60 +113,57 @@ export function VendorDashboard() {
     ).then(pairs => setQrCodes(Object.fromEntries(pairs)));
   }, [tab, vendor]);
 
-  // Analytics
+  // Analytics — load data when tab opens
   useEffect(() => {
-    if (tab !== 'analytics' || !vendor?.id || !chartRef.current) return;
-    loadAnalytics(vendor.id);
+    if (tab !== 'analytics' || !vendor?.id) return;
+    (async () => {
+      const d7 = new Date(Date.now() - 7 * 864e5).toISOString();
+      const d30 = new Date(Date.now() - 30 * 864e5).toISOString();
+      const [r7, r30] = await Promise.all([
+        supabase.from('orders').select('total, created_at, items, status').eq('vendor_id', vendor.id).gte('created_at', d7),
+        supabase.from('orders').select('total, created_at, items, status').eq('vendor_id', vendor.id).gte('created_at', d30),
+      ]);
+      setAnalyticsData({
+        orders7: (r7.data as Order[]) || [],
+        orders30: (r30.data as Order[]) || [],
+      });
+    })();
   }, [tab, vendor]);
 
-  async function loadAnalytics(vid: string) {
-    const d7 = new Date(Date.now() - 7 * 864e5).toISOString();
-    const d30 = new Date(Date.now() - 30 * 864e5).toISOString();
-    const [r7, r30] = await Promise.all([
-      supabase.from('orders').select('total, created_at, items').eq('vendor_id', vid).gte('created_at', d7),
-      supabase.from('orders').select('total, created_at, items').eq('vendor_id', vid).gte('created_at', d30),
-    ]);
-    const orders7 = (r7.data as Order[]) || [];
-    const orders30 = (r30.data as Order[]) || [];
+  // Draw / redraw charts whenever data lands
+  useEffect(() => {
+    if (!analyticsData || !chartRef.current || !revenueChartRef.current) return;
+    const { orders7 } = analyticsData;
 
-    const stats = document.getElementById('analytics-stats-container');
-    if (stats) {
-      const rev7 = orders7.reduce((s, o) => s + Number(o.total), 0);
-      stats.innerHTML = `
-        <div class="stat-box"><p class="stat-value">${orders7.length}</p><p class="stat-label">Orders (7 days)</p></div>
-        <div class="stat-box"><p class="stat-value">$${rev7.toFixed(2)}</p><p class="stat-label">Revenue (7 days)</p></div>
-        <div class="stat-box"><p class="stat-value">${orders30.length}</p><p class="stat-label">Orders (30 days)</p></div>
-      `;
-    }
-
-    if (!chartRef.current) return;
     const days: string[] = [];
-    const counts: number[] = [];
+    const orderCounts: number[] = [];
+    const revenue: number[] = [];
     for (let i = 6; i >= 0; i--) {
       const d = new Date(Date.now() - i * 864e5);
       days.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
       const dayStr = d.toISOString().slice(0, 10);
-      counts.push(orders7.filter(o => o.created_at?.slice(0, 10) === dayStr).length);
+      const dayOrders = orders7.filter(o => o.created_at?.slice(0, 10) === dayStr);
+      orderCounts.push(dayOrders.length);
+      revenue.push(Number(dayOrders.reduce((s, o) => s + Number(o.total), 0).toFixed(2)));
     }
+
     if (chartInstance.current) chartInstance.current.destroy();
     chartInstance.current = new Chart(chartRef.current, {
       type: 'bar',
-      data: { labels: days, datasets: [{ label: 'Orders', data: counts, backgroundColor: '#E63946', borderRadius: 4 }] },
+      data: { labels: days, datasets: [{ label: 'Orders', data: orderCounts, backgroundColor: '#E63946', borderRadius: 4 }] },
       options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } },
     });
 
-    const itemCounts: Record<string, number> = {};
-    orders30.forEach(o => o.items?.forEach((item: { name: string; qty: number }) => {
-      itemCounts[item.name] = (itemCounts[item.name] || 0) + (item.qty || 1);
-    }));
-    const topEl = document.getElementById('top-items-container');
-    if (topEl) {
-      const sorted = Object.entries(itemCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
-      topEl.innerHTML = sorted.length
-        ? sorted.map(([n, q]) => `<div class="top-item"><span class="top-item-name">${n}</span><span class="top-item-qty">${q} ordered</span></div>`).join('')
-        : '<p class="empty-msg">No orders yet.</p>';
-    }
-  }
+    if (revenueChartInstance.current) revenueChartInstance.current.destroy();
+    revenueChartInstance.current = new Chart(revenueChartRef.current, {
+      type: 'line',
+      data: {
+        labels: days,
+        datasets: [{ label: 'Revenue ($)', data: revenue, borderColor: '#E63946', backgroundColor: 'rgba(230,57,70,0.1)', tension: 0.4, fill: true, pointBackgroundColor: '#E63946' }],
+      },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } },
+    });
+  }, [analyticsData]);
 
   if (authLoading) return <div className="vendor-body"><p className="loading-msg" style={{ padding: '2rem' }}>Loading…</p></div>;
 
@@ -456,12 +464,74 @@ export function VendorDashboard() {
         {tab === 'analytics' && (
           <div className="vendor-tab">
             <h2>Analytics</h2>
-            <div className="analytics-stats" id="analytics-stats-container"></div>
-            <div className="analytics-chart-wrap">
-              <canvas ref={chartRef} height={200}></canvas>
-            </div>
-            <h3>Top Items (30 days)</h3>
-            <div id="top-items-container"></div>
+            {!analyticsData
+              ? <p className="loading-msg">Loading data…</p>
+              : (() => {
+                  const { orders7, orders30 } = analyticsData;
+                  const rev7 = orders7.reduce((s, o) => s + Number(o.total), 0);
+                  const rev30 = orders30.reduce((s, o) => s + Number(o.total), 0);
+                  const avg30 = orders30.length ? rev30 / orders30.length : 0;
+
+                  const itemCounts: Record<string, number> = {};
+                  orders30.forEach(o => o.items?.forEach((item: { name: string; qty: number }) => {
+                    itemCounts[item.name] = (itemCounts[item.name] || 0) + (item.qty || 1);
+                  }));
+                  const topItems = Object.entries(itemCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+                  const hourCounts: number[] = Array(24).fill(0);
+                  orders30.forEach(o => {
+                    const h = new Date(o.created_at).getHours();
+                    hourCounts[h]++;
+                  });
+                  const maxHour = Math.max(...hourCounts, 1);
+
+                  return (
+                    <>
+                      <div className="analytics-stats">
+                        <div className="stat-box"><p className="stat-value">{orders7.length}</p><p className="stat-label">Orders (7 days)</p></div>
+                        <div className="stat-box"><p className="stat-value">${rev7.toFixed(2)}</p><p className="stat-label">Revenue (7 days)</p></div>
+                        <div className="stat-box"><p className="stat-value">{orders30.length}</p><p className="stat-label">Orders (30 days)</p></div>
+                        <div className="stat-box"><p className="stat-value">${rev30.toFixed(2)}</p><p className="stat-label">Revenue (30 days)</p></div>
+                        <div className="stat-box"><p className="stat-value">${avg30.toFixed(2)}</p><p className="stat-label">Avg Ticket (30 days)</p></div>
+                      </div>
+
+                      <h3>Orders per Day (7 days)</h3>
+                      <div className="analytics-chart-wrap"><canvas ref={chartRef} height={180} /></div>
+
+                      <h3>Revenue per Day (7 days)</h3>
+                      <div className="analytics-chart-wrap"><canvas ref={revenueChartRef} height={180} /></div>
+
+                      <h3>Orders by Hour (30 days)</h3>
+                      <div className="hour-heatmap" aria-label="Orders by hour of day">
+                        {hourCounts.map((count, h) => (
+                          <div
+                            key={h}
+                            className="hour-cell"
+                            title={`${h}:00 — ${count} orders`}
+                            style={{ opacity: count ? 0.2 + 0.8 * (count / maxHour) : 0.07 }}
+                          >
+                            <span className="hour-label">{h % 3 === 0 ? `${h}h` : ''}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <h3>Top Items (30 days)</h3>
+                      {topItems.length === 0
+                        ? <p className="empty-msg">No orders yet.</p>
+                        : topItems.map(([name, qty]) => (
+                          <div key={name} className="top-item">
+                            <span className="top-item-name">{name}</span>
+                            <div className="top-item-bar-wrap">
+                              <div className="top-item-bar" style={{ width: `${(qty / topItems[0][1]) * 100}%` }} />
+                            </div>
+                            <span className="top-item-qty">{qty}</span>
+                          </div>
+                        ))
+                      }
+                    </>
+                  );
+                })()
+            }
           </div>
         )}
       </section>
