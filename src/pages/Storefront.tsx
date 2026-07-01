@@ -193,6 +193,7 @@ export function Storefront() {
             const name = fd.get('name') as string;
             const email = fd.get('email') as string;
             const note = fd.get('note') as string;
+            const referralCode = ((fd.get('referral_code') as string) || '').trim().toUpperCase();
 
             const { data, error } = await supabase
               .from('orders')
@@ -207,6 +208,48 @@ export function Storefront() {
                 await redeemPoints(email, loyaltyPoints, vendor.id, data.id);
               }
               await earnPoints(email, vendor.id, data.id, cartTotal);
+
+              // Process referral code if provided
+              if (referralCode) {
+                const { data: refRow } = await supabase
+                  .from('referral_codes')
+                  .select('code, customer_email')
+                  .eq('code', referralCode)
+                  .single();
+
+                if (refRow && refRow.customer_email !== email) {
+                  // Insert use record (unique constraint on referee_email prevents double-use)
+                  const { error: useErr } = await supabase
+                    .from('referral_uses')
+                    .insert({
+                      code: referralCode,
+                      referee_email: email,
+                      order_id: data.id,
+                      referrer_pts: 50,
+                      referee_pts: 25,
+                    });
+
+                  if (!useErr) {
+                    // Award points: referee gets 25, referrer gets 50
+                    await Promise.all([
+                      earnPoints(email, vendor.id, data.id, 25 / 10),     // 25 pts via $2.50 synthetic
+                      earnPoints(refRow.customer_email, vendor.id, data.id, 50 / 10), // 50 pts
+                    ]);
+                    // Update referral_codes stats
+                    const { data: codeRow } = await supabase
+                      .from('referral_codes')
+                      .select('uses, points_earned')
+                      .eq('code', referralCode)
+                      .single();
+                    if (codeRow) {
+                      await supabase
+                        .from('referral_codes')
+                        .update({ uses: codeRow.uses + 1, points_earned: codeRow.points_earned + 50 })
+                        .eq('code', referralCode);
+                    }
+                  }
+                }
+              }
             }
 
             setCart([]);
@@ -242,6 +285,10 @@ export function Storefront() {
                 )}
               </div>
             )}
+            <label>
+              Referral Code <span className="label-hint">(optional — earn 25 bonus points)</span>
+              <input name="referral_code" placeholder="e.g. KAIE-7X4Q" style={{ textTransform: 'uppercase' }} />
+            </label>
             <label>Special Instructions <textarea name="note" rows={2} placeholder="Allergies, substitutions…"></textarea></label>
             <button type="submit" className="btn-primary">Place Order</button>
           </form>
