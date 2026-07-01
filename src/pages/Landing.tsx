@@ -58,6 +58,7 @@ export function Landing() {
           <p className="tagline">Big Island's food truck marketplace</p>
           <div className="header-actions">
             <Link to="/vendors" className="btn-primary btn-lg">Find a Truck</Link>
+            <Link to="/map" className="btn-outline">🗺 Map</Link>
             <Link to="/apply" className="btn-outline">Join as Vendor</Link>
           </div>
         </div>
@@ -97,6 +98,8 @@ export function Landing() {
         <p>Local Grindz — Puna, Big Island, Hawaii</p>
         <nav className="footer-nav">
           <Link to="/vendors">All Vendors</Link>
+          <Link to="/map">Map</Link>
+          <Link to="/account">My Account</Link>
           <Link to="/apply">Apply</Link>
           <Link to="/vendor">Vendor Login</Link>
         </nav>

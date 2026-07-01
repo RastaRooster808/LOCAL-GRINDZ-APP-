@@ -12,12 +12,14 @@
     "@supabase/server": "^1.2.0",
     "@supabase/supabase-js": "^2.49.0",
     "chart.js": "^4.4.0",
+    "leaflet": "^1.9.4",
     "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0"
   },
   "devDependencies": {
+    "@types/leaflet": "^1.9.21",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^18.3.17",
     "@types/react-dom": "^18.3.5",

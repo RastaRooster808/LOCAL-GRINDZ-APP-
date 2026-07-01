@@ -68,6 +68,7 @@ export function Directory() {
         <Link to="/" className="back-link">← Home</Link>
         <h1>Local Grindz</h1>
         <p className="tagline">All Trucks</p>
+        <Link to="/map" className="btn-outline btn-sm" style={{ marginLeft: 'auto' }}>🗺 Map View</Link>
       </header>
 
       <main className="directory-main">

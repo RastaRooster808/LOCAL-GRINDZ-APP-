@@ -313,3 +313,150 @@
 .order-card-reorder { display: inline-block; margin-top: 0.5rem; font-size: 0.82rem; color: var(--lava); font-weight: 600; }
 
 .account-signout { margin-top: 1.5rem; width: 100%; }
+
+/* ── Interactive Map page ───────────────────────────────────── */
+.map-page {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+}
+.map-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  background: #fff;
+  border-bottom: 1.5px solid #e0e0e0;
+  flex-wrap: wrap;
+  z-index: 1000;
+  flex-shrink: 0;
+}
+.map-back-link {
+  font-size: 0.85rem;
+  color: var(--lava);
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.map-back-link:hover { text-decoration: underline; }
+.map-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin: 0;
+  white-space: nowrap;
+  color: var(--ash);
+}
+.map-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+.map-filter-btn {
+  padding: 0.35rem 0.75rem;
+  border: 1.5px solid #ccc;
+  background: #fff;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  color: #333;
+}
+.map-filter-btn:hover { border-color: var(--lava); }
+.map-filter-btn.active {
+  background: var(--lava);
+  border-color: var(--lava);
+  color: #fff;
+}
+.map-near-me { font-size: 0.82rem; }
+.map-cuisine-select {
+  padding: 0.35rem 0.6rem;
+  border: 1.5px solid #ccc;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  background: #fff;
+  cursor: pointer;
+}
+.map-loading {
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  background: #fffde7;
+  border-bottom: 1px solid #ffe082;
+  flex-shrink: 0;
+}
+.map-canvas {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+.map-footer-nav {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem;
+  background: #fff;
+  border-top: 1px solid #e0e0e0;
+  font-size: 0.82rem;
+  flex-shrink: 0;
+}
+.map-footer-nav a { color: var(--lava); text-decoration: none; font-weight: 600; }
+.map-footer-nav a:hover { text-decoration: underline; }
+.map-footer-nav span { color: #ccc; }
+
+/* Leaflet custom pin */
+.map-pin {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 3px solid #aaa;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.map-pin:hover { transform: scale(1.1); }
+.map-pin--open { border-color: #2d6a4f; }
+.map-pin img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+/* Leaflet popup */
+.map-popup {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  min-width: 180px;
+}
+.map-popup-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid #eee;
+}
+.map-popup-body { flex: 1; }
+.map-popup-name { display: block; font-size: 0.95rem; font-weight: 800; line-height: 1.2; }
+.map-popup-dot--open { font-size: 0.75rem; color: #2d6a4f; font-weight: 600; }
+.map-popup-dot--closed { font-size: 0.75rem; color: #aaa; }
+.map-popup-cuisine { font-size: 0.78rem; color: var(--muted); margin: 0.2rem 0 0; }
+.map-popup-addr { font-size: 0.78rem; color: #555; margin: 0.15rem 0 0; }
+.map-popup-hours { font-size: 0.78rem; color: #555; margin: 0.1rem 0 0; }
+.map-popup-link {
+  display: inline-block;
+  margin-top: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--lava);
+  text-decoration: none;
+}
+.map-popup-link:hover { text-decoration: underline; }
