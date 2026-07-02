@@ -3,3 +3,6 @@ id = "LOCAL-GRINDZ-APP"
 
 [functions.order-notify]
 verify_jwt = false
+
+[functions.vendor-new-order]
+verify_jwt = false

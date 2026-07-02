@@ -1,4 +1,5 @@
 import { withSupabase } from '@supabase/server';
+import webpush from 'npm:web-push';
 
 /**
  * order-notify — called by a Supabase database webhook when order.status changes.
@@ -11,6 +12,14 @@ import { withSupabase } from '@supabase/server';
  *   [functions.order-notify]
  *   verify_jwt = false
  */
+const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://rastarooster808.github.io/LOCAL-GRINDZ-APP-';
+
+function initWebPush() {
+  const pub = Deno.env.get('VAPID_PUBLIC_KEY');
+  const priv = Deno.env.get('VAPID_PRIVATE_KEY');
+  if (pub && priv) webpush.setVapidDetails('mailto:admin@localgrindz.com', pub, priv);
+}
+
 export default {
   fetch: withSupabase({ auth: 'secret' }, async (req, ctx) => {
     let payload: { record: Record<string, unknown>; old_record: Record<string, unknown> };
@@ -84,6 +93,42 @@ export default {
     }
 
     void error; // suppress unused var warning
+
+    // Customer Web Push (best-effort, non-blocking)
+    if (customerEmail && message) {
+      try {
+        initWebPush();
+        const { data: subs } = await ctx.supabaseAdmin
+          .from('push_subscriptions')
+          .select('endpoint, p256dh, auth')
+          .eq('user_type', 'customer')
+          .eq('user_ref', customerEmail);
+
+        if (subs && subs.length > 0) {
+          const notification = JSON.stringify({
+            title: 'Order Update',
+            body: message,
+            url: `${SITE_URL}/#/order/${orderId}`,
+          });
+          await Promise.allSettled(
+            subs.map(async (sub: { endpoint: string; p256dh: string; auth: string }) => {
+              try {
+                await webpush.sendNotification(
+                  { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+                  notification,
+                );
+              } catch (e: unknown) {
+                const status = (e as { statusCode?: number }).statusCode;
+                if (status === 410 || status === 404) {
+                  await ctx.supabaseAdmin.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
+                }
+              }
+            }),
+          );
+        }
+      } catch { /* push is optional */ }
+    }
+
     return new Response(JSON.stringify({ sent: true, status: newStatus }), {
       headers: { 'Content-Type': 'application/json' },
     });

@@ -7,6 +7,7 @@ import { showToast } from '../components/ui/Toast';
 import { ImageUpload, compressImage } from '../components/ui/ImageUpload';
 import { MenuItem, Location, Special, Order, OrderStatus, Vendor, Review } from '../lib/types';
 import { VendorInbox } from './VendorInbox';
+import { usePushSubscription } from '../hooks/usePushSubscription';
 import QRCode from 'qrcode';
 import {
   Chart, BarController, BarElement, LineController, LineElement, PointElement,
@@ -42,6 +43,7 @@ export function VendorDashboard() {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsState | null>(null);
 
   const { orders, updateStatus } = useVendorOrders(vendor?.id ?? null);
+  const { status: pushStatus, subscribe: subscribePush, unsubscribe: unsubscribePush } = usePushSubscription('vendor', vendor?.id ?? '');
 
   // Track new orders for toast
   const prevOrderCount = useRef(0);
@@ -203,9 +205,32 @@ export function VendorDashboard() {
 
   return (
     <div className="vendor-body">
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
         <h1>Vendor Dashboard</h1>
-        <button onClick={signOut} className="btn-secondary">Log Out</button>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          {pushStatus === 'unsupported' ? null : pushStatus === 'subscribed' ? (
+            <button
+              className="btn-secondary"
+              style={{ fontSize: '0.8rem' }}
+              onClick={unsubscribePush}
+              title="Turn off push notifications"
+            >
+              🔔 Notifications On
+            </button>
+          ) : pushStatus === 'denied' ? (
+            <span style={{ fontSize: '0.78rem', color: 'var(--muted)' }} title="Enable notifications in browser settings">🔕 Blocked</span>
+          ) : pushStatus === 'unsubscribed' ? (
+            <button
+              className="btn-secondary"
+              style={{ fontSize: '0.8rem' }}
+              onClick={subscribePush}
+              title="Get push alerts for new orders"
+            >
+              🔔 Enable Alerts
+            </button>
+          ) : null}
+          <button onClick={signOut} className="btn-secondary">Log Out</button>
+        </div>
       </header>
 
       <section className="vendor-section">

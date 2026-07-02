@@ -1,4 +1,4 @@
-// Local Grindz Service Worker — Phase 4 (React/Vite build)
+// Local Grindz Service Worker — Phase 4M (React/Vite build + Web Push)
 const CACHE_VERSION = 'v4';
 const CACHE_NAME = `local-grindz-${CACHE_VERSION}`;
 
@@ -56,5 +56,31 @@ self.addEventListener('fetch', event => {
         const cached = await caches.match(request);
         return cached || caches.match('/index.html') || new Response('Offline', { status: 503 });
       }),
+  );
+});
+
+// ── Web Push ──────────────────────────────────────────────
+self.addEventListener('push', event => {
+  const data = event.data?.json() ?? {};
+  event.waitUntil(
+    self.registration.showNotification(data.title ?? 'Local Grindz', {
+      body: data.body ?? '',
+      icon: '/LOCAL-GRINDZ-APP-/icons/icon-192x192.png',
+      badge: '/LOCAL-GRINDZ-APP-/icons/icon-192x192.png',
+      data: { url: data.url ?? '/LOCAL-GRINDZ-APP-/' },
+      vibrate: [200, 100, 200],
+    }),
+  );
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const target = event.notification.data?.url ?? '/LOCAL-GRINDZ-APP-/';
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      const existing = list.find(c => c.url.includes('LOCAL-GRINDZ-APP-') && 'focus' in c);
+      if (existing) return existing.focus();
+      return clients.openWindow(target);
+    }),
   );
 });
