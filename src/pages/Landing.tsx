@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Vendor, VendorFeature } from '../lib/types';
 import { SearchBar } from '../components/ui/SearchBar';
+import { CTACard } from '../components/ui/CTAButton';
+import { CTAS } from '../lib/cta';
+import { trackEvent } from '../lib/analytics';
 
 interface Announcement {
   id: string;
@@ -132,6 +135,8 @@ export function Landing() {
   const [loading, setLoading] = useState(true);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [dismissedAnnouncements, setDismissedAnnouncements] = useState<Set<string>>(new Set());
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'submitting' | 'done' | 'error'>('idle');
 
   useEffect(() => {
     const now = new Date().toISOString();
@@ -178,9 +183,13 @@ export function Landing() {
             <SearchBar placeholder="Search trucks, dishes, or cuisines…" />
           </div>
           <div className="header-actions">
-            <Link to="/vendors" className="btn-primary btn-lg">Find a Truck</Link>
-            <Link to="/map" className="btn-outline">🗺 Map</Link>
-            <Link to="/apply" className="btn-outline">Join as Vendor</Link>
+            <Link
+              to="/vendors"
+              className="btn-primary btn-lg"
+              onClick={() => trackEvent('cta_click', { label: 'Find a Truck', destination: '/vendors', section: 'hero' })}
+            >Find a Truck</Link>
+            <Link to="/map" className="btn-outline" onClick={() => trackEvent('cta_click', { label: 'Map', destination: '/map', section: 'hero' })}>🗺 Map</Link>
+            <Link to="/apply" className="btn-outline" onClick={() => trackEvent('cta_click', { label: 'Join as Vendor', destination: '/apply', section: 'hero' })}>Join as Vendor</Link>
           </div>
         </div>
       </header>
@@ -212,11 +221,88 @@ export function Landing() {
           <Link to="/vendors" className="view-all-link">View all vendors →</Link>
         </section>
 
+        {/* Trust / stats section */}
+        <section className="trust-section" aria-label="Platform stats">
+          <div className="trust-grid">
+            <div className="trust-stat"><span className="trust-num">100%</span><span className="trust-label">Local Vendors</span></div>
+            <div className="trust-stat"><span className="trust-num">Big Island</span><span className="trust-label">Only</span></div>
+            <div className="trust-stat"><span className="trust-num">Free</span><span className="trust-label">to Browse</span></div>
+            <div className="trust-stat"><span className="trust-num">Realtime</span><span className="trust-label">Order Tracking</span></div>
+          </div>
+        </section>
+
+        {/* Commerce preview — CTA cards */}
+        <section className="commerce-section landing-section">
+          <h2>More from Local Grindz</h2>
+          <p className="section-sub">Community commerce coming to Big Island — botanicals, grower resources, and more.</p>
+          <div className="cta-card-grid">
+            <CTACard cta={CTAS.shop_prints} />
+            <CTACard cta={CTAS.join_topp} />
+            <CTACard cta={CTAS.florist_hotel} />
+            <CTACard cta={CTAS.grower_resources ?? CTAS.support_archive} />
+          </div>
+        </section>
+
+        {/* Vendor CTA */}
         <section className="landing-cta">
           <div className="cta-box">
             <h2>Got a food truck?</h2>
             <p>Join Local Grindz and connect with hungry customers across the Big Island.</p>
-            <Link to="/apply" className="btn-primary">Apply to Join</Link>
+            <Link
+              to="/apply"
+              className="btn-primary"
+              onClick={() => trackEvent('cta_click', { label: 'Apply to Join', destination: '/apply', section: 'vendor_cta' })}
+            >Apply to Join</Link>
+          </div>
+        </section>
+
+        {/* Newsletter signup */}
+        <section className="newsletter-section" aria-label="Newsletter signup">
+          <div className="newsletter-inner">
+            <div className="newsletter-text">
+              <h3>Stay in the loop</h3>
+              <p>New vendors, specials, events, and community drops — delivered to your inbox.</p>
+            </div>
+            {newsletterStatus === 'done' ? (
+              <p className="newsletter-success" aria-live="polite">🤙 You're in! Mahalo for joining.</p>
+            ) : (
+              <form
+                className="newsletter-form"
+                onSubmit={async e => {
+                  e.preventDefault();
+                  if (!newsletterEmail.trim()) return;
+                  setNewsletterStatus('submitting');
+                  const { error } = await supabase.from('newsletter_signups').upsert(
+                    { email: newsletterEmail.trim().toLowerCase(), source: 'landing' },
+                    { onConflict: 'email' },
+                  );
+                  if (error) { setNewsletterStatus('error'); return; }
+                  trackEvent('newsletter_signup', { section: 'landing', label: 'footer newsletter' });
+                  setNewsletterStatus('done');
+                }}
+              >
+                <input
+                  type="email"
+                  className="newsletter-input"
+                  value={newsletterEmail}
+                  onChange={e => setNewsletterEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  required
+                  aria-label="Email address for newsletter"
+                  disabled={newsletterStatus === 'submitting'}
+                />
+                <button
+                  type="submit"
+                  className="btn-primary newsletter-submit"
+                  disabled={newsletterStatus === 'submitting'}
+                >
+                  {newsletterStatus === 'submitting' ? '…' : 'Subscribe'}
+                </button>
+                {newsletterStatus === 'error' && (
+                  <p className="newsletter-error" aria-live="polite">Something went wrong. Try again.</p>
+                )}
+              </form>
+            )}
           </div>
         </section>
       </main>
