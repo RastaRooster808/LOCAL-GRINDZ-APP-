@@ -315,7 +315,10 @@ export function VendorDashboard() {
                 category: fd.get('category') as string,
                 available: true,
               }).select().single();
-              if (data) setMenuItems(prev => [...prev, data as MenuItem]);
+              if (data) {
+                setMenuItems(prev => [...prev, data as MenuItem]);
+                supabase.functions.invoke('embed', { body: { table: 'menu_items', id: (data as MenuItem).id } }).catch(() => {});
+              }
               e.currentTarget.reset();
             }}>
               <label>Name <input name="name" required /></label>
@@ -519,6 +522,8 @@ export function VendorDashboard() {
               await supabase.from('vendors').update(updates).eq('id', vendor.id);
               setVendor(prev => prev ? { ...prev, ...updates } : prev);
               showToast('Profile saved!', 'success');
+              // Re-generate embedding so search stays fresh (best-effort)
+              supabase.functions.invoke('embed', { body: { table: 'vendors', id: vendor.id } }).catch(() => {});
             }}>
               <label>Description
                 <textarea name="description" rows={3} defaultValue={vendor.description || ''} placeholder="Tell customers what makes your truck special…" />

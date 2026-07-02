@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Vendor, VendorFeature } from '../lib/types';
+import { SearchBar } from '../components/ui/SearchBar';
 
 interface Announcement {
   id: string;
@@ -173,6 +174,9 @@ export function Landing() {
         <div className="landing-header-inner">
           <h1>Local Grindz</h1>
           <p className="tagline">Big Island's food truck marketplace</p>
+          <div className="hero-search">
+            <SearchBar placeholder="Search trucks, dishes, or cuisines…" />
+          </div>
           <div className="header-actions">
             <Link to="/vendors" className="btn-primary btn-lg">Find a Truck</Link>
             <Link to="/map" className="btn-outline">🗺 Map</Link>

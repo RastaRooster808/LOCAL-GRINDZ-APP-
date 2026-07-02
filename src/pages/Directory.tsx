@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Vendor } from '../lib/types';
+import { SearchBar } from '../components/ui/SearchBar';
 
 const CUISINES = ['All', 'Burger', 'Plate', 'Seafood', 'Vegan', 'Coffee', 'Dessert'];
 
@@ -72,6 +73,9 @@ export function Directory() {
       </header>
 
       <main className="directory-main">
+        <div className="dir-search-row">
+          <SearchBar placeholder="Search trucks, dishes…" />
+        </div>
         <div className="filter-bar">
           {CUISINES.map(c => (
             <button
