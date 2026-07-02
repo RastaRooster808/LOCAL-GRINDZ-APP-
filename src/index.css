@@ -1162,3 +1162,129 @@
   background: #fff;
   box-shadow: 0 1px 4px rgba(0,0,0,0.07);
 }
+
+/* ── Trust / stats section ─────────────────────────────── */
+.trust-section {
+  background: var(--lava);
+  color: #fff;
+  padding: 2rem 1rem;
+}
+.trust-grid {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.trust-stat { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.trust-num { font-size: 1.5rem; font-weight: 900; line-height: 1.1; }
+.trust-label { font-size: 0.78rem; opacity: 0.82; margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ── Commerce CTA cards ────────────────────────────────── */
+.commerce-section { background: #fafafa; }
+.section-sub { color: var(--muted); font-size: 0.9rem; margin-top: -0.5rem; margin-bottom: 1.25rem; }
+.cta-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+.cta-card {
+  background: #fff;
+  border: 1.5px solid #e8e8e8;
+  border-radius: var(--radius);
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.cta-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
+.cta-card-icon { font-size: 1.8rem; line-height: 1; }
+.cta-card-body { flex: 1; }
+.cta-card-title { font-size: 0.9rem; font-weight: 800; margin: 0 0 0.25rem; }
+.cta-card-desc { font-size: 0.78rem; color: var(--muted); margin: 0; line-height: 1.45; }
+
+/* ── CTA button variants ───────────────────────────────── */
+.cta-coming-soon { opacity: 0.85; cursor: default; position: relative; }
+.cta-badge {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.2);
+  border-radius: 999px;
+  padding: 0.05rem 0.4rem;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+  letter-spacing: 0.04em;
+}
+.cta-notify {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: #2d6a4f;
+  font-weight: 600;
+  padding: 0.4rem 0.8rem;
+  background: #d8f3dc;
+  border-radius: 999px;
+  animation: fadeIn 0.2s ease;
+}
+.cta-shopify-note {
+  font-size: 0.62rem;
+  opacity: 0.6;
+  margin-left: 0.3rem;
+  font-weight: 400;
+}
+.btn-ghost {
+  background: transparent;
+  border: 1.5px solid currentColor;
+  color: inherit;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.btn-ghost:hover { background: rgba(0,0,0,0.06); }
+
+/* ── Newsletter section ────────────────────────────────── */
+.newsletter-section {
+  background: #1d1d1d;
+  color: #fff;
+  padding: 2.5rem 1rem;
+}
+.newsletter-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.newsletter-text { flex: 1; min-width: 200px; }
+.newsletter-text h3 { margin: 0 0 0.3rem; font-size: 1.15rem; }
+.newsletter-text p { margin: 0; color: rgba(255,255,255,0.65); font-size: 0.88rem; }
+.newsletter-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 240px;
+}
+.newsletter-input {
+  flex: 1;
+  min-width: 180px;
+  padding: 0.6rem 0.9rem;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  font-size: 0.9rem;
+}
+.newsletter-input::placeholder { color: rgba(255,255,255,0.4); }
+.newsletter-input:focus { outline: none; border-color: var(--lava); }
+.newsletter-submit { white-space: nowrap; }
+.newsletter-success { color: #a7f3d0; font-weight: 700; margin: 0; }
+.newsletter-error { color: #fca5a5; font-size: 0.82rem; width: 100%; margin: 0; }

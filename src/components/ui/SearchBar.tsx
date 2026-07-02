@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+import { trackEvent } from '../../lib/analytics';
 
 interface VendorResult {
   id: string;
@@ -61,7 +62,12 @@ export function SearchBar({ placeholder = 'Search trucks and dishes…', classNa
         const { data, error } = await supabase.functions.invoke<SearchResults>('search', {
           body: { query: query.trim(), limit: 5 },
         });
-        if (!error && data) { setResults(data); setOpen(true); setActiveIdx(-1); }
+        if (!error && data) {
+          setResults(data);
+          setOpen(true);
+          setActiveIdx(-1);
+          trackEvent('search_query', { query: query.trim(), section: 'search_bar' });
+        }
       } catch { /* network error — silently skip */ }
       setLoading(false);
     }, 320);
@@ -135,7 +141,7 @@ export function SearchBar({ placeholder = 'Search trucks and dishes…', classNa
                   key={v.id}
                   to={`/vendors/${v.slug}`}
                   className={`search-result-item${activeIdx === i ? ' search-result-item--active' : ''}`}
-                  onClick={() => setOpen(false)}
+                  onClick={() => { setOpen(false); trackEvent('search_result_click', { label: v.name, vendor_id: v.id, section: 'search_bar' }); }}
                   role="option"
                   aria-selected={activeIdx === i}
                 >
