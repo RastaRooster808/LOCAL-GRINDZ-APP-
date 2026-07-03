@@ -177,6 +177,78 @@ export const commerce = [
     status: PRODUCT_STATUS.LIVE,
   },
 
+  // ── King Protea Bud Study Series (5 new field photos, July 2026) ────────
+  // Photographed on Puna lava site — bud development sequence, Protea cynaroides.
+  // BLOCKED: Not yet uploaded to Shopify CDN or created as Shopify products.
+  // Steps to go live: upload photos to Shopify Files → get CDN URLs → create
+  // Shopify products → attach Sky Pilot files → populate fields below → flip LIVE.
+  // Featured in TOPP Field Report Issue 001 member newsletter.
+  {
+    id: 'king-protea-bud-overhead-digital-print',
+    title: 'King Protea Bud — Overhead Rosette',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'King Protea (Protea cynaroides) bud photographed from directly above its rosette of leaves on Puna lava soil. The bract geometry is fully formed before the flower opens.',
+    image: null, // Upload IMG_0568 to Shopify CDN → replace null
+    tags: ['botanical', 'protea', 'king-protea', 'bud', 'overhead', 'digital', 'hawaii', 'topp', 'lava'],
+    shopifyProductHandle: null, // Set after Shopify product created
+    shopifyVariantId: null,
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+  {
+    id: 'king-protea-on-lava-wall-wide-digital-print',
+    title: 'King Protea on Lava Wall — Wide',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'King Protea branch growing laterally from a\'a basalt lava wall, Puna, Hawaiʻi. Documents the plant establishing on volcanic rock, reaching sideways into available light.',
+    image: null, // Upload IMG_0566 to Shopify CDN → replace null
+    tags: ['botanical', 'protea', 'king-protea', 'lava', 'landscape', 'digital', 'hawaii', 'topp'],
+    shopifyProductHandle: null,
+    shopifyVariantId: null,
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+  {
+    id: 'king-protea-on-lava-close-digital-print',
+    title: 'King Protea on Lava — Close Study',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'Close study of a King Protea bud on a\'a basalt in Puna, Hawaiʻi. Red-margined leaves indicate the plant is in its establishment phase. Lava texture visible throughout.',
+    image: null, // Upload IMG_0565 to Shopify CDN → replace null
+    tags: ['botanical', 'protea', 'king-protea', 'lava', 'close-up', 'digital', 'hawaii', 'topp'],
+    shopifyProductHandle: null,
+    shopifyVariantId: null,
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+  {
+    id: 'king-protea-bud-macro-digital-print',
+    title: 'King Protea Bud — Macro Bract Study',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'Macro photograph of a King Protea (Protea cynaroides) bud showing the velvety, geometrically patterned bracts in dusty rose-pink. The fine hair along each bract edge is visible — detail only seen on the living plant before opening.',
+    image: null, // Upload IMG_0564 to Shopify CDN → replace null
+    tags: ['botanical', 'protea', 'king-protea', 'macro', 'bract', 'digital', 'hawaii', 'topp', 'texture'],
+    shopifyProductHandle: null,
+    shopifyVariantId: null,
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+  {
+    id: 'king-protea-bud-opening-digital-print',
+    title: 'King Protea — The Moment Before Opening',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'King Protea (Protea cynaroides) bud at pre-anthesis stage — outer bracts beginning to separate, interior deepening to rose pink. A second bud forming in the upper frame. Photographed on Puna lava site one day after the bud study series.',
+    image: null, // Upload IMG_0563 to Shopify CDN → replace null
+    tags: ['botanical', 'protea', 'king-protea', 'opening', 'pre-anthesis', 'digital', 'hawaii', 'topp'],
+    shopifyProductHandle: null,
+    shopifyVariantId: null,
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+
   // ── Memberships ─────────────────────────────────────────────────────────
   // BLOCKED: No standalone Shopify membership products exist yet.
   // See docs/SHOPIFY_PRODUCT_BLUEPRINT.md Part 2 for full product specs.
