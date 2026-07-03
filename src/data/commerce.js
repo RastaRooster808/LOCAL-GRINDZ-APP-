@@ -30,7 +30,7 @@ export const PRODUCT_STATUS = {
 export const commerce = [
 
   // ── Digital Prints — TOPP Protea Photography (11 prints) ──────────────
-  // All DRAFT in Shopify → coming_soon. Publish + attach Sky Pilot file → flip to live.
+  // All 11 published ACTIVE in Shopify with Sky Pilot files attached.
   {
     id: 'king-protea-digital-print',
     title: 'King Protea — Digital Print',
@@ -42,7 +42,7 @@ export const commerce = [
     shopifyProductHandle: 'king-protea-digital-print',
     shopifyVariantId: '52639807406367',
     checkoutUrl: 'https://rastarooster.com/cart/52639807406367:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE,
   },
   {
     id: 'pincushion-firework-digital-print',
@@ -55,7 +55,7 @@ export const commerce = [
     shopifyProductHandle: 'pincushion-firework-digital-print',
     shopifyVariantId: '52639807439135',
     checkoutUrl: 'https://rastarooster.com/cart/52639807439135:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE,
   },
   {
     id: 'pink-mink-protea-digital-print',
@@ -68,7 +68,7 @@ export const commerce = [
     shopifyProductHandle: 'pink-mink-protea-digital-print',
     shopifyVariantId: '52639807537439',
     checkoutUrl: 'https://rastarooster.com/cart/52639807537439:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE,
   },
   {
     id: 'pincushion-pair-digital-print',
@@ -81,7 +81,7 @@ export const commerce = [
     shopifyProductHandle: 'pincushion-pair-digital-print',
     shopifyVariantId: '52639807570207',
     checkoutUrl: 'https://rastarooster.com/cart/52639807570207:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE,
   },
   {
     id: 'protea-field-digital-print',
@@ -94,7 +94,7 @@ export const commerce = [
     shopifyProductHandle: 'protea-field-hawaiʻi-digital-print',
     shopifyVariantId: '52639807602975',
     checkoutUrl: 'https://rastarooster.com/cart/52639807602975:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE,
   },
   {
     id: 'yellow-pincushion-digital-print',
@@ -107,7 +107,7 @@ export const commerce = [
     shopifyProductHandle: 'yellow-pincushion-digital-print',
     shopifyVariantId: '52639808520479',
     checkoutUrl: 'https://rastarooster.com/cart/52639808520479:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE,
   },
   {
     id: 'pincushions-in-bloom-digital-print',
@@ -120,7 +120,7 @@ export const commerce = [
     shopifyProductHandle: 'pincushions-in-bloom-digital-print',
     shopifyVariantId: '52639808586015',
     checkoutUrl: 'https://rastarooster.com/cart/52639808586015:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE,
   },
   {
     id: 'red-foliage-digital-print',
@@ -133,7 +133,7 @@ export const commerce = [
     shopifyProductHandle: 'red-foliage-digital-print',
     shopifyVariantId: '52639808553247',
     checkoutUrl: 'https://rastarooster.com/cart/52639808553247:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE,
   },
   {
     id: 'pincushion-bud-digital-print',
@@ -146,7 +146,7 @@ export const commerce = [
     shopifyProductHandle: 'pincushion-bud-digital-print',
     shopifyVariantId: '52639808618783',
     checkoutUrl: 'https://rastarooster.com/cart/52639808618783:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE,
   },
   {
     id: 'conebush-on-lava-digital-print',
@@ -159,7 +159,7 @@ export const commerce = [
     shopifyProductHandle: 'conebush-on-lava-digital-print',
     shopifyVariantId: '52639808651551',
     checkoutUrl: 'https://rastarooster.com/cart/52639808651551:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE,
   },
   {
     id: 'king-protea-on-lava-digital-print',
@@ -172,7 +172,7 @@ export const commerce = [
     shopifyProductHandle: 'king-protea-on-lava-digital-print',
     shopifyVariantId: '52639808717087',
     checkoutUrl: 'https://rastarooster.com/cart/52639808717087:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE,
   },
 
   // ── Memberships ─────────────────────────────────────────────────────────
