@@ -4,7 +4,26 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
-## [Unreleased] — Phase 6: Live Shopify Commerce Wiring (2026-07-03)
+## [Unreleased] — Phase 7A: CommerceGrid UI (2026-07-03)
+
+### Added
+- `src/data/commerce.d.ts` — TypeScript declaration file for `commerce.js` exports (`CommerceItem`, `PRODUCT_TYPES`, `PRODUCT_STATUS`, helpers)
+- `src/components/CommerceCard.tsx` — product card rendering image, title, type label, description, tags, price, and CTA per status
+- `src/components/CommerceGrid.tsx` — sectioned grid grouping products by type (prints → flowers → merch → memberships → grower resources); filters out `draft`/`hidden` entries
+- CSS: `.commerce-product-grid`, `.commerce-card`, `.commerce-card-img-wrap`, `.commerce-card-img-ph`, `.commerce-status-badge`, `.commerce-card-type`, `.commerce-tag`, `.commerce-card-footer`, `.commerce-notify-flash`, mobile breakpoint
+
+### Changed
+- `Landing.tsx`: replaced CTACard commerce section with `<CommerceGrid />` — all live and coming-soon products now visible on the landing page
+
+### Status at Phase 7A
+- **Rendered live** (15 products): 11 digital prints + Keiki Aipohaku Tee + 3 Ohana Bloom bundles
+- **Rendered coming soon** (11 products): 3 memberships + 6 merch items (DRAFT in Shopify) + 2 grower guides
+- **Hidden from grid**: 1 vendor placeholder (DRAFT status)
+- **Blocked**: merch photography needed for 5 items before Shopify publish → flip to live
+
+---
+
+## Phase 6: Live Shopify Commerce Wiring (2026-07-03)
 
 ### Added
 - `CTAStatus` type (`'live' | 'coming_soon' | 'sold_out' | 'hidden'`) replaces `comingSoon: boolean` in `src/lib/cta.ts`

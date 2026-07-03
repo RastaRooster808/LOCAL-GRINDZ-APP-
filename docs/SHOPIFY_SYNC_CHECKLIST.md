@@ -95,5 +95,8 @@ To flip a DRAFT/coming_soon product to live:
 - **Merch (5 items)**: Shopify products exist but are DRAFT. Need photography + publish before flipping live.
 - **Grower Resources**: No Shopify products created yet.
 - **Support the Archive**: No Shopify product or donation mechanism yet.
-- **Storefront API**: Not yet enabled. Required for cart-level integration (Phase 7 product grid).
-- **commerce.js product grid**: Data model is defined but no UI component consumes it yet — Phase 7 scope.
+- **Merch photography**: 5 DRAFT merch products need images before they can be published ACTIVE.
+- **Grower Resources**: No Shopify products created yet.
+- **Support the Archive**: No Shopify product or donation mechanism yet.
+- **Storefront API**: Not yet enabled. Required for cart-level integration (Phase 8 cart/drawer scope).
+- **commerce.js product grid**: ✅ CommerceGrid UI live as of Phase 7A. All live + coming_soon products rendered on landing page.
