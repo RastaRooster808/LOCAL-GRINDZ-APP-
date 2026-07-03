@@ -176,7 +176,9 @@ export const commerce = [
   },
 
   // ── Memberships ─────────────────────────────────────────────────────────
-  // Shopify products not yet created — coming soon.
+  // TOPP subscription ("Botanicals" plan) is attached to Pincushions in Bloom
+  // and Conebush on Lava digital prints at $9/mo fixed price — handled in Shopify.
+  // Standalone membership products below are placeholders for future tiers.
   {
     id: 'membership-topp-monthly',
     title: 'TOPP Community Membership — Monthly',

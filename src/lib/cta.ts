@@ -38,10 +38,10 @@ export const CTAS: Record<string, CTADefinition> = {
   join_topp: {
     id: 'join_topp',
     label: 'Join TOPP',
-    description: 'Become a member of the Puna community archive and support local growers.',
+    description: 'Subscribe to the Botanicals plan — monthly digital prints from Puna protea growers.',
     href: undefined,
-    shopifyUrl: undefined,
-    comingSoon: true,
+    shopifyUrl: 'https://rastarooster.com/collections/botanical-prints',
+    comingSoon: false,
     trackLabel: 'Join TOPP',
     section: 'membership',
     icon: '🌿',
