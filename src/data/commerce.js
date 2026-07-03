@@ -178,9 +178,19 @@ export const commerce = [
   },
 
   // ── Memberships ─────────────────────────────────────────────────────────
-  // TOPP subscription ("Botanicals" plan) is attached to Pincushions in Bloom
-  // and Conebush on Lava digital prints at $9/mo fixed price — handled in Shopify.
-  // Standalone membership products below are placeholders for future tiers.
+  // BLOCKED: No standalone Shopify membership products exist yet.
+  // See docs/SHOPIFY_PRODUCT_BLUEPRINT.md Part 2 for full product specs.
+  //
+  // NOTE: The existing "Botanicals" subscription plan ($9/mo attached to
+  // Pincushions in Bloom + Conebush on Lava prints) is NOT a membership product.
+  // It is a recurring digital print delivery. Do not reuse it as a membership tier.
+  //
+  // These entries remain COMING_SOON until:
+  //   1. Shopify membership products are created in Draft
+  //   2. Shopify Subscriptions selling plan groups are configured (3 new plans needed)
+  //   3. Benefits delivery mechanism is operational
+  //   4. Required legal disclosures are on the product page
+  //   5. shopifyProductHandle + shopifyVariantId are populated below
   {
     id: 'membership-topp-monthly',
     title: 'TOPP Community Membership — Monthly',
@@ -315,7 +325,16 @@ export const commerce = [
   },
 
   // ── Grower Resources ────────────────────────────────────────────────────
-  // Shopify Grower Resources collection exists (0 products) — coming soon.
+  // BLOCKED: No Shopify products exist yet for grower guides.
+  // See docs/SHOPIFY_PRODUCT_BLUEPRINT.md Part 1 for full product specs (5 guides planned).
+  //
+  // These entries remain COMING_SOON until:
+  //   1. PDF content is written and reviewed
+  //   2. Cover/mockup images are created
+  //   3. Shopify products are created in Draft status (handle: see blueprint)
+  //   4. PDF files are uploaded to Sky Pilot and attached to product variants
+  //   5. Collection "topp-grower-guides" is created in Shopify
+  //   6. shopifyProductHandle + shopifyVariantId are populated below
   {
     id: 'grower-guide-protea-01',
     title: 'Protea Grower Guide — Puna, Hawaiʻi',

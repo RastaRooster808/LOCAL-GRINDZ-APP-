@@ -4,7 +4,24 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
-## [Unreleased] — Phase 7A: CommerceGrid UI (2026-07-03)
+## [Unreleased] — Phase 7B: Shopify Product Blueprint (2026-07-03)
+
+### Added
+- `docs/SHOPIFY_PRODUCT_BLUEPRINT.md` — complete product specs for 5 Grower Guides and 3 Membership tiers: titles, handles, prices, descriptions, SEO fields, tags, collections, image requirements, file requirements, legal disclosures, subscription setup notes, and a Phase 7C readiness checklist
+- 5 new Shopify collections documented: `topp-memberships`, `topp-grower-guides`, `topp-digital-archive`, `topp-florist-resources`, `topp-support-shop`
+
+### Changed
+- `src/data/commerce.js`: expanded blocker comments on Memberships and Grower Resources sections — clearly documents what must exist before dev wiring, and explicitly notes that the "Botanicals" print subscription is not a membership proxy
+- `docs/SHOPIFY_SYNC_CHECKLIST.md`: expanded Known Blockers section with per-category action items, collection checklist, and blueprint cross-references
+
+### No code changes
+- No products flipped to live
+- No fake checkout URLs added
+- Botanicals print subscription not reused as membership
+
+---
+
+## Phase 7A: CommerceGrid UI (2026-07-03)
 
 ### Added
 - `src/data/commerce.d.ts` — TypeScript declaration file for `commerce.js` exports (`CommerceItem`, `PRODUCT_TYPES`, `PRODUCT_STATUS`, helpers)

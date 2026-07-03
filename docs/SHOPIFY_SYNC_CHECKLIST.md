@@ -92,11 +92,39 @@ To flip a DRAFT/coming_soon product to live:
 
 ## Known Blockers / Next Steps
 
-- **Merch (5 items)**: Shopify products exist but are DRAFT. Need photography + publish before flipping live.
-- **Grower Resources**: No Shopify products created yet.
-- **Support the Archive**: No Shopify product or donation mechanism yet.
-- **Merch photography**: 5 DRAFT merch products need images before they can be published ACTIVE.
-- **Grower Resources**: No Shopify products created yet.
-- **Support the Archive**: No Shopify product or donation mechanism yet.
-- **Storefront API**: Not yet enabled. Required for cart-level integration (Phase 8 cart/drawer scope).
-- **commerce.js product grid**: ✅ CommerceGrid UI live as of Phase 7A. All live + coming_soon products rendered on landing page.
+### Merch (5 items)
+- Status: DRAFT in Shopify
+- Blocked on: product photography
+- Action: Photograph → publish ACTIVE in Shopify → flip `COMING_SOON` → `LIVE` in `commerce.js`
+
+### Grower Guides (5 planned)
+- Status: No Shopify products exist yet
+- Blueprint: `docs/SHOPIFY_PRODUCT_BLUEPRINT.md` Part 1
+- Blocked on: PDF content writing, cover images, Sky Pilot file attachment
+- Action: Follow blueprint → create Shopify products → populate `shopifyVariantId` in `commerce.js`
+
+### Memberships (3 planned)
+- Status: No standalone Shopify membership products exist
+- Blueprint: `docs/SHOPIFY_PRODUCT_BLUEPRINT.md` Part 2
+- **Important:** The existing "Botanicals" plan ($9/mo on prints) is NOT a membership proxy
+- Blocked on: community platform selection, verification flows, Shopify Subscriptions plan setup, legal disclosures
+- Action: Follow blueprint checklist → create products → configure selling plans → populate `commerce.js`
+
+### Required Collections (5)
+See `docs/SHOPIFY_PRODUCT_BLUEPRINT.md` Part 3 for handles and descriptions.
+- [ ] `topp-memberships`
+- [ ] `topp-grower-guides`
+- [ ] `topp-digital-archive`
+- [ ] `topp-florist-resources`
+- [ ] `topp-support-shop`
+
+### Support the Archive
+- Status: No Shopify product or donation mechanism yet
+- Blocked on: product concept + legal structure for donations
+
+### Storefront API
+- Status: Not yet enabled
+- Required for: Phase 8 cart-level integration (add-to-cart drawer without page navigation)
+
+### CommerceGrid UI
+- ✅ Live as of Phase 7A — all `live` and `coming_soon` products render on the landing page
