@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Vendor, VendorFeature } from '../lib/types';
 import { SearchBar } from '../components/ui/SearchBar';
-import { CTACard } from '../components/ui/CTAButton';
-import { CTAS } from '../lib/cta';
+import { CommerceGrid } from '../components/CommerceGrid';
 import { trackEvent } from '../lib/analytics';
 
 interface Announcement {
@@ -231,17 +230,8 @@ export function Landing() {
           </div>
         </section>
 
-        {/* Commerce preview — CTA cards */}
-        <section className="commerce-section landing-section">
-          <h2>More from Local Grindz</h2>
-          <p className="section-sub">Community commerce coming to Big Island — botanicals, grower resources, and more.</p>
-          <div className="cta-card-grid">
-            <CTACard cta={CTAS.shop_prints} />
-            <CTACard cta={CTAS.join_topp} />
-            <CTACard cta={CTAS.florist_hotel} />
-            <CTACard cta={CTAS.grower_resources ?? CTAS.support_archive} />
-          </div>
-        </section>
+        {/* Commerce grid — live products and coming soon */}
+        <CommerceGrid />
 
         {/* Vendor CTA */}
         <section className="landing-cta">
