@@ -1207,6 +1207,7 @@
 
 /* ── CTA button variants ───────────────────────────────── */
 .cta-coming-soon { opacity: 0.85; cursor: default; position: relative; }
+.cta-sold-out { opacity: 0.55; cursor: not-allowed; position: relative; }
 .cta-badge {
   font-size: 0.62rem;
   font-weight: 800;
@@ -1218,6 +1219,7 @@
   vertical-align: middle;
   letter-spacing: 0.04em;
 }
+.cta-badge--sold-out { background: rgba(180,0,0,0.18); color: #c00; }
 .cta-notify {
   display: inline-flex;
   align-items: center;

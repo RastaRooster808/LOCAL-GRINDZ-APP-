@@ -3,21 +3,27 @@
  *
  * Each CTA entry maps a user-facing label to either:
  *  - a live internal route (href)
- *  - a Shopify checkout/collection URL (shopifyUrl)
- *  - a "coming soon" placeholder state (comingSoon: true)
+ *  - a Shopify collection or product URL (shopifyUrl)
+ *  - a coming_soon / sold_out / hidden state
  *
- * Import useCTA() in components to get click handlers + state.
+ * Status semantics:
+ *   live        → renders as a real link (internal Link or external Shopify)
+ *   coming_soon → renders "Coming Soon" badge + notify flash on click
+ *   sold_out    → renders disabled "Sold Out" button, no routing
+ *   hidden      → CTAButton and CTACard return null — not rendered
  */
 
 import { trackEvent } from './analytics';
+
+export type CTAStatus = 'live' | 'coming_soon' | 'sold_out' | 'hidden';
 
 export interface CTADefinition {
   id: string;
   label: string;
   description: string;
-  href?: string;
-  shopifyUrl?: string;
-  comingSoon: boolean;
+  href?: string;         // internal React Router path
+  shopifyUrl?: string;   // Shopify collection or product page URL
+  status: CTAStatus;
   trackLabel: string;
   section: string;
   icon?: string;
@@ -27,10 +33,10 @@ export const CTAS: Record<string, CTADefinition> = {
   shop_prints: {
     id: 'shop_prints',
     label: 'Shop Botanical Prints',
-    description: 'High-resolution digital downloads of Big Island botanical art.',
+    description: 'High-resolution digital downloads of Big Island botanical art — $0.99 each.',
     href: undefined,
     shopifyUrl: 'https://rastarooster.com/collections/botanical-prints',
-    comingSoon: false,
+    status: 'live',
     trackLabel: 'Shop Botanical Prints',
     section: 'commerce',
     icon: '🌺',
@@ -41,7 +47,7 @@ export const CTAS: Record<string, CTADefinition> = {
     description: 'Subscribe to the Botanicals plan — monthly digital prints from Puna protea growers.',
     href: undefined,
     shopifyUrl: 'https://rastarooster.com/collections/botanical-prints',
-    comingSoon: false,
+    status: 'live',
     trackLabel: 'Join TOPP',
     section: 'membership',
     icon: '🌿',
@@ -52,7 +58,7 @@ export const CTAS: Record<string, CTADefinition> = {
     description: 'Help preserve the botanical and cultural history of the Puna district.',
     href: undefined,
     shopifyUrl: undefined,
-    comingSoon: true,
+    status: 'coming_soon',
     trackLabel: 'Support the Archive',
     section: 'support',
     icon: '📚',
@@ -60,10 +66,10 @@ export const CTAS: Record<string, CTADefinition> = {
   view_inventory: {
     id: 'view_inventory',
     label: 'View Current Inventory',
-    description: 'Browse available tropical stems, anthurium, and foliage for florists and hotels.',
+    description: 'Browse fresh weekly protea stems — Ohana Bloom bundles for cafés, homes, and hotels.',
     href: undefined,
-    shopifyUrl: undefined,
-    comingSoon: true,
+    shopifyUrl: 'https://rastarooster.com/collections/wholesale-flowers',
+    status: 'live',
     trackLabel: 'View Current Inventory',
     section: 'florist_hotel',
     icon: '💐',
@@ -74,7 +80,7 @@ export const CTAS: Record<string, CTADefinition> = {
     description: 'Browse all food trucks and pop-up vendors on the Big Island.',
     href: '/vendors',
     shopifyUrl: undefined,
-    comingSoon: false,
+    status: 'live',
     trackLabel: 'Vendor Directory',
     section: 'directory',
     icon: '🚚',
@@ -82,10 +88,10 @@ export const CTAS: Record<string, CTADefinition> = {
   florist_hotel: {
     id: 'florist_hotel',
     label: 'Florist / Hotel Access',
-    description: 'Wholesale tropical flowers direct from Puna growers.',
+    description: 'Fresh weekly protea stems direct from Puna — Ohana Bloom bundles from $42/week.',
     href: undefined,
-    shopifyUrl: undefined,
-    comingSoon: true,
+    shopifyUrl: 'https://rastarooster.com/collections/wholesale-flowers',
+    status: 'live',
     trackLabel: 'Florist Hotel Access',
     section: 'wholesale',
     icon: '🏨',
@@ -96,7 +102,7 @@ export const CTAS: Record<string, CTADefinition> = {
     description: 'Digital guides and tools for Puna farmers and small-scale growers.',
     href: undefined,
     shopifyUrl: undefined,
-    comingSoon: true,
+    status: 'coming_soon',
     trackLabel: 'Grower Resources',
     section: 'commerce',
     icon: '🌱',
@@ -107,7 +113,7 @@ export const CTAS: Record<string, CTADefinition> = {
     description: 'List your food truck or pop-up on Local Grindz.',
     href: '/apply',
     shopifyUrl: undefined,
-    comingSoon: false,
+    status: 'live',
     trackLabel: 'Apply as Vendor',
     section: 'vendor_cta',
     icon: '🍽',
@@ -117,11 +123,11 @@ export const CTAS: Record<string, CTADefinition> = {
 export function handleCTAClick(cta: CTADefinition): string | null {
   trackEvent('cta_click', {
     label: cta.trackLabel,
-    destination: cta.shopifyUrl ?? cta.href ?? 'coming_soon',
+    destination: cta.shopifyUrl ?? cta.href ?? cta.status,
     section: cta.section,
   });
 
-  if (cta.comingSoon) return null;
+  if (cta.status !== 'live') return null;
   if (cta.shopifyUrl) return cta.shopifyUrl;
   if (cta.href) return cta.href;
   return null;

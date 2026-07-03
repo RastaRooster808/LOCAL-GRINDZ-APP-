@@ -24,6 +24,8 @@ export const PRODUCT_STATUS = {
   COMING_SOON: 'coming_soon',
   DRAFT:       'draft',
   ARCHIVED:    'archived',
+  SOLD_OUT:    'sold_out',
+  HIDDEN:      'hidden',
 };
 
 /** @type {CommerceItem[]} */

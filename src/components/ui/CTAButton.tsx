@@ -17,15 +17,29 @@ export function CTAButton({ cta, className = '', size = 'md', variant = 'primary
   const variantClass = variant === 'outline' ? 'btn-outline' : variant === 'ghost' ? 'btn-ghost' : 'btn-primary';
   const cls = `${variantClass} ${sizeClass} ${className}`.trim();
 
+  // Hidden — do not render
+  if (cta.status === 'hidden') return null;
+
+  // Sold out — disabled, no routing
+  if (cta.status === 'sold_out') {
+    return (
+      <button type="button" className={`${cls} cta-sold-out`} disabled aria-disabled="true">
+        {cta.icon && <span aria-hidden="true">{cta.icon} </span>}
+        {cta.label}
+        <span className="cta-badge cta-badge--sold-out">Sold Out</span>
+      </button>
+    );
+  }
+
   function handleClick() {
     const dest = handleCTAClick(cta);
-    if (!dest && cta.comingSoon) {
+    if (dest && dest.startsWith('http')) {
+      window.open(dest, '_blank', 'noopener,noreferrer');
+    } else if (!dest && cta.status === 'coming_soon') {
       setShowingNotify(true);
       setTimeout(() => setShowingNotify(false), 2500);
-    } else if (dest && dest.startsWith('http')) {
-      window.open(dest, '_blank', 'noopener,noreferrer');
     }
-    // Internal hrefs are handled by the Link component below
+    // Internal hrefs handled by the Link component below
   }
 
   if (showingNotify) {
@@ -37,7 +51,7 @@ export function CTAButton({ cta, className = '', size = 'md', variant = 'primary
   }
 
   // Live internal route → React Router Link
-  if (!cta.comingSoon && cta.href && !cta.shopifyUrl) {
+  if (cta.status === 'live' && cta.href && !cta.shopifyUrl) {
     return (
       <Link to={cta.href} className={cls} onClick={() => handleCTAClick(cta)}>
         {cta.icon && <span aria-hidden="true">{cta.icon} </span>}
@@ -46,8 +60,8 @@ export function CTAButton({ cta, className = '', size = 'md', variant = 'primary
     );
   }
 
-  // Shopify external link
-  if (!cta.comingSoon && cta.shopifyUrl) {
+  // Live Shopify external link
+  if (cta.status === 'live' && cta.shopifyUrl) {
     return (
       <a
         href={cta.shopifyUrl}
@@ -63,7 +77,7 @@ export function CTAButton({ cta, className = '', size = 'md', variant = 'primary
     );
   }
 
-  // Coming soon — button with notify flash
+  // Coming soon — badge + notify flash on click
   return (
     <button type="button" className={`${cls} cta-coming-soon`} onClick={handleClick}>
       {cta.icon && <span aria-hidden="true">{cta.icon} </span>}
@@ -75,6 +89,9 @@ export function CTAButton({ cta, className = '', size = 'md', variant = 'primary
 
 /** Compact card version: icon + label + description + CTA */
 export function CTACard({ cta }: { cta: CTADefinition }) {
+  // Hidden CTAs don't render at all
+  if (cta.status === 'hidden') return null;
+
   return (
     <div className="cta-card">
       {cta.icon && <div className="cta-card-icon" aria-hidden="true">{cta.icon}</div>}
