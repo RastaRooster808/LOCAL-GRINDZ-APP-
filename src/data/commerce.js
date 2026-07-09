@@ -177,6 +177,40 @@ export const commerce = [
     status: PRODUCT_STATUS.LIVE,
   },
 
+  // ── Puna Field Study — New Batch July 2026 (2 of 21 logged so far) ────────
+  // Full batch: 21 photos from Puna lava site, July 2026.
+  // Two sample photos processed below. Remaining 19 entries pending user upload.
+  // Rename files before uploading to Shopify: use descriptive kebab-case names
+  // (e.g. topp-pincushion-lava-pair-01.jpg) so CDN URLs are self-identifying.
+  // Steps to go live: upload → get CDN URL → create Shopify product (DRAFT) →
+  // attach Sky Pilot file → populate fields below → flip LIVE.
+  {
+    id: 'pincushion-lava-firework-pair-digital-print',
+    title: 'Pincushion on Lava — Firework Pair',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'Two orange-red pincushion proteas (Leucospermum) in full anthesis against black Puna lava — the firework bloom structure at its most saturated. Silver-grey foliage, lava substrate, multiple buds visible in background. Photographed by the TOPP founding grower.',
+    image: null, // Upload IMG_0599 to Shopify CDN → replace null
+    tags: ['botanical', 'protea', 'pincushion', 'leucospermum', 'lava', 'firework', 'digital', 'hawaii', 'topp', 'puna'],
+    shopifyProductHandle: null,
+    shopifyVariantId: null,
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+  {
+    id: 'king-protea-lava-cliff-wide-digital-print',
+    title: 'King Protea — Lava Cliff, Wide',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'King Protea (Protea cynaroides) growing from a tall a\'a lava cliff in Puna, Hawaiʻi — one open bloom and one emerging bud, volcanic wall scale visible against open sky. Wide environmental portrait from the TOPP founding grower.',
+    image: null, // Upload IMG_0578 to Shopify CDN → replace null (note: phone captured landscape, upload portrait crop)
+    tags: ['botanical', 'protea', 'king-protea', 'lava', 'landscape', 'cliff', 'digital', 'hawaii', 'topp', 'puna'],
+    shopifyProductHandle: null,
+    shopifyVariantId: null,
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+
   // ── King Protea Bud Study Series (5 new field photos, July 2026) ────────
   // Photographed on Puna lava site — bud development sequence, Protea cynaroides.
   // BLOCKED: Not yet uploaded to Shopify CDN or created as Shopify products.
@@ -189,7 +223,7 @@ export const commerce = [
     type: PRODUCT_TYPES.DIGITAL_PRINT,
     price: 0.99,
     description: 'King Protea (Protea cynaroides) bud photographed from directly above its rosette of leaves on Puna lava soil. The bract geometry is fully formed before the flower opens.',
-    image: null, // Upload IMG_0568 to Shopify CDN → replace null
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/9C98C58A-F405-44C3-A37A-4DC49A451B55.jpg?v=1783110478',
     tags: ['botanical', 'protea', 'king-protea', 'bud', 'overhead', 'digital', 'hawaii', 'topp', 'lava'],
     shopifyProductHandle: null, // Set after Shopify product created
     shopifyVariantId: null,
@@ -202,7 +236,7 @@ export const commerce = [
     type: PRODUCT_TYPES.DIGITAL_PRINT,
     price: 0.99,
     description: 'King Protea branch growing laterally from a\'a basalt lava wall, Puna, Hawaiʻi. Documents the plant establishing on volcanic rock, reaching sideways into available light.',
-    image: null, // Upload IMG_0566 to Shopify CDN → replace null
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/245B8120-0E94-49F5-9C10-74200DCEF83E.jpg?v=1783110478',
     tags: ['botanical', 'protea', 'king-protea', 'lava', 'landscape', 'digital', 'hawaii', 'topp'],
     shopifyProductHandle: null,
     shopifyVariantId: null,
@@ -215,7 +249,7 @@ export const commerce = [
     type: PRODUCT_TYPES.DIGITAL_PRINT,
     price: 0.99,
     description: 'Close study of a King Protea bud on a\'a basalt in Puna, Hawaiʻi. Red-margined leaves indicate the plant is in its establishment phase. Lava texture visible throughout.',
-    image: null, // Upload IMG_0565 to Shopify CDN → replace null
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/687510E4-ECB3-4301-9E47-913941114C23.jpg?v=1783110478',
     tags: ['botanical', 'protea', 'king-protea', 'lava', 'close-up', 'digital', 'hawaii', 'topp'],
     shopifyProductHandle: null,
     shopifyVariantId: null,
@@ -228,7 +262,7 @@ export const commerce = [
     type: PRODUCT_TYPES.DIGITAL_PRINT,
     price: 0.99,
     description: 'Macro photograph of a King Protea (Protea cynaroides) bud showing the velvety, geometrically patterned bracts in dusty rose-pink. The fine hair along each bract edge is visible — detail only seen on the living plant before opening.',
-    image: null, // Upload IMG_0564 to Shopify CDN → replace null
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/B1A95449-3A90-43FA-9EC9-4441C65E1E9C.jpg?v=1783110478',
     tags: ['botanical', 'protea', 'king-protea', 'macro', 'bract', 'digital', 'hawaii', 'topp', 'texture'],
     shopifyProductHandle: null,
     shopifyVariantId: null,
@@ -241,7 +275,7 @@ export const commerce = [
     type: PRODUCT_TYPES.DIGITAL_PRINT,
     price: 0.99,
     description: 'King Protea (Protea cynaroides) bud at pre-anthesis stage — outer bracts beginning to separate, interior deepening to rose pink. A second bud forming in the upper frame. Photographed on Puna lava site one day after the bud study series.',
-    image: null, // Upload IMG_0563 to Shopify CDN → replace null
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/DAC66AB7-2656-48C4-829C-52E5304D3973.jpg?v=1783110478',
     tags: ['botanical', 'protea', 'king-protea', 'opening', 'pre-anthesis', 'digital', 'hawaii', 'topp'],
     shopifyProductHandle: null,
     shopifyVariantId: null,
