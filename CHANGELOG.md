@@ -28,13 +28,25 @@ All notable changes to Local Grindz are documented here.
 - `orange-pincushion-shrub-wide` (IMG_0597; alt 0598) — production shrub, working farm
 - `pincushion-lava-firework-pair` (IMG_0599) — added earlier from sample
 
+### CDN images wired (2026-07-09, second upload)
+19 descriptively-named HEIC files uploaded to Shopify Files; visually verified via
+storage-backend download + contact sheet, wired 10 entries using Shopify's JPG-converted
+CDN URLs (`.heic.jpg` — HEIC won't render in Chrome/Firefox):
+- full-bloom-close ← King-Protea_and_Puppy_5 · farm-dog ← King-Protea_and_Puppy
+- open-bloom-lava ← King-Protea_and_Puppy_3 (no puppy in frame despite filename)
+- silver-dome-macro ← King-Protea_close_up · profile-sky ← Pink-King_Protea
+- lava-outcrop ← pink-King_protea_2 · pincushion-pair ← Pincushion-Farm_Puppy
+- starburst-macro ← Yellow-Bloom_2 · shrub-wide ← Yellow-Starbust
+- ohia-lehua ← red-Pincushion (filename says pincushion; photo is Metrosideros)
+
 ### Pending
-- 7 unidentified UUID files from July 3 Shopify upload may match some of these photos
-  (all 3024×4032 portrait, consistent with Shopify auto-rotation of these landscape shots):
-  `0B40D45F`, `6270A4F0`, `7E9ED4EC`, `8251AAC4`, `3963D6A9`, `E979FEF0`, `DE05D8E7`
+- 2 field batch entries still without Shopify uploads: `king-protea-cinder-field-wide`
+  (IMG_0578) and `pincushion-lava-firework-pair` (IMG_0599)
+- 7 unidentified UUID files from July 3 upload remain (bud study took 5 of 14; some may
+  duplicate the newly named uploads): `0B40D45F`, `6270A4F0`, `7E9ED4EC`, `8251AAC4`,
+  `3963D6A9`, `E979FEF0`, `DE05D8E7` — candidates for cleanup in Shopify Files
 - 2 duplicate-sized file pairs flagged for cleanup: `E979FEF0`/`271EADDB`, `DE05D8E7`/`D172302E`
 - Shopify products still needed for all bud study + field batch entries before any can go LIVE
-- One photo from the 21 never shared (gap in IMG sequence at 0581/0592)
 
 ---
 
