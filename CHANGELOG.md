@@ -4,6 +4,24 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Phase 7C Prep: New Field Photo Batch (2026-07-09)
+
+### Added
+- `src/data/commerce.js`: 2 new COMING_SOON entries from July 2026 Puna field session:
+  - `pincushion-lava-firework-pair-digital-print` (IMG_0599 — open Leucospermum pair on lava)
+  - `king-protea-lava-cliff-wide-digital-print` (IMG_0578 — King Protea on a'a lava cliff, wide)
+- CDN URLs now wired for all 5 King Protea Bud Study entries (IMG_0563–0568); matched by
+  dimension profile (3 square 3024×3024, 2 portrait 3024×4032) against known crop patterns
+
+### Pending
+- 7 additional photos from same July 3 upload batch (UUIDs in Shopify) await identification:
+  `0B40D45F`, `6270A4F0`, `7E9ED4EC`, `8251AAC4`, `3963D6A9`, `E979FEF0`, `DE05D8E7`
+- 2 duplicate-sized file pairs flagged: `E979FEF0`/`271EADDB` and `DE05D8E7`/`D172302E`
+- Remaining ~14 photos from "21 photo" batch not yet uploaded to Shopify
+- Shopify products still needed for all bud study + new batch entries before any can go LIVE
+
+---
+
 ## [Unreleased] — Phase 7B: Shopify Product Blueprint (2026-07-03)
 
 ### Added
