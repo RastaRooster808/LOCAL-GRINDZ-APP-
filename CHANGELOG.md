@@ -13,12 +13,28 @@ All notable changes to Local Grindz are documented here.
 - CDN URLs now wired for all 5 King Protea Bud Study entries (IMG_0563–0568); matched by
   dimension profile (3 square 3024×3024, 2 portrait 3024×4032) against known crop patterns
 
+### July 2026 field batch fully reviewed (20 of 21 photos)
+11 distinct scenes selected as COMING_SOON digital print entries:
+- `king-protea-cinder-field-wide` (IMG_0578) — plant on cinder field, open bloom + bud
+- `king-protea-open-bloom-lava` (IMG_0579) — bloom cradled in foliage on lava
+- `king-protea-silver-dome-macro` (IMG_0580) — extreme macro of open floret dome
+- `king-protea-full-bloom-close` (IMG_0582; alts 0583, 0584) — full anthesis portrait
+- `king-protea-farm-dog` (IMG_0585) — bloom + farm puppy field-life portrait
+- `king-protea-lava-outcrop` (IMG_0586) — bloom emerging from a'a outcrop
+- `king-protea-profile-sky` (IMG_0587) — full plant profile against grey sky
+- `pincushion-pair-farm-puppy` (IMG_0590; alts 0588, 0589, 0591) — orange + yellow pair
+- `yellow-pincushion-starburst-macro` (IMG_0594; alt 0593) — overhead starburst
+- `ohia-lehua-salmon-bloom` (IMG_0595; alt 0596) — native ʻōhiʻa lehua, NOT protea
+- `orange-pincushion-shrub-wide` (IMG_0597; alt 0598) — production shrub, working farm
+- `pincushion-lava-firework-pair` (IMG_0599) — added earlier from sample
+
 ### Pending
-- 7 additional photos from same July 3 upload batch (UUIDs in Shopify) await identification:
+- 7 unidentified UUID files from July 3 Shopify upload may match some of these photos
+  (all 3024×4032 portrait, consistent with Shopify auto-rotation of these landscape shots):
   `0B40D45F`, `6270A4F0`, `7E9ED4EC`, `8251AAC4`, `3963D6A9`, `E979FEF0`, `DE05D8E7`
-- 2 duplicate-sized file pairs flagged: `E979FEF0`/`271EADDB` and `DE05D8E7`/`D172302E`
-- Remaining ~14 photos from "21 photo" batch not yet uploaded to Shopify
-- Shopify products still needed for all bud study + new batch entries before any can go LIVE
+- 2 duplicate-sized file pairs flagged for cleanup: `E979FEF0`/`271EADDB`, `DE05D8E7`/`D172302E`
+- Shopify products still needed for all bud study + field batch entries before any can go LIVE
+- One photo from the 21 never shared (gap in IMG sequence at 0581/0592)
 
 ---
 

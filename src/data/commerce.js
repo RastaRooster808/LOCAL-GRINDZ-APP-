@@ -177,13 +177,40 @@ export const commerce = [
     status: PRODUCT_STATUS.LIVE,
   },
 
-  // ── Puna Field Study — New Batch July 2026 (2 of 21 logged so far) ────────
+  // ── Puna Field Study — July 2026 Batch (20 of 21 photos reviewed) ────────
   // Full batch: 21 photos from Puna lava site, July 2026.
-  // Two sample photos processed below. Remaining 19 entries pending user upload.
+  // 11 distinct scenes selected as products below; near-duplicate frames noted
+  // as alternates in each entry's image comment.
   // Rename files before uploading to Shopify: use descriptive kebab-case names
   // (e.g. topp-pincushion-lava-pair-01.jpg) so CDN URLs are self-identifying.
   // Steps to go live: upload → get CDN URL → create Shopify product (DRAFT) →
   // attach Sky Pilot file → populate fields below → flip LIVE.
+  {
+    id: 'ohia-lehua-salmon-bloom-digital-print',
+    title: 'ʻŌhiʻa Lehua — Salmon Bloom',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'A salmon-orange lehua blossom on native ʻōhiʻa (Metrosideros polymorpha) growing wild beside the protea rows — grey-green rounded leaves, new buds, and the Puna scrubland behind. Hawaiʻi\'s most beloved native tree, at home on young lava.',
+    image: null, // Upload IMG_0595 to Shopify CDN → replace null (alternate macro: IMG_0596)
+    tags: ['botanical', 'ohia', 'lehua', 'metrosideros', 'native-hawaiian', 'digital', 'hawaii', 'topp', 'puna'],
+    shopifyProductHandle: null,
+    shopifyVariantId: null,
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+  {
+    id: 'orange-pincushion-shrub-wide-digital-print',
+    title: 'Orange Pincushion Shrub — Working Rows',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'A mature orange pincushion protea (Leucospermum) shrub carrying half a dozen blooms at once, rooted straight into broken lava. The working farm shows at the field edge — this is production protea country, Puna, Hawaiʻi.',
+    image: null, // Upload IMG_0597 to Shopify CDN → replace null (alternate: IMG_0598)
+    tags: ['botanical', 'protea', 'pincushion', 'leucospermum', 'shrub', 'farm', 'lava', 'digital', 'hawaii', 'topp', 'puna'],
+    shopifyProductHandle: null,
+    shopifyVariantId: null,
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
   {
     id: 'pincushion-lava-firework-pair-digital-print',
     title: 'Pincushion on Lava — Firework Pair',
@@ -198,13 +225,117 @@ export const commerce = [
     status: PRODUCT_STATUS.COMING_SOON,
   },
   {
-    id: 'king-protea-lava-cliff-wide-digital-print',
-    title: 'King Protea — Lava Cliff, Wide',
+    id: 'king-protea-cinder-field-wide-digital-print',
+    title: 'King Protea — Cinder Field, Wide',
     type: PRODUCT_TYPES.DIGITAL_PRINT,
     price: 0.99,
-    description: 'King Protea (Protea cynaroides) growing from a tall a\'a lava cliff in Puna, Hawaiʻi — one open bloom and one emerging bud, volcanic wall scale visible against open sky. Wide environmental portrait from the TOPP founding grower.',
-    image: null, // Upload IMG_0578 to Shopify CDN → replace null (note: phone captured landscape, upload portrait crop)
-    tags: ['botanical', 'protea', 'king-protea', 'lava', 'landscape', 'cliff', 'digital', 'hawaii', 'topp', 'puna'],
+    description: 'King Protea (Protea cynaroides) established on open volcanic cinder in Puna, Hawaiʻi — one open pink bloom, one developing bud, weathered lava ridge and grey island sky behind. Wide environmental portrait from the TOPP founding grower.',
+    image: null, // Upload IMG_0578 to Shopify CDN → replace null (EXIF rotation: verify orientation after upload)
+    tags: ['botanical', 'protea', 'king-protea', 'lava', 'cinder', 'landscape', 'digital', 'hawaii', 'topp', 'puna'],
+    shopifyProductHandle: null,
+    shopifyVariantId: null,
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+  {
+    id: 'king-protea-full-bloom-close-digital-print',
+    title: 'King Protea — Full Bloom',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'King Protea (Protea cynaroides) at full anthesis — the payoff of the bud study series. Silvery floret dome ringed by pink velvet bracts, edge-lit leaves framing the bloom on Puna cinder ground.',
+    image: null, // Upload IMG_0582 to Shopify CDN → replace null
+    tags: ['botanical', 'protea', 'king-protea', 'bloom', 'anthesis', 'digital', 'hawaii', 'topp', 'puna'],
+    shopifyProductHandle: null,
+    shopifyVariantId: null,
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+  {
+    id: 'king-protea-silver-dome-macro-digital-print',
+    title: 'King Protea — Silver Dome Macro',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'Extreme macro of an open King Protea center — hundreds of silver-pink florets spiraling into the dome, each tipped with fine down. Companion piece to the Macro Bract Study: the same flower architecture, after opening.',
+    image: null, // Upload IMG_0580 to Shopify CDN → replace null
+    tags: ['botanical', 'protea', 'king-protea', 'macro', 'floret', 'texture', 'digital', 'hawaii', 'topp'],
+    shopifyProductHandle: null,
+    shopifyVariantId: null,
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+  {
+    id: 'king-protea-open-bloom-lava-digital-print',
+    title: 'King Protea in Bloom on Lava',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'Open King Protea (Protea cynaroides) cradled in its own red-stemmed, gold-edged foliage on black lava rock, a second bud forming behind. Three-quarter view, Puna, Hawaiʻi.',
+    image: null, // Upload IMG_0579 to Shopify CDN → replace null
+    tags: ['botanical', 'protea', 'king-protea', 'bloom', 'lava', 'digital', 'hawaii', 'topp', 'puna'],
+    shopifyProductHandle: null,
+    shopifyVariantId: null,
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+  {
+    id: 'king-protea-lava-outcrop-digital-print',
+    title: 'King Protea — Lava Outcrop',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'Open King Protea bloom emerging from a rough a\'a lava outcrop, the Puna scrubland stretching behind — lichen-covered rock, native shrubs, and volcanic ground in one frame.',
+    image: null, // Upload IMG_0586 to Shopify CDN → replace null
+    tags: ['botanical', 'protea', 'king-protea', 'lava', 'outcrop', 'landscape', 'digital', 'hawaii', 'topp', 'puna'],
+    shopifyProductHandle: null,
+    shopifyVariantId: null,
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+  {
+    id: 'king-protea-profile-sky-digital-print',
+    title: 'King Protea — Profile Against Sky',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'Full plant portrait: a King Protea shrub in profile against a soft grey island sky, pink bloom held above red-stemmed whorls of leaves, rooted in black lava. Puna, Hawaiʻi.',
+    image: null, // Upload IMG_0587 to Shopify CDN → replace null
+    tags: ['botanical', 'protea', 'king-protea', 'sky', 'profile', 'digital', 'hawaii', 'topp', 'puna'],
+    shopifyProductHandle: null,
+    shopifyVariantId: null,
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+  {
+    id: 'pincushion-pair-farm-puppy-digital-print',
+    title: 'Pincushion Pair & Farm Puppy',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'An orange and a yellow pincushion protea (Leucospermum) blooming side by side on the Puna cinder field, the farm puppy wandering the drip line behind them. Working farm, honest moment.',
+    image: null, // Upload IMG_0590 to Shopify CDN → replace null (alternates: IMG_0588, IMG_0589, IMG_0591)
+    tags: ['botanical', 'protea', 'pincushion', 'leucospermum', 'farm-life', 'dog', 'digital', 'hawaii', 'topp', 'puna'],
+    shopifyProductHandle: null,
+    shopifyVariantId: null,
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+  {
+    id: 'yellow-pincushion-starburst-macro-digital-print',
+    title: 'Yellow Pincushion — Starburst Macro',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'Overhead macro of a yellow pincushion protea (Leucospermum) at full extension — dozens of golden styles radiating from the center, each tipped in coral pink, silver deadwood branches soft behind.',
+    image: null, // Upload IMG_0594 to Shopify CDN → replace null (alternate: IMG_0593)
+    tags: ['botanical', 'protea', 'pincushion', 'leucospermum', 'macro', 'starburst', 'yellow', 'digital', 'hawaii', 'topp'],
+    shopifyProductHandle: null,
+    shopifyVariantId: null,
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+  {
+    id: 'king-protea-farm-dog-digital-print',
+    title: 'King Protea & Farm Dog — Puna Field',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'Life on a Puna protea farm: an open King Protea bloom in the foreground and the farm puppy sitting on the cinder, looking up at the camera. A field-life portrait from the TOPP founding grower.',
+    image: null, // Upload IMG_0585 to Shopify CDN → replace null
+    tags: ['botanical', 'protea', 'king-protea', 'farm-life', 'dog', 'digital', 'hawaii', 'topp', 'puna'],
     shopifyProductHandle: null,
     shopifyVariantId: null,
     checkoutUrl: null,
