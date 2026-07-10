@@ -4,6 +4,35 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Launch: July Field Series LIVE + Sky Pilot Delivery Audit (2026-07-10)
+
+### Launched
+- All 16 July field series prints published ACTIVE in Shopify (15 by store owner,
+  Full Bloom pilot via API) and flipped `COMING_SOON` → `LIVE` in `commerce.js`
+- Test order #1073 (King Protea on Lava — Close Study): PAID, $0 shipping —
+  Sky Pilot email delivery confirmation pending from store owner
+
+### Fixed
+- **All 11 original digital prints had `requiresShipping: true`** — digital products
+  demanding a shipping address at checkout. Set to `false` via Admin API.
+
+### Added
+- `docs/SKY_PILOT_FILE_MANIFEST.csv` — full 27-product digital delivery manifest:
+  product/variant IDs, expected filenames, attachment status, per-product notes.
+  Sky Pilot has no public API; attachment columns require manual verification in-app.
+
+### Audit findings (Sky Pilot Delivery Setup Audit)
+- 27 digital products audited; all ACTIVE; all now `requiresShipping: false`
+- 11 originals: Sky Pilot attachments assumed working (order #1072 delivered), reverify
+- 16 new: attachments UNVERIFIED; user uploaded files to Sky Pilot 2026-07-09
+- 1 missing file: `King-Protea_Cinder-Field-Wide.jpg` not in the Sky Pilot upload batch
+  (product created after) — must be uploaded + attached
+- All 27 variants have `sku: null` — recommend adding SKUs for deterministic matching
+- 3 misleading-filename hazards flagged in manifest (red-Pincushion = lehua,
+  Yellow-Starbust = shrub scene, King-Protea_and_Puppy_3 = no puppy)
+
+---
+
 ## [Unreleased] — Phase 7C Prep: New Field Photo Batch (2026-07-09)
 
 ### Added

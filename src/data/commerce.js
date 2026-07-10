@@ -195,7 +195,7 @@ export const commerce = [
     shopifyProductHandle: 'ohia-lehua-salmon-bloom-digital-print',
     shopifyVariantId: '52667022967071',
     checkoutUrl: 'https://rastarooster.com/cart/52667022967071:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-10
   },
   {
     id: 'orange-pincushion-shrub-wide-digital-print',
@@ -208,7 +208,7 @@ export const commerce = [
     shopifyProductHandle: 'orange-pincushion-shrub-working-rows-digital-print',
     shopifyVariantId: '52667022999839',
     checkoutUrl: 'https://rastarooster.com/cart/52667022999839:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-10
   },
   {
     id: 'pincushion-lava-firework-pair-digital-print',
@@ -234,7 +234,7 @@ export const commerce = [
     shopifyProductHandle: 'king-protea-cinder-field-wide-digital-print',
     shopifyVariantId: '52667032764703',
     checkoutUrl: 'https://rastarooster.com/cart/52667032764703:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-10
   },
   {
     id: 'king-protea-full-bloom-close-digital-print',
@@ -260,7 +260,7 @@ export const commerce = [
     shopifyProductHandle: 'king-protea-silver-dome-macro-digital-print',
     shopifyVariantId: '52667022573855',
     checkoutUrl: 'https://rastarooster.com/cart/52667022573855:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-10
   },
   {
     id: 'king-protea-open-bloom-lava-digital-print',
@@ -273,7 +273,7 @@ export const commerce = [
     shopifyProductHandle: 'king-protea-in-bloom-on-lava-digital-print',
     shopifyVariantId: '52667022639391',
     checkoutUrl: 'https://rastarooster.com/cart/52667022639391:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-10
   },
   {
     id: 'king-protea-lava-outcrop-digital-print',
@@ -286,7 +286,7 @@ export const commerce = [
     shopifyProductHandle: 'king-protea-lava-outcrop-digital-print',
     shopifyVariantId: '52667022704927',
     checkoutUrl: 'https://rastarooster.com/cart/52667022704927:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-10
   },
   {
     id: 'king-protea-profile-sky-digital-print',
@@ -299,7 +299,7 @@ export const commerce = [
     shopifyProductHandle: 'king-protea-profile-against-sky-digital-print',
     shopifyVariantId: '52667022672159',
     checkoutUrl: 'https://rastarooster.com/cart/52667022672159:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-10
   },
   {
     id: 'pincushion-pair-farm-puppy-digital-print',
@@ -312,7 +312,7 @@ export const commerce = [
     shopifyProductHandle: 'pincushion-pair-farm-puppy-digital-print',
     shopifyVariantId: '52667022835999',
     checkoutUrl: 'https://rastarooster.com/cart/52667022835999:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-10
   },
   {
     id: 'yellow-pincushion-starburst-macro-digital-print',
@@ -325,7 +325,7 @@ export const commerce = [
     shopifyProductHandle: 'yellow-pincushion-starburst-macro-digital-print',
     shopifyVariantId: '52667022868767',
     checkoutUrl: 'https://rastarooster.com/cart/52667022868767:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-10
   },
   {
     id: 'king-protea-farm-dog-digital-print',
@@ -338,7 +338,7 @@ export const commerce = [
     shopifyProductHandle: 'king-protea-farm-dog-puna-field-digital-print',
     shopifyVariantId: '52667022770463',
     checkoutUrl: 'https://rastarooster.com/cart/52667022770463:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-10
   },
 
   // ── King Protea Bud Study Series (5 field photos, July 2026) ────────────
@@ -357,7 +357,7 @@ export const commerce = [
     shopifyProductHandle: 'king-protea-bud-overhead-rosette-digital-print',
     shopifyVariantId: '52667022246175',
     checkoutUrl: 'https://rastarooster.com/cart/52667022246175:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-10
   },
   {
     id: 'king-protea-on-lava-wall-wide-digital-print',
@@ -370,7 +370,7 @@ export const commerce = [
     shopifyProductHandle: 'king-protea-on-lava-wall-wide-digital-print',
     shopifyVariantId: '52667022311711',
     checkoutUrl: 'https://rastarooster.com/cart/52667022311711:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-10
   },
   {
     id: 'king-protea-on-lava-close-digital-print',
@@ -383,7 +383,7 @@ export const commerce = [
     shopifyProductHandle: 'king-protea-on-lava-close-study-digital-print',
     shopifyVariantId: '52667022377247',
     checkoutUrl: 'https://rastarooster.com/cart/52667022377247:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-10
   },
   {
     id: 'king-protea-bud-macro-digital-print',
@@ -396,7 +396,7 @@ export const commerce = [
     shopifyProductHandle: 'king-protea-bud-macro-bract-study-digital-print',
     shopifyVariantId: '52667022442783',
     checkoutUrl: 'https://rastarooster.com/cart/52667022442783:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-10
   },
   {
     id: 'king-protea-bud-opening-digital-print',
@@ -409,7 +409,7 @@ export const commerce = [
     shopifyProductHandle: 'king-protea-the-moment-before-opening-digital-print',
     shopifyVariantId: '52667022475551',
     checkoutUrl: 'https://rastarooster.com/cart/52667022475551:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-10
   },
 
   // ── Memberships ─────────────────────────────────────────────────────────
