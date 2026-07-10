@@ -39,6 +39,32 @@
 | Tropical Torch Ginger         | ✅ ACTIVE       | ✅ live     | 52649043329311      | $0.99  |
 | Puna Protea Field             | ✅ ACTIVE       | ✅ live     | 52649043362079      | $0.99  |
 
+### Digital Prints — July 2026 Field Series (created 2026-07-09, DRAFT)
+
+All 15 created via Admin API with images attached, $0.99, Sky Pilot delivery pending attachment.
+Flip to LIVE in `commerce.js` only after: Sky Pilot file attached → product published ACTIVE.
+
+| Product                                  | Shopify Status | Variant ID       |
+|------------------------------------------|----------------|------------------|
+| King Protea Bud — Overhead Rosette       | 🔒 DRAFT        | 52667022246175   |
+| King Protea on Lava Wall — Wide          | 🔒 DRAFT        | 52667022311711   |
+| King Protea on Lava — Close Study        | 🔒 DRAFT        | 52667022377247   |
+| King Protea Bud — Macro Bract Study      | 🔒 DRAFT        | 52667022442783   |
+| King Protea — The Moment Before Opening  | 🔒 DRAFT        | 52667022475551   |
+| King Protea — Full Bloom                 | 🔒 DRAFT        | 52667022541087   |
+| King Protea — Silver Dome Macro          | 🔒 DRAFT        | 52667022573855   |
+| King Protea in Bloom on Lava             | 🔒 DRAFT        | 52667022639391   |
+| King Protea — Profile Against Sky        | 🔒 DRAFT        | 52667022672159   |
+| King Protea — Lava Outcrop               | 🔒 DRAFT        | 52667022704927   |
+| King Protea & Farm Dog — Puna Field      | 🔒 DRAFT        | 52667022770463   |
+| Pincushion Pair & Farm Puppy             | 🔒 DRAFT        | 52667022835999   |
+| Yellow Pincushion — Starburst Macro      | 🔒 DRAFT        | 52667022868767   |
+| ʻŌhiʻa Lehua — Salmon Bloom              | 🔒 DRAFT        | 52667022967071   |
+| Orange Pincushion Shrub — Working Rows   | 🔒 DRAFT        | 52667022999839   |
+
+Still without Shopify products (photos not uploaded): King Protea — Cinder Field Wide
+(IMG_0578), Pincushion Firework Pair (IMG_0599).
+
 ### Subscriptions (Shopify Subscriptions — "Botanicals" plan)
 
 | Product                 | Plan        | Price    | Delivery  | Status       |

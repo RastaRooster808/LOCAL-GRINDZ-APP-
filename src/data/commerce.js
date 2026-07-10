@@ -181,21 +181,20 @@ export const commerce = [
   // Full batch: 21 photos from Puna lava site, July 2026.
   // 11 distinct scenes selected as products below; near-duplicate frames noted
   // as alternates in each entry's image comment.
-  // Rename files before uploading to Shopify: use descriptive kebab-case names
-  // (e.g. topp-pincushion-lava-pair-01.jpg) so CDN URLs are self-identifying.
-  // Steps to go live: upload → get CDN URL → create Shopify product (DRAFT) →
-  // attach Sky Pilot file → populate fields below → flip LIVE.
+  // Shopify products created 2026-07-09 in DRAFT status with images attached
+  // (except cinder-field-wide + firework-pair: photos not yet uploaded).
+  // To go live: attach Sky Pilot files in Shopify → publish ACTIVE → flip LIVE here.
   {
     id: 'ohia-lehua-salmon-bloom-digital-print',
     title: 'ʻŌhiʻa Lehua — Salmon Bloom',
     type: PRODUCT_TYPES.DIGITAL_PRINT,
     price: 0.99,
     description: 'A salmon-orange lehua blossom on native ʻōhiʻa (Metrosideros polymorpha) growing wild beside the protea rows — grey-green rounded leaves, new buds, and the Puna scrubland behind. Hawaiʻi\'s most beloved native tree, at home on young lava.',
-    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/red-Pincushion.heic.jpg?v=1783634701', // Shopify: red-Pincushion (filename says pincushion; photo is ohia lehua. alt: Pincushion-field)
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/red-Pincushion.jpg?v=1783653586',
     tags: ['botanical', 'ohia', 'lehua', 'metrosideros', 'native-hawaiian', 'digital', 'hawaii', 'topp', 'puna'],
-    shopifyProductHandle: null,
-    shopifyVariantId: null,
-    checkoutUrl: null,
+    shopifyProductHandle: 'ʻohiʻa-lehua-salmon-bloom-digital-print',
+    shopifyVariantId: '52667022967071',
+    checkoutUrl: 'https://rastarooster.com/cart/52667022967071:1',
     status: PRODUCT_STATUS.COMING_SOON,
   },
   {
@@ -204,11 +203,11 @@ export const commerce = [
     type: PRODUCT_TYPES.DIGITAL_PRINT,
     price: 0.99,
     description: 'A mature orange pincushion protea (Leucospermum) shrub carrying half a dozen blooms at once, rooted straight into broken lava. The working farm shows at the field edge — this is production protea country, Puna, Hawaiʻi.',
-    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/Yellow-Starbust.heic.jpg?v=1783634702', // Shopify: Yellow-Starbust (wide shrub scene despite filename. alt: Pincushions-Bush)
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/Yellow-Starbust.jpg?v=1783653587',
     tags: ['botanical', 'protea', 'pincushion', 'leucospermum', 'shrub', 'farm', 'lava', 'digital', 'hawaii', 'topp', 'puna'],
-    shopifyProductHandle: null,
-    shopifyVariantId: null,
-    checkoutUrl: null,
+    shopifyProductHandle: 'orange-pincushion-shrub-working-rows-digital-print',
+    shopifyVariantId: '52667022999839',
+    checkoutUrl: 'https://rastarooster.com/cart/52667022999839:1',
     status: PRODUCT_STATUS.COMING_SOON,
   },
   {
@@ -243,11 +242,11 @@ export const commerce = [
     type: PRODUCT_TYPES.DIGITAL_PRINT,
     price: 0.99,
     description: 'King Protea (Protea cynaroides) at full anthesis — the payoff of the bud study series. Silvery floret dome ringed by pink velvet bracts, edge-lit leaves framing the bloom on Puna cinder ground.',
-    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/King-Protea_and_Puppy_5.heic.jpg?v=1783634702', // Shopify: King-Protea_and_Puppy_5 (alts: _2, _4)
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/King-Protea_and_Puppy_5.jpg?v=1783653584',
     tags: ['botanical', 'protea', 'king-protea', 'bloom', 'anthesis', 'digital', 'hawaii', 'topp', 'puna'],
-    shopifyProductHandle: null,
-    shopifyVariantId: null,
-    checkoutUrl: null,
+    shopifyProductHandle: 'king-protea-full-bloom-digital-print',
+    shopifyVariantId: '52667022541087',
+    checkoutUrl: 'https://rastarooster.com/cart/52667022541087:1',
     status: PRODUCT_STATUS.COMING_SOON,
   },
   {
@@ -256,11 +255,11 @@ export const commerce = [
     type: PRODUCT_TYPES.DIGITAL_PRINT,
     price: 0.99,
     description: 'Extreme macro of an open King Protea center — hundreds of silver-pink florets spiraling into the dome, each tipped with fine down. Companion piece to the Macro Bract Study: the same flower architecture, after opening.',
-    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/King-Protea_close_up.heic.jpg?v=1783634702', // Shopify: King-Protea_close_up
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/King-Protea_close_up.jpg?v=1783653584',
     tags: ['botanical', 'protea', 'king-protea', 'macro', 'floret', 'texture', 'digital', 'hawaii', 'topp'],
-    shopifyProductHandle: null,
-    shopifyVariantId: null,
-    checkoutUrl: null,
+    shopifyProductHandle: 'king-protea-silver-dome-macro-digital-print',
+    shopifyVariantId: '52667022573855',
+    checkoutUrl: 'https://rastarooster.com/cart/52667022573855:1',
     status: PRODUCT_STATUS.COMING_SOON,
   },
   {
@@ -269,11 +268,11 @@ export const commerce = [
     type: PRODUCT_TYPES.DIGITAL_PRINT,
     price: 0.99,
     description: 'Open King Protea (Protea cynaroides) cradled in its own red-stemmed, gold-edged foliage on black lava rock, a second bud forming behind. Three-quarter view, Puna, Hawaiʻi.',
-    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/King-Protea_and_Puppy_3.heic.jpg?v=1783634702', // Shopify: King-Protea_and_Puppy_3 (no puppy in frame despite filename)
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/King-Protea_and_Puppy_3.jpg?v=1783653585',
     tags: ['botanical', 'protea', 'king-protea', 'bloom', 'lava', 'digital', 'hawaii', 'topp', 'puna'],
-    shopifyProductHandle: null,
-    shopifyVariantId: null,
-    checkoutUrl: null,
+    shopifyProductHandle: 'king-protea-in-bloom-on-lava-digital-print',
+    shopifyVariantId: '52667022639391',
+    checkoutUrl: 'https://rastarooster.com/cart/52667022639391:1',
     status: PRODUCT_STATUS.COMING_SOON,
   },
   {
@@ -282,11 +281,11 @@ export const commerce = [
     type: PRODUCT_TYPES.DIGITAL_PRINT,
     price: 0.99,
     description: 'Open King Protea bloom emerging from a rough a\'a lava outcrop, the Puna scrubland stretching behind — lichen-covered rock, native shrubs, and volcanic ground in one frame.',
-    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/pink-King_protea_2.heic.jpg?v=1783634701', // Shopify: pink-King_protea_2
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/pink-King_protea_2.jpg?v=1783653585',
     tags: ['botanical', 'protea', 'king-protea', 'lava', 'outcrop', 'landscape', 'digital', 'hawaii', 'topp', 'puna'],
-    shopifyProductHandle: null,
-    shopifyVariantId: null,
-    checkoutUrl: null,
+    shopifyProductHandle: 'king-protea-lava-outcrop-digital-print',
+    shopifyVariantId: '52667022704927',
+    checkoutUrl: 'https://rastarooster.com/cart/52667022704927:1',
     status: PRODUCT_STATUS.COMING_SOON,
   },
   {
@@ -295,11 +294,11 @@ export const commerce = [
     type: PRODUCT_TYPES.DIGITAL_PRINT,
     price: 0.99,
     description: 'Full plant portrait: a King Protea shrub in profile against a soft grey island sky, pink bloom held above red-stemmed whorls of leaves, rooted in black lava. Puna, Hawaiʻi.',
-    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/Pink-King_Protea.heic.jpg?v=1783634701', // Shopify: Pink-King_Protea
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/Pink-King_Protea.jpg?v=1783653585',
     tags: ['botanical', 'protea', 'king-protea', 'sky', 'profile', 'digital', 'hawaii', 'topp', 'puna'],
-    shopifyProductHandle: null,
-    shopifyVariantId: null,
-    checkoutUrl: null,
+    shopifyProductHandle: 'king-protea-profile-against-sky-digital-print',
+    shopifyVariantId: '52667022672159',
+    checkoutUrl: 'https://rastarooster.com/cart/52667022672159:1',
     status: PRODUCT_STATUS.COMING_SOON,
   },
   {
@@ -308,11 +307,11 @@ export const commerce = [
     type: PRODUCT_TYPES.DIGITAL_PRINT,
     price: 0.99,
     description: 'An orange and a yellow pincushion protea (Leucospermum) blooming side by side on the Puna cinder field, the farm puppy sitting just behind them. Working farm, honest moment.',
-    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/Pincushion-Farm_Puppy.heic.jpg?v=1783634702', // Shopify: Pincushion-Farm_Puppy (alts: Puppy2, puppy_3, puppy_4)
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/Pincushion-Farm_Puppy.jpg?v=1783653586',
     tags: ['botanical', 'protea', 'pincushion', 'leucospermum', 'farm-life', 'dog', 'digital', 'hawaii', 'topp', 'puna'],
-    shopifyProductHandle: null,
-    shopifyVariantId: null,
-    checkoutUrl: null,
+    shopifyProductHandle: 'pincushion-pair-farm-puppy-digital-print',
+    shopifyVariantId: '52667022835999',
+    checkoutUrl: 'https://rastarooster.com/cart/52667022835999:1',
     status: PRODUCT_STATUS.COMING_SOON,
   },
   {
@@ -321,11 +320,11 @@ export const commerce = [
     type: PRODUCT_TYPES.DIGITAL_PRINT,
     price: 0.99,
     description: 'Overhead macro of a yellow pincushion protea (Leucospermum) at full extension — dozens of golden styles radiating from the center, each tipped in coral pink, silver deadwood branches soft behind.',
-    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/Yellow-Bloom_2.heic.jpg?v=1783634701', // Shopify: Yellow-Bloom_2 (alts: Yellow-Bloom, Yellow-Bloom_3)
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/Yellow-Bloom_2.jpg?v=1783653586',
     tags: ['botanical', 'protea', 'pincushion', 'leucospermum', 'macro', 'starburst', 'yellow', 'digital', 'hawaii', 'topp'],
-    shopifyProductHandle: null,
-    shopifyVariantId: null,
-    checkoutUrl: null,
+    shopifyProductHandle: 'yellow-pincushion-starburst-macro-digital-print',
+    shopifyVariantId: '52667022868767',
+    checkoutUrl: 'https://rastarooster.com/cart/52667022868767:1',
     status: PRODUCT_STATUS.COMING_SOON,
   },
   {
@@ -334,19 +333,18 @@ export const commerce = [
     type: PRODUCT_TYPES.DIGITAL_PRINT,
     price: 0.99,
     description: 'Life on a Puna protea farm: an open King Protea bloom in the foreground and the farm puppy standing on the cinder drip line, facing the camera. A field-life portrait from the TOPP founding grower.',
-    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/King-Protea_and_Puppy.heic.jpg?v=1783634702', // Shopify: King-Protea_and_Puppy
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/King-Protea_and_Puppy.jpg?v=1783653586',
     tags: ['botanical', 'protea', 'king-protea', 'farm-life', 'dog', 'digital', 'hawaii', 'topp', 'puna'],
-    shopifyProductHandle: null,
-    shopifyVariantId: null,
-    checkoutUrl: null,
+    shopifyProductHandle: 'king-protea-farm-dog-puna-field-digital-print',
+    shopifyVariantId: '52667022770463',
+    checkoutUrl: 'https://rastarooster.com/cart/52667022770463:1',
     status: PRODUCT_STATUS.COMING_SOON,
   },
 
-  // ── King Protea Bud Study Series (5 new field photos, July 2026) ────────
+  // ── King Protea Bud Study Series (5 field photos, July 2026) ────────────
   // Photographed on Puna lava site — bud development sequence, Protea cynaroides.
-  // BLOCKED: Not yet uploaded to Shopify CDN or created as Shopify products.
-  // Steps to go live: upload photos to Shopify Files → get CDN URLs → create
-  // Shopify products → attach Sky Pilot files → populate fields below → flip LIVE.
+  // Shopify products created 2026-07-09 in DRAFT status with images attached.
+  // To go live: attach Sky Pilot files in Shopify → publish ACTIVE → flip LIVE here.
   // Featured in TOPP Field Report Issue 001 member newsletter.
   {
     id: 'king-protea-bud-overhead-digital-print',
@@ -356,9 +354,9 @@ export const commerce = [
     description: 'King Protea (Protea cynaroides) bud photographed from directly above its rosette of leaves on Puna lava soil. The bract geometry is fully formed before the flower opens.',
     image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/9C98C58A-F405-44C3-A37A-4DC49A451B55.jpg?v=1783110478',
     tags: ['botanical', 'protea', 'king-protea', 'bud', 'overhead', 'digital', 'hawaii', 'topp', 'lava'],
-    shopifyProductHandle: null, // Set after Shopify product created
-    shopifyVariantId: null,
-    checkoutUrl: null,
+    shopifyProductHandle: 'king-protea-bud-overhead-rosette-digital-print',
+    shopifyVariantId: '52667022246175',
+    checkoutUrl: 'https://rastarooster.com/cart/52667022246175:1',
     status: PRODUCT_STATUS.COMING_SOON,
   },
   {
@@ -369,9 +367,9 @@ export const commerce = [
     description: 'King Protea branch growing laterally from a\'a basalt lava wall, Puna, Hawaiʻi. Documents the plant establishing on volcanic rock, reaching sideways into available light.',
     image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/245B8120-0E94-49F5-9C10-74200DCEF83E.jpg?v=1783110478',
     tags: ['botanical', 'protea', 'king-protea', 'lava', 'landscape', 'digital', 'hawaii', 'topp'],
-    shopifyProductHandle: null,
-    shopifyVariantId: null,
-    checkoutUrl: null,
+    shopifyProductHandle: 'king-protea-on-lava-wall-wide-digital-print',
+    shopifyVariantId: '52667022311711',
+    checkoutUrl: 'https://rastarooster.com/cart/52667022311711:1',
     status: PRODUCT_STATUS.COMING_SOON,
   },
   {
@@ -382,9 +380,9 @@ export const commerce = [
     description: 'Close study of a King Protea bud on a\'a basalt in Puna, Hawaiʻi. Red-margined leaves indicate the plant is in its establishment phase. Lava texture visible throughout.',
     image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/687510E4-ECB3-4301-9E47-913941114C23.jpg?v=1783110478',
     tags: ['botanical', 'protea', 'king-protea', 'lava', 'close-up', 'digital', 'hawaii', 'topp'],
-    shopifyProductHandle: null,
-    shopifyVariantId: null,
-    checkoutUrl: null,
+    shopifyProductHandle: 'king-protea-on-lava-close-study-digital-print',
+    shopifyVariantId: '52667022377247',
+    checkoutUrl: 'https://rastarooster.com/cart/52667022377247:1',
     status: PRODUCT_STATUS.COMING_SOON,
   },
   {
@@ -395,9 +393,9 @@ export const commerce = [
     description: 'Macro photograph of a King Protea (Protea cynaroides) bud showing the velvety, geometrically patterned bracts in dusty rose-pink. The fine hair along each bract edge is visible — detail only seen on the living plant before opening.',
     image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/B1A95449-3A90-43FA-9EC9-4441C65E1E9C.jpg?v=1783110478',
     tags: ['botanical', 'protea', 'king-protea', 'macro', 'bract', 'digital', 'hawaii', 'topp', 'texture'],
-    shopifyProductHandle: null,
-    shopifyVariantId: null,
-    checkoutUrl: null,
+    shopifyProductHandle: 'king-protea-bud-macro-bract-study-digital-print',
+    shopifyVariantId: '52667022442783',
+    checkoutUrl: 'https://rastarooster.com/cart/52667022442783:1',
     status: PRODUCT_STATUS.COMING_SOON,
   },
   {
@@ -408,9 +406,9 @@ export const commerce = [
     description: 'King Protea (Protea cynaroides) bud at pre-anthesis stage — outer bracts beginning to separate, interior deepening to rose pink. A second bud forming in the upper frame. Photographed on Puna lava site one day after the bud study series.',
     image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/DAC66AB7-2656-48C4-829C-52E5304D3973.jpg?v=1783110478',
     tags: ['botanical', 'protea', 'king-protea', 'opening', 'pre-anthesis', 'digital', 'hawaii', 'topp'],
-    shopifyProductHandle: null,
-    shopifyVariantId: null,
-    checkoutUrl: null,
+    shopifyProductHandle: 'king-protea-the-moment-before-opening-digital-print',
+    shopifyVariantId: '52667022475551',
+    checkoutUrl: 'https://rastarooster.com/cart/52667022475551:1',
     status: PRODUCT_STATUS.COMING_SOON,
   },
 

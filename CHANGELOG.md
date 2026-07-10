@@ -39,6 +39,15 @@ CDN URLs (`.heic.jpg` — HEIC won't render in Chrome/Firefox):
 - starburst-macro ← Yellow-Bloom_2 · shrub-wide ← Yellow-Starbust
 - ohia-lehua ← red-Pincushion (filename says pincushion; photo is Metrosideros)
 
+### Shopify products created (2026-07-09)
+15 draft products created via Admin API — 5 bud study + 10 field batch — each with
+image attached, $0.99, product type "Digital Download", vendor TOPP. commerce.js now
+carries real handles, variant IDs, and checkout URLs for all 15; status stays
+COMING_SOON until Sky Pilot files are attached and products are published ACTIVE.
+Note: `.heic.jpg` transform URLs 404'd as product images; fixed by attaching the raw
+HEIC as product media (Shopify converts to JPG) and re-pointing commerce.js at the
+converted product image URLs.
+
 ### Pending
 - 2 field batch entries still without Shopify uploads: `king-protea-cinder-field-wide`
   (IMG_0578) and `pincushion-lava-firework-pair` (IMG_0599)
