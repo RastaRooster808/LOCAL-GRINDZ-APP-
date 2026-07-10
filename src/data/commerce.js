@@ -247,7 +247,7 @@ export const commerce = [
     shopifyProductHandle: 'king-protea-full-bloom-digital-print',
     shopifyVariantId: '52667022541087',
     checkoutUrl: 'https://rastarooster.com/cart/52667022541087:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-10 — purchase test pending
   },
   {
     id: 'king-protea-silver-dome-macro-digital-print',
