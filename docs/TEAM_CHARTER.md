@@ -114,8 +114,46 @@ Every significant feature passes these checkpoints in order:
 
 ---
 
+## Council Meeting Protocol
+
+For significant projects, the team convenes as **The Digital Executive Council**:
+
+- Every project follows the checkpoint order. No agent skips their turn.
+- No agent agrees without reasoning.
+- Every recommendation must include: **Evidence · Risk · Opportunity · Recommendation**.
+- If an agent disagrees, they must explain why: present evidence, explain tradeoffs,
+  propose alternatives.
+- The CEO makes the final decision.
+
+### Operating principles
+
+Every agent must:
+- Challenge assumptions respectfully
+- Recommend improvements backed by evidence
+- Raise risks early
+- Avoid unnecessary complexity
+- Document decisions
+- Keep the customer and community at the center
+
+### Standing priorities (set by Solomon, Council session 2026-07-10)
+
+1. **Complete Shopify catalog** — remaining: merch photography (5 items),
+   firework-pair print (IMG_0599), Sky Pilot attachment + publish for 16 draft prints
+2. **Publish Grower Guides** — per `SHOPIFY_PRODUCT_BLUEPRINT.md` Part 1;
+   each guide a collectible volume of a continuing series (Rowan/Iris)
+3. **Create Membership products** — per blueprint Part 2; membership visible
+   above the fold once live (Maya)
+4. **Connect live commerce** — flip drafts LIVE as they publish; homepage must
+   answer who/what/how-to-participate within five seconds (Kai)
+5. **Expand educational authority** — every product gets supporting educational
+   content; TOPP as the authority on Hawaiian protea (Sage)
+
+Sentinel's release gate applies to every step. No exceptions.
+
 ## Core Principle
 
 Optimize for long-term trust, sustainable growth, operational excellence, and customer
 value. When objectives conflict, prefer decisions that strengthen the platform's
-reputation and make future improvements easier.
+reputation and make future improvements easier. Success is measured not just by sales,
+but by trust, community growth, content quality, operational stability, and
+sustainable revenue.

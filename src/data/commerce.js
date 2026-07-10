@@ -181,8 +181,8 @@ export const commerce = [
   // Full batch: 21 photos from Puna lava site, July 2026.
   // 11 distinct scenes selected as products below; near-duplicate frames noted
   // as alternates in each entry's image comment.
-  // Shopify products created 2026-07-09 in DRAFT status with images attached
-  // (except cinder-field-wide + firework-pair: photos not yet uploaded).
+  // Shopify products created 2026-07-09/10 in DRAFT status with images attached
+  // (except firework-pair: IMG_0599 photo not yet uploaded).
   // To go live: attach Sky Pilot files in Shopify → publish ACTIVE → flip LIVE here.
   {
     id: 'ohia-lehua-salmon-bloom-digital-print',
@@ -229,11 +229,11 @@ export const commerce = [
     type: PRODUCT_TYPES.DIGITAL_PRINT,
     price: 0.99,
     description: 'King Protea (Protea cynaroides) established on open volcanic cinder in Puna, Hawaiʻi — one open pink bloom, one developing bud, weathered lava ridge and grey island sky behind. Wide environmental portrait from the TOPP founding grower.',
-    image: null, // Upload IMG_0578 to Shopify CDN → replace null (EXIF rotation: verify orientation after upload)
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/King-Protea_Cinder-Field-Wide.jpg?v=1783654686',
     tags: ['botanical', 'protea', 'king-protea', 'lava', 'cinder', 'landscape', 'digital', 'hawaii', 'topp', 'puna'],
-    shopifyProductHandle: null,
-    shopifyVariantId: null,
-    checkoutUrl: null,
+    shopifyProductHandle: 'king-protea-cinder-field-wide-digital-print',
+    shopifyVariantId: '52667032764703',
+    checkoutUrl: 'https://rastarooster.com/cart/52667032764703:1',
     status: PRODUCT_STATUS.COMING_SOON,
   },
   {
