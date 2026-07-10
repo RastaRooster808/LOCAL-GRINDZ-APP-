@@ -192,7 +192,7 @@ export const commerce = [
     description: 'A salmon-orange lehua blossom on native ʻōhiʻa (Metrosideros polymorpha) growing wild beside the protea rows — grey-green rounded leaves, new buds, and the Puna scrubland behind. Hawaiʻi\'s most beloved native tree, at home on young lava.',
     image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/red-Pincushion.jpg?v=1783653586',
     tags: ['botanical', 'ohia', 'lehua', 'metrosideros', 'native-hawaiian', 'digital', 'hawaii', 'topp', 'puna'],
-    shopifyProductHandle: 'ʻohiʻa-lehua-salmon-bloom-digital-print',
+    shopifyProductHandle: 'ohia-lehua-salmon-bloom-digital-print',
     shopifyVariantId: '52667022967071',
     checkoutUrl: 'https://rastarooster.com/cart/52667022967071:1',
     status: PRODUCT_STATUS.COMING_SOON,
