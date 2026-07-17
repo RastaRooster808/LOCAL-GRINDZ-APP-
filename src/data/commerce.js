@@ -412,6 +412,65 @@ export const commerce = [
     status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-10
   },
 
+
+  // ── Crimson King Series + Market Bouquet (July 17 2026 field session) ────
+  // Second King Protea plant in bloom — deep crimson vs. the July soft-pink.
+  // Products created DRAFT 2026-07-17 with images attached (alternate frame:
+  // IMG_0612, car in background, not used). To go live: attach Sky Pilot file
+  // → publish ACTIVE → flip LIVE here.
+  {
+    id: 'king-protea-crimson-crown-digital-print',
+    title: 'King Protea — Crimson Crown',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'A second King Protea (Protea cynaroides) comes into bloom on the Puna site — deep watermelon-crimson, a full shade richer than the July bloom. Silver floret dome ringed by red velvet bracts, a second bud forming below.',
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/King-Protea_Crimson-Crown.jpg?v=1784250577',
+    tags: ['botanical', 'protea', 'king-protea', 'crimson', 'bloom', 'digital', 'hawaii', 'topp', 'puna'],
+    shopifyProductHandle: 'king-protea-crimson-crown-digital-print',
+    shopifyVariantId: '52685816791327',
+    checkoutUrl: 'https://rastarooster.com/cart/52685816791327:1',
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+  {
+    id: 'king-protea-crimson-dome-macro-digital-print',
+    title: 'King Protea — Crimson Dome Macro',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'Extreme macro of the crimson King Protea center — silver-white florets spiraling to the crown, nectar droplets caught between them, red bracts burning at the frame edge.',
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/King-Protea_Crimson-Dome-Macro.jpg?v=1784250577',
+    tags: ['botanical', 'protea', 'king-protea', 'crimson', 'macro', 'floret', 'nectar', 'digital', 'hawaii', 'topp'],
+    shopifyProductHandle: 'king-protea-crimson-dome-macro-digital-print',
+    shopifyVariantId: '52685816824095',
+    checkoutUrl: 'https://rastarooster.com/cart/52685816824095:1',
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+  {
+    id: 'king-protea-crimson-against-lava-digital-print',
+    title: 'King Protea — Crimson Against Lava',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'Three-quarter portrait of the crimson King Protea against dark a\'a lava — red bracts curling at their tips, silver dome catching the overcast light, gold-edged leaves fanning below. Puna, Hawaiʻi.',
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/King-Protea_Crimson-Lava.jpg?v=1784250578',
+    tags: ['botanical', 'protea', 'king-protea', 'crimson', 'lava', 'portrait', 'digital', 'hawaii', 'topp', 'puna'],
+    shopifyProductHandle: 'king-protea-crimson-against-lava-digital-print',
+    shopifyVariantId: '52685816856863',
+    checkoutUrl: 'https://rastarooster.com/cart/52685816856863:1',
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+  {
+    id: 'topp-market-bouquet-farm-stand-digital-print',
+    title: 'TOPP Market Bouquet — Farm Stand',
+    type: PRODUCT_TYPES.DIGITAL_PRINT,
+    price: 0.99,
+    description: 'A hand-tied TOPP market bouquet at the farm stand window: cream king protea, red Leucadendron \'Safari Sunset\' stems, silver-green leucadendron foliage, a pair of orange pincushions, and white spider lilies — blush tissue, royal-blue ribbon. Everything grew on the Puna lava rows that morning.',
+    image: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/TOPP-Market-Bouquet.jpg?v=1784250577',
+    tags: ['botanical', 'bouquet', 'arrangement', 'hand-tied', 'king-protea', 'cream-protea', 'leucadendron', 'safari-sunset', 'pincushion', 'leucospermum', 'spider-lily', 'florist', 'market-bouquet', 'farm-stand', 'digital', 'hawaii', 'topp', 'puna', 'ohana-bloom'],
+    shopifyProductHandle: 'topp-market-bouquet-farm-stand-digital-print',
+    shopifyVariantId: '52685816889631',
+    checkoutUrl: 'https://rastarooster.com/cart/52685816889631:1',
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
+
   // ── Memberships ─────────────────────────────────────────────────────────
   // BLOCKED: No standalone Shopify membership products exist yet.
   // See docs/SHOPIFY_PRODUCT_BLUEPRINT.md Part 2 for full product specs.

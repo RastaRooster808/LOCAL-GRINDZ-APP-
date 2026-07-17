@@ -4,6 +4,25 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Crimson King Series + Market Bouquet (2026-07-17)
+
+### Added
+- 4 new digital prints (DRAFT in Shopify, COMING_SOON in commerce.js):
+  - `king-protea-crimson-crown` (IMG_0614) — second King plant, deep crimson bloom
+  - `king-protea-crimson-dome-macro` (IMG_0615) — nectar visible in florets
+  - `king-protea-crimson-against-lava` (IMG_0616) — three-quarter lava portrait
+  - `topp-market-bouquet-farm-stand` (photo) — hand-tied bouquet: cream king protea,
+    Safari Sunset leucadendron, orange pincushions, spider lilies
+- All images uploaded via staged-upload API with self-identifying filenames;
+  variant IDs + checkout URLs wired at creation
+- Alternate frame IMG_0612 (car in background) not used
+
+### Pending
+- Sky Pilot attachment + publish for the 4 new products, then flip LIVE
+- IMG_0599 firework pair still outstanding
+
+---
+
 ## [Unreleased] — Launch: July Field Series LIVE + Sky Pilot Delivery Audit (2026-07-10)
 
 ### Launched
