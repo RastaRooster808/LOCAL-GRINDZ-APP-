@@ -4,6 +4,25 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Reprice + Print Bundles (2026-07-17)
+
+### Changed
+- **All 31 digital prints repriced $0.99 → $4.99** in Shopify (62 variant updates,
+  zero errors) and in `commerce.js` — first step of the $10K/month revenue plan
+
+### Added
+- 2 bundle products (DRAFT in Shopify, COMING_SOON in commerce.js):
+  - King Protea — Bud to Bloom Collection: 11 prints, $14.99 (73% off singles)
+  - Pincushion & Farm Life Collection: 6 prints, $9.99 (67% off singles)
+- Bundle delivery zips prepared for Sky Pilot attachment
+
+### Blocked
+- Third bundle (TOPP Complete Archive Vol. 1, all 31 prints, $29.99) — creation
+  denied by session permission classifier; awaiting owner decision (create manually
+  in admin, or re-approve creation here)
+
+---
+
 ## [Unreleased] — Shop Agent: Conversational AI over Storefront MCP (2026-07-17)
 
 ### Added
