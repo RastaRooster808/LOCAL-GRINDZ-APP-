@@ -429,7 +429,7 @@ export const commerce = [
     shopifyProductHandle: 'king-protea-crimson-crown-digital-print',
     shopifyVariantId: '52685816791327',
     checkoutUrl: 'https://rastarooster.com/cart/52685816791327:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-19
   },
   {
     id: 'king-protea-crimson-dome-macro-digital-print',
@@ -442,7 +442,7 @@ export const commerce = [
     shopifyProductHandle: 'king-protea-crimson-dome-macro-digital-print',
     shopifyVariantId: '52685816824095',
     checkoutUrl: 'https://rastarooster.com/cart/52685816824095:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-19
   },
   {
     id: 'king-protea-crimson-against-lava-digital-print',
@@ -455,7 +455,7 @@ export const commerce = [
     shopifyProductHandle: 'king-protea-crimson-against-lava-digital-print',
     shopifyVariantId: '52685816856863',
     checkoutUrl: 'https://rastarooster.com/cart/52685816856863:1',
-    status: PRODUCT_STATUS.COMING_SOON,
+    status: PRODUCT_STATUS.LIVE, // Published ACTIVE 2026-07-19
   },
   {
     id: 'topp-market-bouquet-farm-stand-digital-print',
