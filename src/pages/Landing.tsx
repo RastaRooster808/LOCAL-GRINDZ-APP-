@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import type { Vendor, VendorFeature } from '../lib/types';
 import { SearchBar } from '../components/ui/SearchBar';
 import { CommerceGrid } from '../components/CommerceGrid';
+import ShopAgent from '../components/ShopAgent';
 import { trackEvent } from '../lib/analytics';
 
 interface Announcement {
@@ -232,6 +233,7 @@ export function Landing() {
 
         {/* Commerce grid — live products and coming soon */}
         <CommerceGrid />
+        <ShopAgent />
 
         {/* Vendor CTA */}
         <section className="landing-cta">

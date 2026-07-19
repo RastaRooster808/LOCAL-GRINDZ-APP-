@@ -4,6 +4,25 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Shop Agent: Conversational AI over Storefront MCP (2026-07-17)
+
+### Added
+- `supabase/functions/shop-agent/index.ts` — stateless edge function running a Claude
+  tool loop against Shopify's public Storefront MCP endpoints (`/api/mcp` for cart +
+  Knowledge Base policies/FAQ, `/api/ucp/mcp` for product search); runtime tool
+  discovery, cart GID continuity, ANTHROPIC_API_KEY server-side only
+- `src/components/ShopAgent.tsx` — floating chat widget on the landing page with
+  suggestion chips, linkified replies, error/loading states
+- `docs/SHOP_AGENT.md` — architecture, deploy steps, smoke tests, Knowledge Base FAQ
+  starter set, Sentinel pre-launch checklist
+
+### Pending (blocked on store owner)
+- `supabase secrets set ANTHROPIC_API_KEY=...` + `supabase functions deploy shop-agent`
+- Enter Knowledge Base FAQs (digital delivery, re-downloads, returns, sizing)
+- Sentinel checklist in docs/SHOP_AGENT.md before customer exposure
+
+---
+
 ## [Unreleased] — Crimson King Series + Market Bouquet (2026-07-17)
 
 ### Added
