@@ -1794,3 +1794,5 @@
 .billing-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 .billing-table th, .billing-table td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid #e4e0d8; }
 .billing-table td:nth-child(n+2), .billing-table th:nth-child(n+2) { text-align: right; font-variant-numeric: tabular-nums; }
+
+.account-email-line { font-size: 0.9rem; color: var(--muted, #666); }
