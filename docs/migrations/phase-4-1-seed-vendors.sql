@@ -66,7 +66,9 @@ select v.id, x.title, x.descr, true
 from (values
   ('karas-freshly-baked', 'Fresh Bread Today',              'Sourdough out of the oven this morning — preorder for pickup before it sells out.'),
   ('golden-shot',         'Golden Shot Special',            'Bundle pricing on turmeric-ginger shots this week.'),
-  ('alas-kitchen',        'Get Smashed Burger of the Day',  'New smash special daily — ask at the window.')
+  ('alas-kitchen',        'Get Smashed Burger of the Day',  'New smash special daily — ask at the window.'),
+  ('alas-kitchen',        'Garlic Butter Volcano Smash',    'Our classic double smash elevated with roasted garlic compound butter and crispy shallots.'),
+  ('alas-kitchen',        'Tuesday Smash Deal',             'Buy any burger, get Shaka Fries free every Tuesday!')
 ) as x(slug, title, descr)
 join vendors v on v.slug = x.slug
 where not exists (
