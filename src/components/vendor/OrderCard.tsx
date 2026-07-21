@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Order, OrderStatus } from '../../lib/types';
+import { PAYMENT_LABELS } from '../../lib/payments';
 
 interface Props {
   order: Order;
   onUpdateStatus: (id: string, status: OrderStatus, extra?: { estimated_minutes?: number; cancellation_reason?: string }) => void;
+  onConfirmPayment?: (id: string) => void;
 }
 
-export function OrderCard({ order, onUpdateStatus }: Props) {
+export function OrderCard({ order, onUpdateStatus, onConfirmPayment }: Props) {
   const [eta, setEta] = useState('');
   const [cancelReason, setCancelReason] = useState('');
   const [showCancel, setShowCancel] = useState(false);
@@ -46,6 +48,21 @@ export function OrderCard({ order, onUpdateStatus }: Props) {
 
       {order.customer_note && (
         <p className="order-note">📝 {order.customer_note}</p>
+      )}
+
+      {order.payment_method && order.payment_method !== 'cash' && (
+        <div className="order-payment-row">
+          <span className={`payment-chip payment-chip--${order.payment_status ?? 'unpaid'}`}>
+            {order.payment_status === 'confirmed' && `✓ Paid · ${PAYMENT_LABELS[order.payment_method]}`}
+            {order.payment_status === 'marked_paid' && `${PAYMENT_LABELS[order.payment_method]} — customer says sent`}
+            {(!order.payment_status || order.payment_status === 'unpaid') && `${PAYMENT_LABELS[order.payment_method]} — not paid yet`}
+          </span>
+          {order.payment_status !== 'confirmed' && onConfirmPayment && (
+            <button className="btn-outline btn-sm" onClick={() => onConfirmPayment(order.id)}>
+              Confirm Received
+            </button>
+          )}
+        </div>
       )}
 
       <p className="order-time">{new Date(order.created_at).toLocaleTimeString()}</p>

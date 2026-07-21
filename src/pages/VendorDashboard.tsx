@@ -21,7 +21,14 @@ interface AnalyticsState {
   orders30: Order[];
 }
 
-type Tab = 'orders' | 'menu' | 'location' | 'specials' | 'profile' | 'qr' | 'analytics' | 'reviews' | 'inbox';
+type Tab = 'orders' | 'menu' | 'location' | 'specials' | 'profile' | 'qr' | 'analytics' | 'reviews' | 'inbox' | 'billing';
+
+interface MonthlyStatement {
+  statement_month: string;
+  prepaid_orders: number;
+  confirmed_prepaid_volume: number;
+  platform_fee_due: number;
+}
 
 export function VendorDashboard() {
   const { user, loading: authLoading, signIn, signOut } = useAuth();
@@ -41,6 +48,7 @@ export function VendorDashboard() {
   const revenueChartRef = useRef<HTMLCanvasElement>(null);
   const revenueChartInstance = useRef<Chart | null>(null);
   const [analyticsData, setAnalyticsData] = useState<AnalyticsState | null>(null);
+  const [statements, setStatements] = useState<MonthlyStatement[]>([]);
 
   const { orders, updateStatus } = useVendorOrders(vendor?.id ?? null);
   const { status: pushStatus, subscribe: subscribePush, unsubscribe: unsubscribePush } = usePushSubscription('vendor', vendor?.id ?? '');
@@ -104,6 +112,23 @@ export function VendorDashboard() {
     await updateStatus(id, status, extra);
     showToast(`Order marked ${status}`);
   }
+
+  async function handleConfirmPayment(id: string) {
+    await supabase.from('orders').update({ payment_status: 'confirmed' }).eq('id', id);
+    showToast('Payment confirmed ✓', 'success');
+  }
+
+  // Billing statements — load when entering the tab
+  useEffect(() => {
+    if (tab !== 'billing' || !vendor?.id) return;
+    supabase
+      .from('vendor_monthly_statements')
+      .select('*')
+      .eq('vendor_id', vendor.id)
+      .order('statement_month', { ascending: false })
+      .limit(12)
+      .then(({ data }) => setStatements((data as MonthlyStatement[]) || []));
+  }, [tab, vendor?.id]);
 
   // QR Codes — generate all variants when entering the tab
   useEffect(() => {
@@ -235,7 +260,7 @@ export function VendorDashboard() {
 
       <section className="vendor-section">
         <nav className="vendor-tabs">
-          {(['orders', 'menu', 'location', 'specials', 'profile', 'reviews', 'qr', 'analytics', 'inbox'] as Tab[]).map(t => {
+          {(['orders', 'menu', 'location', 'specials', 'profile', 'reviews', 'qr', 'analytics', 'billing', 'inbox'] as Tab[]).map(t => {
             const pendingReviews = reviews.filter(r => !r.approved).length;
             let label = t.charAt(0).toUpperCase() + t.slice(1);
             if (t === 'orders' && newOrderCount > 0) label = `Orders (${newOrderCount})`;
@@ -255,7 +280,7 @@ export function VendorDashboard() {
             {orders.length === 0
               ? <p className="empty-msg">No orders yet.</p>
               : orders.map(o => (
-                <OrderCard key={o.id} order={o} onUpdateStatus={handleStatusUpdate} />
+                <OrderCard key={o.id} order={o} onUpdateStatus={handleStatusUpdate} onConfirmPayment={handleConfirmPayment} />
               ))
             }
           </div>
@@ -338,9 +363,27 @@ export function VendorDashboard() {
         {tab === 'location' && (
           <div className="vendor-tab">
             <h2>Truck Location</h2>
+
+            {/* One-tap open/close — the thing vendors do most */}
+            <button
+              className={`open-toggle open-toggle--${location.status === 'open' ? 'open' : 'closed'}`}
+              onClick={async () => {
+                const next = location.status === 'open' ? 'closed' : 'open';
+                const stamp = new Date().toISOString();
+                if (locationId) {
+                  await supabase.from('locations').update({ status: next, updated_at: stamp }).eq('id', locationId);
+                }
+                setLocation(prev => ({ ...prev, status: next, updated_at: stamp }));
+                showToast(next === 'open' ? "You're OPEN 🟢" : "You're CLOSED 🔴", 'success');
+              }}
+            >
+              {location.status === 'open' ? '🟢 OPEN — tap to close' : '🔴 CLOSED — tap to open'}
+            </button>
+
             <form onSubmit={async e => {
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
+              const asNew = fd.get('as_new') === 'on';
               const loc = {
                 vendor_id: vendor.id,
                 name: fd.get('name') as string,
@@ -349,14 +392,14 @@ export function VendorDashboard() {
                 status: fd.get('status') as 'open' | 'closed',
                 updated_at: new Date().toISOString(),
               };
-              if (locationId) {
+              if (locationId && !asNew) {
                 await supabase.from('locations').update(loc).eq('id', locationId);
               } else {
                 const { data } = await supabase.from('locations').insert(loc).select('id').single();
                 if (data) setLocationId(data.id);
               }
               setLocation(loc);
-              showToast('Location saved!', 'success');
+              showToast(asNew ? 'Moved to new location!' : 'Location saved!', 'success');
             }}>
               <label>Location Name <input name="name" required defaultValue={location.name ?? ''} /></label>
               <label>Address <input name="address" defaultValue={location.address ?? ''} /></label>
@@ -366,6 +409,9 @@ export function VendorDashboard() {
                   <option value="open">Open</option>
                   <option value="closed">Closed</option>
                 </select>
+              </label>
+              <label className="checkbox-label">
+                <input type="checkbox" name="as_new" /> Save as a new location (keeps your old spot in history — use when you move)
               </label>
               <button type="submit" className="btn-primary">Save Location</button>
             </form>
@@ -533,6 +579,69 @@ export function VendorDashboard() {
               </label>
               <button type="submit" className="btn-primary">Save Profile</button>
             </form>
+
+            <h2 style={{ marginTop: '1.5rem' }}>Payment Methods</h2>
+            <p className="payment-settings-hint">
+              Customers pay you directly — money goes straight to your own account, never through
+              Local Grindz. Add the handles you already use to run your business.
+            </p>
+            <form onSubmit={async e => {
+              e.preventDefault();
+              const fd = new FormData(e.currentTarget);
+              const updates = {
+                paypal_handle: (fd.get('paypal') as string).trim() || null,
+                venmo_handle: (fd.get('venmo') as string).trim() || null,
+                cashapp_handle: (fd.get('cashapp') as string).trim() || null,
+                preferred_payment: (fd.get('preferred') as string) || null,
+              };
+              await supabase.from('vendors').update(updates).eq('id', vendor.id);
+              setVendor(prev => prev ? { ...prev, ...updates } : prev);
+              showToast('Payment methods saved!', 'success');
+            }}>
+              <label>PayPal.Me username <input name="paypal" defaultValue={vendor.paypal_handle || ''} placeholder="e.g. AlasKitchen" /></label>
+              <label>Venmo username <input name="venmo" defaultValue={vendor.venmo_handle || ''} placeholder="e.g. Alas-Kitchen" /></label>
+              <label>Cash App $cashtag <input name="cashapp" defaultValue={vendor.cashapp_handle || ''} placeholder="e.g. AlasKitchen" /></label>
+              <label>Preferred method
+                <select name="preferred" defaultValue={vendor.preferred_payment || ''}>
+                  <option value="">No preference</option>
+                  <option value="paypal">PayPal</option>
+                  <option value="venmo">Venmo</option>
+                  <option value="cashapp">Cash App</option>
+                </select>
+              </label>
+              <button type="submit" className="btn-primary">Save Payment Methods</button>
+            </form>
+          </div>
+        )}
+
+        {/* BILLING */}
+        {tab === 'billing' && (
+          <div className="vendor-tab">
+            <h2>Monthly Statement</h2>
+            <p className="billing-hint">
+              Local Grindz charges <strong>5% only on confirmed online prepayments above $500 per
+              month</strong>. Cash orders and your first $500 of prepaid volume each month are always
+              free. Nothing is charged automatically — this becomes your end-of-month statement.
+            </p>
+            {statements.length === 0
+              ? <p className="empty-msg">No prepaid orders yet — statements appear once customers start paying online.</p>
+              : (
+                <table className="billing-table">
+                  <thead>
+                    <tr><th>Month</th><th>Prepaid Orders</th><th>Confirmed Volume</th><th>Fee Due (EOM)</th></tr>
+                  </thead>
+                  <tbody>
+                    {statements.map(s => (
+                      <tr key={s.statement_month}>
+                        <td>{new Date(s.statement_month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</td>
+                        <td>{s.prepaid_orders}</td>
+                        <td>${Number(s.confirmed_prepaid_volume).toFixed(2)}</td>
+                        <td>{Number(s.platform_fee_due) > 0 ? `$${Number(s.platform_fee_due).toFixed(2)}` : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
           </div>
         )}
 

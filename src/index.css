@@ -1742,3 +1742,55 @@
   padding: 0;
 }
 .promo-dot.active { background: var(--lava, #E63946); }
+
+/* ── Phase 4.2: vendor payments, receipts, open toggle, billing ── */
+.tracking-payment {
+  background: #fff;
+  border: 2px solid var(--gold, #f4a261);
+  border-radius: var(--radius, 8px);
+  padding: 1rem 1.1rem;
+  margin-bottom: 1rem;
+}
+.payment-note { font-size: 0.9rem; color: var(--muted, #666); margin: 0.5rem 0 0.85rem; }
+.payment-pay-btn { display: block; text-align: center; margin-bottom: 0.5rem; }
+.payment-sent-btn { width: 100%; }
+.payment-chip {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+}
+.payment-chip--confirmed { background: #d8f3dc; color: #2d6a4f; }
+.payment-chip--sent, .payment-chip--marked_paid { background: #fff3cd; color: #7a5c00; }
+.payment-chip--unpaid { background: #fdecea; color: #b3261e; }
+.order-payment-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 0.4rem 0;
+}
+.tracking-receipt-line { font-size: 0.78rem; color: var(--muted, #666); margin: 0.3rem 0 0.6rem; }
+.receipt-print-btn { margin-bottom: 0.75rem; }
+@media print {
+  .site-header, .payment-sent-btn, .receipt-print-btn, .btn-secondary, .tracking-live-note { display: none !important; }
+}
+
+.open-toggle {
+  width: 100%;
+  border: none;
+  border-radius: var(--radius, 8px);
+  padding: 1rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+  margin-bottom: 1.25rem;
+}
+.open-toggle--open { background: #d8f3dc; color: #2d6a4f; }
+.open-toggle--closed { background: #fdecea; color: #b3261e; }
+
+.payment-settings-hint, .billing-hint { font-size: 0.85rem; color: var(--muted, #666); margin-bottom: 0.9rem; line-height: 1.55; }
+.billing-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.billing-table th, .billing-table td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid #e4e0d8; }
+.billing-table td:nth-child(n+2), .billing-table th:nth-child(n+2) { text-align: right; font-variant-numeric: tabular-nums; }
