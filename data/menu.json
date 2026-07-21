@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "name": "Volcano Smash",
+    "description": "Double smash patty, pepper jack, jalapeño aioli, crispy onions",
+    "price": 14.00,
+    "category": "burger",
+    "available": true
+  },
+  {
+    "id": 2,
+    "name": "Classic Smash",
+    "description": "Single smash patty, American cheese, pickles, secret sauce",
+    "price": 10.00,
+    "category": "burger",
+    "available": true
+  },
+  {
+    "id": 3,
+    "name": "Loco Moco Smash",
+    "description": "Smash patty over rice, fried egg, brown gravy",
+    "price": 13.00,
+    "category": "plate",
+    "available": true
+  },
+  {
+    "id": 4,
+    "name": "Shaka Fries",
+    "description": "Crispy seasoned fries with house dipping sauce",
+    "price": 5.00,
+    "category": "side",
+    "available": true
+  },
+  {
+    "id": 5,
+    "name": "Lilikoi Lemonade",
+    "description": "Fresh passion fruit lemonade",
+    "price": 4.00,
+    "category": "drink",
+    "available": true
+  }
+]

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Grindz – Find a Truck</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="../" class="back-link">← Local Grindz</a>
+    <h1>Find a Truck</h1>
+  </header>
+
+  <main class="directory-main">
+
+    <div class="filter-bar">
+      <button class="filter-chip active" data-filter="all">All</button>
+      <button class="filter-chip" data-filter="open">Open Now</button>
+      <button class="filter-chip" data-filter="burger">Burgers</button>
+      <button class="filter-chip" data-filter="plate">Plate Lunch</button>
+      <button class="filter-chip" data-filter="tacos">Tacos</button>
+      <button class="filter-chip" data-filter="shave-ice">Shave Ice</button>
+    </div>
+
+    <div id="vendor-grid" class="vendor-grid">
+      <p class="loading-msg">Loading vendors…</p>
+    </div>
+
+  </main>
+
+  <footer>
+    <p>Local Grindz — Big Island, Hawaii</p>
+  </footer>
+
+  <script type="module" src="../scripts/directory.js"></script>
+</body>
+</html>

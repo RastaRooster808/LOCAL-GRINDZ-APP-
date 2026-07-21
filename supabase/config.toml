@@ -1,0 +1,14 @@
+[project]
+id = "LOCAL-GRINDZ-APP"
+
+[functions.order-notify]
+verify_jwt = false
+
+[functions.vendor-new-order]
+verify_jwt = false
+
+[functions.embed]
+verify_jwt = false
+
+[functions.search]
+verify_jwt = false

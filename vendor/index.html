@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Grindz – Vendor Dashboard</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body class="vendor-body">
+
+  <header>
+    <h1>Vendor Dashboard</h1>
+    <button id="logout-btn" class="hidden">Log Out</button>
+  </header>
+
+  <!-- Login -->
+  <section id="login-section" class="vendor-section">
+    <h2>Vendor Login</h2>
+    <form id="login-form">
+      <label>Email
+        <input type="email" id="login-email" required autocomplete="email">
+      </label>
+      <label>Password
+        <input type="password" id="login-password" required autocomplete="current-password">
+      </label>
+      <p id="login-error" class="error-msg"></p>
+      <button type="submit" class="btn-primary">Log In</button>
+    </form>
+  </section>
+
+  <!-- Dashboard -->
+  <section id="dashboard-section" class="vendor-section hidden">
+
+    <nav class="vendor-tabs">
+      <button onclick="showTab('tab-menu')">Menu</button>
+      <button onclick="showTab('tab-location')">Location</button>
+      <button onclick="showTab('tab-specials')">Specials</button>
+      <button onclick="showTab('tab-orders')">Orders</button>
+      <button onclick="showTab('tab-qr')">QR Code</button>
+      <button onclick="showTab('tab-analytics')">Analytics</button>
+    </nav>
+
+    <!-- Menu Tab -->
+    <div id="tab-menu" class="vendor-tab">
+      <h2>Menu Items</h2>
+      <div id="vendor-menu-list"></div>
+
+      <h3>Add Item</h3>
+      <form id="add-menu-form">
+        <label>Name <input type="text" id="item-name" required></label>
+        <label>Description <input type="text" id="item-desc"></label>
+        <label>Price <input type="number" id="item-price" step="0.01" min="0" required></label>
+        <label>Category
+          <select id="item-category">
+            <option value="burger">Burger</option>
+            <option value="plate">Plate</option>
+            <option value="side">Side</option>
+            <option value="drink">Drink</option>
+          </select>
+        </label>
+        <button type="submit" class="btn-primary">Add Item</button>
+      </form>
+    </div>
+
+    <!-- Location Tab -->
+    <div id="tab-location" class="vendor-tab hidden">
+      <h2>Truck Location</h2>
+      <input type="hidden" id="vendor-location-id">
+      <form id="location-form">
+        <label>Location Name <input type="text" id="loc-name" required></label>
+        <label>Address <input type="text" id="loc-address"></label>
+        <label>Hours <input type="text" id="loc-hours" placeholder="11am – 7pm"></label>
+        <label>Status
+          <select id="loc-status">
+            <option value="open">Open</option>
+            <option value="closed">Closed</option>
+          </select>
+        </label>
+        <button type="submit" class="btn-primary">Save Location</button>
+      </form>
+    </div>
+
+    <!-- Specials Tab -->
+    <div id="tab-specials" class="vendor-tab hidden">
+      <h2>Specials</h2>
+      <div id="vendor-specials-list"></div>
+
+      <h3>Add Special</h3>
+      <form id="add-special-form">
+        <label>Title <input type="text" id="special-title" required></label>
+        <label>Description <textarea id="special-desc"></textarea></label>
+        <label>Expires <input type="date" id="special-expires"></label>
+        <button type="submit" class="btn-primary">Add Special</button>
+      </form>
+    </div>
+
+    <!-- Orders Tab -->
+    <div id="tab-orders" class="vendor-tab hidden">
+      <h2>Incoming Orders</h2>
+      <div id="vendor-orders-list"></div>
+      <button onclick="refreshOrders()" class="btn-secondary">Refresh</button>
+    </div>
+
+    <!-- QR Code Tab -->
+    <div id="tab-qr" class="vendor-tab hidden">
+      <h2>Your QR Code</h2>
+      <p class="qr-hint">Print and display this QR code for customers to order directly from your storefront.</p>
+      <div id="qr-code-box" class="qr-code-box"></div>
+      <p id="qr-url" class="qr-url"></p>
+      <button id="qr-download-btn" class="btn-secondary hidden">Download PNG</button>
+    </div>
+
+    <!-- Analytics Tab -->
+    <div id="tab-analytics" class="vendor-tab hidden">
+      <h2>Analytics</h2>
+      <div class="analytics-stats">
+        <div class="stat-box"><p class="stat-value" id="stat-orders-7">–</p><p class="stat-label">Orders (7 days)</p></div>
+        <div class="stat-box"><p class="stat-value" id="stat-revenue-7">–</p><p class="stat-label">Revenue (7 days)</p></div>
+        <div class="stat-box"><p class="stat-value" id="stat-orders-30">–</p><p class="stat-label">Orders (30 days)</p></div>
+        <div class="stat-box"><p class="stat-value" id="stat-views-30">–</p><p class="stat-label">Page Views (30 days)</p></div>
+      </div>
+      <div class="analytics-chart-wrap">
+        <canvas id="orders-chart" height="200"></canvas>
+      </div>
+      <h3>Top Items (30 days)</h3>
+      <div id="top-items-list"></div>
+    </div>
+
+  </section>
+
+  <script type="module" src="../scripts/vendor.js"></script>
+  <script>
+    function showTab(id) {
+      document.querySelectorAll('.vendor-tab').forEach(t => t.classList.add('hidden'));
+      document.getElementById(id)?.classList.remove('hidden');
+      if (id === 'tab-analytics') window.loadAnalytics?.();
+      if (id === 'tab-qr') window.initQR?.();
+    }
+    function refreshOrders() {
+      if (window.reloadOrders) { window.reloadOrders(); } else { location.reload(); }
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const dashboard = document.getElementById('dashboard-section');
+      const observer = new MutationObserver(() => {
+        const visible = !dashboard.classList.contains('hidden');
+        document.getElementById('logout-btn').classList.toggle('hidden', !visible);
+      });
+      observer.observe(dashboard, { attributes: true });
+    });
+  </script>
+</body>
+</html>

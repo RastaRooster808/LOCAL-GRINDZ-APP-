@@ -1,21 +1,48 @@
 {
-    "name": "Local Grindz - Ala's Kitchen",
-    "short_name": "Local Grindz",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#1D1D1D",
-    "theme_color": "#E63946",
-    "description": "Local Grindz PWA for Ala's Kitchen - Get Smashed",
-    "icons": [
-        {
-            "src": "/icons/icon-192x192.png",
-            "type": "image/png",
-            "sizes": "192x192"
-        },
-        {
-            "src": "/icons/icon-512x512.png",
-            "type": "image/png",
-            "sizes": "512x512"
-        }
-    ]
+  "name": "Local Grindz – Hawaiʻi Food Truck Marketplace",
+  "short_name": "Local Grindz",
+  "description": "Discover Hawaiʻi's best local food trucks and pop-up vendors. Browse menus, order online, earn rewards.",
+  "start_url": "/LOCAL-GRINDZ-APP-/",
+  "scope": "/LOCAL-GRINDZ-APP-/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1D1D1D",
+  "theme_color": "#C1440E",
+  "lang": "en-US",
+  "categories": ["food", "shopping", "lifestyle"],
+  "icons": [
+    {
+      "src": "/LOCAL-GRINDZ-APP-/icons/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/LOCAL-GRINDZ-APP-/icons/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Find Vendors",
+      "short_name": "Vendors",
+      "url": "/LOCAL-GRINDZ-APP-/#/vendors",
+      "icons": [{ "src": "/LOCAL-GRINDZ-APP-/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Vendor Map",
+      "short_name": "Map",
+      "url": "/LOCAL-GRINDZ-APP-/#/map",
+      "icons": [{ "src": "/LOCAL-GRINDZ-APP-/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "My Account",
+      "short_name": "Account",
+      "url": "/LOCAL-GRINDZ-APP-/#/account",
+      "icons": [{ "src": "/LOCAL-GRINDZ-APP-/icons/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
 }

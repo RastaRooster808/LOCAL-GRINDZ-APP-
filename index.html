@@ -1,62 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Local Grindz - Ala's Kitchen</title>
-    <link rel="stylesheet" href="/styles/main.css">
-    <link rel="manifest" href="/manifest.json">
-</head>
-<body>
-    <header>
-        <h1>Welcome to Local Grindz</h1>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#C1440E" />
 
-    <main>
-        <section id="welcome-hero">
-            <h2>Ala's Kitchen - Get Smashed</h2>
-            <p>Experience the best smash burgers in Puna and Kalapana.</p>
-        </section>
+    <title>Local Grindz – Hawaiʻi Food Truck &amp; Pop-Up Marketplace</title>
+    <meta name="description" content="Discover Hawaiʻi's best local food trucks and pop-up vendors. Browse menus, order online, earn rewards, and support your neighborhood 'āina." />
+    <meta name="keywords" content="Hawaii food trucks, local vendors, plate lunch, pop-up food, Oahu food, Maui food, Hawaiian street food" />
+    <meta name="robots" content="index, follow" />
 
-        <section id="live-location">
-            <h2>Live Truck Location</h2>
-            <p>We're currently at: <strong>Beachside Park</strong>.</p>
-        </section>
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Local Grindz" />
+    <meta property="og:title" content="Local Grindz – Hawaiʻi Food Truck Marketplace" />
+    <meta property="og:description" content="Browse menus, order online, and earn rewards from Hawaiʻi's local food trucks and pop-up vendors." />
+    <meta property="og:locale" content="en_US" />
 
-        <section id="featured-burger">
-            <h2>Featured Smash Burger</h2>
-            <p>Try our Volcano Smash - a fiery blend of flavor and heat!</p>
-        </section>
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Local Grindz – Hawaiʻi Food Truck Marketplace" />
+    <meta name="twitter:description" content="Browse menus, order online, and support local food vendors across Hawaiʻi." />
 
-        <section id="reviews">
-            <h2>Reviews</h2>
-          <blockquote>"The best burger I've ever had!"</blockquote>
-        </section>
-
-        <section id="loyalty-rewards">
-            <h2>Loyalty Rewards</h2>
-            <p>Earn points every time you order with us!</p>
-        </section>
-
-        <section id="social-feed">
-            <h2>Social Feed</h2>
-            <p>Stay connected and see what everyone's saying.</p>
-        </section>
-
-        <section id="qr-order">
-            <h2>QR Order</h2>
-            <button>Scan and Order!</button>
-        </section>
-    </main>
-
-    <nav>
-        <a href="#welcome-hero">Welcome</a>
-        <a href="#live-location">Location</a>
-        <a href="#featured-burger">Menu</a>
-        <a href="#reviews">Reviews</a>
-        <a href="#social-feed">Social</a>
-    </nav>
-
-    <script src="/scripts/app.js"></script>
-</body>
+    <!-- PWA -->
+    <link rel="manifest" href="./manifest.json" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

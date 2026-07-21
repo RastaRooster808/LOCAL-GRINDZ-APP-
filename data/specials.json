@@ -1,0 +1,9 @@
+[
+  {
+    "id": 1,
+    "title": "Tuesday Smash Deal",
+    "description": "Buy any burger, get Shaka Fries free every Tuesday!",
+    "expires_at": "2026-12-31T23:59:59Z",
+    "active": true
+  }
+]
