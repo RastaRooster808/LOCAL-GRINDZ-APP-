@@ -2,11 +2,13 @@ import { Link, useLocation, useSearchParams } from 'react-router-dom';
 
 const NAV_ITEMS = [
   { label: 'Home', to: '/' },
-  { label: 'Restaurants', to: '/vendors?cat=restaurants' },
-  { label: 'Markets', to: '/vendors?cat=markets' },
-  { label: 'Fruit', to: '/vendors?cat=fruit' },
+  { label: 'Food Trucks', to: '/vendors?cat=foodtrucks' },
+  { label: 'Bakery', to: '/vendors?cat=bakery' },
+  { label: 'Wellness', to: '/vendors?cat=wellness' },
   { label: 'Flowers', to: '/vendors?cat=flowers' },
-  { label: 'Featured Vendors', to: '/vendors?cat=featured' },
+  { label: 'Fruit', to: '/vendors?cat=fruit' },
+  { label: 'Markets', to: '/vendors?cat=markets' },
+  { label: 'Featured', to: '/vendors?cat=featured' },
   { label: 'Events', to: '/events' },
   { label: 'Profile', to: '/account' },
 ];

@@ -11,7 +11,10 @@ const CUISINES = ['All', 'Burger', 'Plate', 'Seafood', 'Vegan', 'Coffee', 'Desse
 
 const CATEGORY_TAGLINES: Record<string, string> = {
   all: 'The Big Island Community Marketplace',
-  restaurants: 'Local Restaurants & Food Trucks',
+  foodtrucks: 'Local Food Trucks & Restaurants',
+  restaurants: 'Local Food Trucks & Restaurants',
+  bakery: 'Fresh Local Bakeries',
+  wellness: 'Wellness Drinks & Island Botanicals',
   markets: 'Markets & Farmers',
   fruit: 'Local Fruit & Produce',
   flowers: 'Florists & Flower Growers',
@@ -59,7 +62,7 @@ export function Directory() {
   const [openOnly, setOpenOnly] = useState(false);
 
   // Cuisine chips only make sense when browsing food
-  const showCuisineChips = catSlug === 'all' || catSlug === 'restaurants';
+  const showCuisineChips = catSlug === 'all' || catSlug === 'restaurants' || catSlug === 'foodtrucks';
 
   useEffect(() => {
     let query = supabase

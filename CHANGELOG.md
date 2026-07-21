@@ -4,6 +4,37 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Phase 4.1: KaRas Freshly Baked + Golden Shot (2026-07-21)
+
+### Added
+- Featured vendors in `marketplace.ts`: Ala's Kitchen — Get Smashed (food truck,
+  lava-red theme), KaRas Freshly Baked (bakery, cream/gold/volcanic theme),
+  Golden Shot (wellness, gold/amber/tropical-green theme) — all with themed
+  gradient banners + emoji identity until photography exists (no fake photos)
+- Featured Vendors section moved directly below the hero, 4 cards in a grid,
+  each with logo/banner, category label, rating line, badges, View Menu button
+- `PromoRotator` — rotating homepage promos (Fresh Bread Today / Golden Shot
+  Special / Get Smashed Burger of the Day), 6s cycle, reduced-motion aware
+- Navigation updated: Home · Food Trucks · Bakery · Wellness · Flowers · Fruit ·
+  Markets · Featured · Events · Profile (restaurants kept as alias)
+- Categories: bakery + wellness added to marketplace category model
+- `docs/migrations/phase-4-1-seed-vendors.sql` — idempotent seed: 3 vendors,
+  locations, 16 menu items (incl. sold-out example for the indicator),
+  3 specials feeding the promos, vendor_features rows for featured placement
+
+### Blocked
+- **Supabase project is INACTIVE (auto-paused)** — live site's DB features are
+  down; restore was denied by session permissions. Owner: approve restore or
+  un-pause in the Supabase dashboard, then apply the Phase 4.1 seed migration.
+
+### Preserved
+- Auth, vendor/admin dashboards, loyalty, reviews, QR ordering, offline support,
+  GitHub Pages build — no existing functionality removed; vendor profile
+  features (cover, gallery, hours, reviews, specials, loyalty, order-ahead)
+  come from the existing Storefront machinery once vendors are seeded
+
+---
+
 ## [Unreleased] — Marketplace Categories + Featured Vendor Placement (2026-07-19)
 
 ### Added
