@@ -8,6 +8,7 @@ import ShopAgent from '../components/ShopAgent';
 import { MarketplaceNav } from '../components/MarketplaceNav';
 import { FeaturedVendorCard } from '../components/FeaturedVendorCard';
 import { FEATURED_VENDORS } from '../lib/marketplace';
+import { PromoRotator } from '../components/PromoRotator';
 import { trackEvent } from '../lib/analytics';
 
 interface Announcement {
@@ -212,6 +213,22 @@ export function Landing() {
       ))}
 
       <main className="landing-main">
+        {/* Featured Vendors — directly below hero; premium placement, clearly
+            separated from marketplace listings */}
+        <section className="landing-section fv-home-section" aria-label="Featured vendors">
+          <h2>Featured Vendors</h2>
+          <div className="fv-home-grid">
+            {FEATURED_VENDORS.map(fv => <FeaturedVendorCard key={fv.id} vendor={fv} />)}
+          </div>
+          <p className="fv-disclosure">
+            Featured vendors are independent local businesses with premium placement on
+            Local Grindz. Browse every category — <Link to="/vendors">all vendors welcome</Link>.
+          </p>
+        </section>
+
+        {/* Rotating promotions */}
+        <PromoRotator />
+
         {/* Featured carousel — only shown when vendors have active features */}
         {!loading && <FeaturedCarousel vendors={featuredVendors} />}
 
@@ -234,16 +251,6 @@ export function Landing() {
             <div className="trust-stat"><span className="trust-num">Free</span><span className="trust-label">to Browse</span></div>
             <div className="trust-stat"><span className="trust-num">Realtime</span><span className="trust-label">Order Tracking</span></div>
           </div>
-        </section>
-
-        {/* Featured Vendors — premium placement, clearly separated from marketplace listings */}
-        <section className="landing-section fv-home-section" aria-label="Featured vendors">
-          <h2>Featured Vendors</h2>
-          {FEATURED_VENDORS.map(fv => <FeaturedVendorCard key={fv.id} vendor={fv} />)}
-          <p className="fv-disclosure">
-            Featured vendors are independent local businesses with premium placement on
-            Local Grindz. Browse all florists and vendors in the <Link to="/vendors?cat=flowers">Flowers</Link> category.
-          </p>
         </section>
 
         {/* Commerce grid — live products and coming soon */}
