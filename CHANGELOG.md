@@ -4,6 +4,32 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Phase 4.4: Guest Checkout Fixed (found via KaRas order test) (2026-07-21)
+
+Ran a full end-to-end order test as KaRas. Guest checkout was **completely broken**
+in production — two more drift/config bugs, now fixed and verified live:
+
+### Fixed (live DB)
+- **`orders` was missing the Phase 4C lifecycle columns** (`customer_email`,
+  `accepted_at`, `ready_at`, `completed_at`, `estimated_minutes`,
+  `cancellation_reason`). Any checkout submitting an email errored. Columns added.
+- **Guests couldn't place or track orders.** `insert().select('id')` and the
+  order-tracking read both need anon SELECT on the returned row; only a
+  vendor-scoped SELECT policy existed → every guest order failed. Added
+  `public read order by link` (order ids are unguessable bearer links).
+
+### Verified end-to-end (roles simulated at the DB)
+guest insert+read → vendor accept (status/ETA) → vendor confirm payment →
+EOM statement reflects confirmed prepaid volume. Test orders cleaned up after.
+
+### Known follow-up
+- `using(true)` allows anon table enumeration — harden with a security-definer
+  `place_order()/get_order(id)` RPC pair post-launch.
+- Customer "I've sent the payment" (anon UPDATE) still no-ops; vendor confirm is
+  the billing source of truth.
+
+---
+
 ## [Unreleased] — Phase 4.3: KaRas Onboarding + RLS Drift Fixes (2026-07-21)
 
 ### Fixed (live DB — schema drift discovered during KaRas onboarding)
