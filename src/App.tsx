@@ -6,6 +6,7 @@ import { Storefront } from './pages/Storefront';
 import { OrderTracking } from './pages/OrderTracking';
 import { Apply } from './pages/Apply';
 import { Account } from './pages/Account';
+import { Events } from './pages/Events';
 import { ToastContainer } from './components/ui/Toast';
 
 // Heavy pages: code-split to keep initial bundle lean
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="/order/:id" element={<OrderTracking />} />
         <Route path="/apply" element={<Apply />} />
         <Route path="/account" element={<Account />} />
+        <Route path="/events" element={<Events />} />
         <Route path="/vendor" element={<Suspense fallback={<PageLoader />}><VendorDashboard /></Suspense>} />
         <Route path="/admin" element={<Suspense fallback={<PageLoader />}><AdminDashboard /></Suspense>} />
         <Route path="/map" element={<Suspense fallback={<PageLoader />}><Map /></Suspense>} />

@@ -4,6 +4,33 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Marketplace Categories + Featured Vendor Placement (2026-07-19)
+
+### Added
+- `src/lib/marketplace.ts` — marketplace category model (Restaurants, Markets,
+  Fruit, Flowers, Artists & Makers) filtering the existing vendors table by
+  cuisine_type ilike patterns; featured-vendor registry (presentation-layer only)
+- `MarketplaceNav` — Home / Restaurants / Markets / Fruit / Flowers / Featured
+  Vendors / Events / Profile, on Landing, Directory, and Events
+- `FeaturedVendorCard` — premium placement card: banner, circular logo,
+  "★ Featured Vendor" badge, category label ("Featured Florist — TOPP"),
+  tagline ("Premium Hawaiian Protea Delivery"), vendor-only badges
+  (Delivery Available / Protea Delivery / Premium Arrangements), Shop TOPP button
+- `src/pages/Events.tsx` (+ `/events` route) — community events feed from the
+  existing announcements table
+- Landing: Featured Vendors section above the commerce grid
+- Directory: category browsing via `?cat=` param; TOPP featured card appears
+  inside Flowers and Featured Vendors views with disclosure line
+
+### Preserved (per requirements)
+- Existing vendor query, cuisine chips (shown for All/Restaurants), Open Now
+  filter, vendor_features featured-first sorting — no schema changes
+- Local Grindz branding stays marketplace-first; featured vendor branding is
+  boxed inside labeled cards with an independence disclosure; Flowers category
+  empty-state invites other florists ("every flower grower is welcome")
+
+---
+
 ## [Unreleased] — Reprice + Print Bundles (2026-07-17)
 
 ### Changed
