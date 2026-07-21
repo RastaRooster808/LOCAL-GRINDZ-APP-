@@ -21,7 +21,7 @@ interface AnalyticsState {
   orders30: Order[];
 }
 
-type Tab = 'orders' | 'menu' | 'location' | 'specials' | 'profile' | 'qr' | 'analytics' | 'reviews' | 'inbox' | 'billing';
+type Tab = 'orders' | 'menu' | 'location' | 'specials' | 'profile' | 'qr' | 'analytics' | 'reviews' | 'inbox' | 'billing' | 'account';
 
 interface MonthlyStatement {
   statement_month: string;
@@ -260,7 +260,7 @@ export function VendorDashboard() {
 
       <section className="vendor-section">
         <nav className="vendor-tabs">
-          {(['orders', 'menu', 'location', 'specials', 'profile', 'reviews', 'qr', 'analytics', 'billing', 'inbox'] as Tab[]).map(t => {
+          {(['orders', 'menu', 'location', 'specials', 'profile', 'reviews', 'qr', 'analytics', 'billing', 'inbox', 'account'] as Tab[]).map(t => {
             const pendingReviews = reviews.filter(r => !r.approved).length;
             let label = t.charAt(0).toUpperCase() + t.slice(1);
             if (t === 'orders' && newOrderCount > 0) label = `Orders (${newOrderCount})`;
@@ -610,6 +610,32 @@ export function VendorDashboard() {
                 </select>
               </label>
               <button type="submit" className="btn-primary">Save Payment Methods</button>
+            </form>
+          </div>
+        )}
+
+        {/* ACCOUNT */}
+        {tab === 'account' && (
+          <div className="vendor-tab">
+            <h2>Account</h2>
+            <p className="account-email-line">Signed in as <strong>{user.email}</strong></p>
+            <h3 style={{ marginTop: '1rem' }}>Change Password</h3>
+            <p className="payment-settings-hint">Set your own password. Minimum 8 characters.</p>
+            <form onSubmit={async e => {
+              e.preventDefault();
+              const fd = new FormData(e.currentTarget);
+              const pw = (fd.get('pw') as string) || '';
+              const confirm = (fd.get('pw2') as string) || '';
+              if (pw.length < 8) { showToast('Password must be at least 8 characters.', 'error'); return; }
+              if (pw !== confirm) { showToast('Passwords do not match.', 'error'); return; }
+              const { error } = await supabase.auth.updateUser({ password: pw });
+              if (error) { showToast(error.message, 'error'); return; }
+              showToast('Password updated ✓', 'success');
+              (e.currentTarget as HTMLFormElement).reset();
+            }}>
+              <label>New Password <input name="pw" type="password" autoComplete="new-password" required /></label>
+              <label>Confirm Password <input name="pw2" type="password" autoComplete="new-password" required /></label>
+              <button type="submit" className="btn-primary">Update Password</button>
             </form>
           </div>
         )}

@@ -4,6 +4,81 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Bug-fix + polish pass: Maya / Leilani / Sage (2026-07-21)
+
+### Fixed — live updates were completely dead (Maya + Leilani)
+- **`supabase_realtime` publication was EMPTY.** The customer order-tracking page
+  promised "🔴 updates live — no refresh needed" but never moved, and vendors
+  never saw new orders without refreshing. Published `orders` + set replica
+  identity full. Live order flow now works both directions.
+
+### Fixed — customer payment signal was a silent no-op (Maya)
+- "I've sent the payment" wrote an anon UPDATE that RLS denied → vendor never saw
+  it. Added narrow security-definer RPC `mark_order_payment_sent` (unpaid→marked_paid
+  only); client now calls it. Vendor "Confirm Received" remains the billing truth.
+
+### Improved — discoverability (Sage)
+- `index.html`: broadened title/description/keywords to the real marketplace
+  (food trucks, bakery, wellness, flowers/protea, fruit, markets, makers);
+  added canonical URL, `og:url`, and WebSite/Organization JSON-LD structured data.
+
+### Findings (flagged, not silently fixed)
+- **`vendor_messages` table does not exist** on the live DB (Phase 4L never applied)
+  → vendor↔customer chat/inbox is entirely non-functional. Re-apply
+  `docs/migrations/phase-4l-messaging.sql` before relying on that feature.
+- HashRouter (`/#/`) limits deep-link SEO for vendor pages — architectural, deferred.
+- No `og:image` — needs a real marketplace/Sunday Funday hero photo (owner input).
+
+---
+
+## [Unreleased] — Phase 4.4: Guest Checkout Fixed (found via KaRas order test) (2026-07-21)
+
+Ran a full end-to-end order test as KaRas. Guest checkout was **completely broken**
+in production — two more drift/config bugs, now fixed and verified live:
+
+### Fixed (live DB)
+- **`orders` was missing the Phase 4C lifecycle columns** (`customer_email`,
+  `accepted_at`, `ready_at`, `completed_at`, `estimated_minutes`,
+  `cancellation_reason`). Any checkout submitting an email errored. Columns added.
+- **Guests couldn't place or track orders.** `insert().select('id')` and the
+  order-tracking read both need anon SELECT on the returned row; only a
+  vendor-scoped SELECT policy existed → every guest order failed. Added
+  `public read order by link` (order ids are unguessable bearer links).
+
+### Verified end-to-end (roles simulated at the DB)
+guest insert+read → vendor accept (status/ETA) → vendor confirm payment →
+EOM statement reflects confirmed prepaid volume. Test orders cleaned up after.
+
+### Known follow-up
+- `using(true)` allows anon table enumeration — harden with a security-definer
+  `place_order()/get_order(id)` RPC pair post-launch.
+- Customer "I've sent the payment" (anon UPDATE) still no-ops; vendor confirm is
+  the billing source of truth.
+
+---
+
+## [Unreleased] — Phase 4.3: KaRas Onboarding + RLS Drift Fixes (2026-07-21)
+
+### Fixed (live DB — schema drift discovered during KaRas onboarding)
+- **`vendors.user_id` never existed on the live table** despite app code + storage
+  RLS referencing it. Added + backfilled by email (`docs/migrations/phase-4-3-*`).
+- **`orders` had RLS on with no UPDATE policy** — vendor status changes
+  (accept/preparing/ready/cancel) and Phase 4.2 payment confirm were being
+  silently denied. Added `vendor update own orders`.
+- Added `vendor update own` on `vendors` so the profile + payment-methods forms
+  actually persist (previously SELECT-only → denied on save).
+
+### Added
+- KaRas Freshly Baked vendor login provisioned against the live project
+  (auth user + identity, email-confirmed, linked to the seeded vendor row).
+  Full chain verified: login → vendor match → 7 menu items, 1 location.
+
+### Known follow-up
+- Customer "I've sent the payment" writes as anon with no UPDATE policy → only
+  flips local UI; vendor "Confirm Received" (billing source of truth) works.
+
+---
+
 ## [Unreleased] — Phase 4.2: Vendor Payments, Receipts, EOM Statements (2026-07-21)
 
 ### Added

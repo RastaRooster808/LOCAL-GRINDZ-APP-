@@ -94,7 +94,7 @@ export function OrderTracking() {
                 <button
                   className="btn-secondary payment-sent-btn"
                   onClick={async () => {
-                    await supabase.from('orders').update({ payment_status: 'marked_paid' }).eq('id', order.id);
+                    await supabase.rpc('mark_order_payment_sent', { p_order_id: order.id });
                     setMarkedSent(true);
                   }}
                 >
