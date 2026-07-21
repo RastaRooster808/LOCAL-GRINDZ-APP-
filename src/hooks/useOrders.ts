@@ -69,7 +69,7 @@ export function useOrderTracking(orderId: string | null) {
 
     supabase
       .from('orders')
-      .select('*, vendors(name, slug)')
+      .select('*, vendors(name, slug, paypal_handle, venmo_handle, cashapp_handle, preferred_payment)')
       .eq('id', orderId)
       .single()
       .then(({ data, error }) => {

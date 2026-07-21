@@ -11,6 +11,10 @@ export interface Vendor {
   user_id?: string | null;
   badges?: string[];
   email?: string;
+  paypal_handle?: string | null;
+  venmo_handle?: string | null;
+  cashapp_handle?: string | null;
+  preferred_payment?: string | null;
   locations?: Location[];
   vendor_features?: VendorFeature[];
 }
@@ -67,7 +71,17 @@ export interface Order {
   completed_at: string | null;
   estimated_minutes: number | null;
   cancellation_reason: string | null;
-  vendors?: { name: string; slug: string } | null;
+  payment_method?: 'cash' | 'paypal' | 'venmo' | 'cashapp';
+  payment_status?: 'unpaid' | 'marked_paid' | 'confirmed';
+  payment_ref?: string | null;
+  vendors?: {
+    name: string;
+    slug: string;
+    paypal_handle?: string | null;
+    venmo_handle?: string | null;
+    cashapp_handle?: string | null;
+    preferred_payment?: string | null;
+  } | null;
 }
 
 export interface Special {

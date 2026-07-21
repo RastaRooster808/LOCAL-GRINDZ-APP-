@@ -4,6 +4,33 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Phase 4.2: Vendor Payments, Receipts, EOM Statements (2026-07-21)
+
+### Added
+- **Prepay via the vendor's own PayPal / Venmo / Cash App** — platform never holds
+  funds. Checkout gains a payment selector (built from the vendor's configured
+  handles; cash always available); order tracking shows a prefilled deep-link pay
+  button + "I've sent the payment"; vendors confirm receipt on the order card
+- **Receipts**: order tracking page now shows date, method, payment state, and a
+  Print/Save Receipt button (print stylesheet strips buttons)
+- **EOM statements**: `vendor_monthly_statements` view — 5% fee on confirmed
+  prepaid volume above $500/month; new Billing tab in the vendor dashboard shows
+  12 months (cash + first $500/month always free; nothing charged automatically)
+- **One-tap OPEN/CLOSED toggle** at the top of the Location tab
+- **"Save as a new location"** checkbox — moves the truck while keeping location
+  history intact
+- Payment Methods form in Profile tab (PayPal.Me / Venmo / $cashtag + preferred)
+- Migration `phase_4_2_vendor_payments` **applied to live DB**: vendor handle
+  columns, order payment_method/payment_status/payment_ref, statements view
+  (security_invoker)
+
+### Notes
+- Handles are cleaned client-side (strips @, $, pasted URLs)
+- Payment deep links: paypal.me/{handle}/{amt}, account.venmo.com/pay?recipients=…,
+  cash.app/${handle}/{amt} — note includes the short order ID for reconciliation
+
+---
+
 ## [Unreleased] — Phase 4.1: KaRas Freshly Baked + Golden Shot (2026-07-21)
 
 ### Added

@@ -1,11 +1,15 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import { useOrderTracking } from '../hooks/useOrders';
 import { StatusStepper } from '../components/ui/StatusStepper';
 import { STATUS_LABELS } from '../lib/types';
+import { paymentLink, PAYMENT_LABELS } from '../lib/payments';
 
 export function OrderTracking() {
   const { id } = useParams<{ id: string }>();
   const { order, loading, error } = useOrderTracking(id ?? null);
+  const [markedSent, setMarkedSent] = useState(false);
 
   if (loading) {
     return (
@@ -62,6 +66,45 @@ export function OrderTracking() {
           <StatusStepper status={order.status} estimatedMinutes={order.estimated_minutes} />
         </section>
 
+        {/* Prepayment — customer pays the vendor directly via the vendor's own app */}
+        {order.payment_method && order.payment_method !== 'cash' && order.status !== 'cancelled' && (
+          <section className="tracking-payment">
+            {order.payment_status === 'confirmed' ? (
+              <p className="payment-chip payment-chip--confirmed">✓ Paid via {PAYMENT_LABELS[order.payment_method]}</p>
+            ) : (order.payment_status === 'marked_paid' || markedSent) ? (
+              <p className="payment-chip payment-chip--sent">Payment sent via {PAYMENT_LABELS[order.payment_method]} — awaiting vendor confirmation</p>
+            ) : (
+              <>
+                <h2>Complete Your Payment</h2>
+                <p className="payment-note">
+                  Pay <strong>${Number(order.total).toFixed(2)}</strong> directly to {vendorName} — your order is confirmed once they see it.
+                </p>
+                {(() => {
+                  const link = order.vendors
+                    ? paymentLink(order.payment_method, order.vendors, Number(order.total), `Local Grindz order ${order.id.slice(0, 8).toUpperCase()}`)
+                    : null;
+                  return link ? (
+                    <a href={link} target="_blank" rel="noopener noreferrer" className="btn-primary payment-pay-btn">
+                      Pay ${Number(order.total).toFixed(2)} with {PAYMENT_LABELS[order.payment_method]} →
+                    </a>
+                  ) : (
+                    <p className="payment-note">Ask {vendorName} for their {PAYMENT_LABELS[order.payment_method]} handle at pickup.</p>
+                  );
+                })()}
+                <button
+                  className="btn-secondary payment-sent-btn"
+                  onClick={async () => {
+                    await supabase.from('orders').update({ payment_status: 'marked_paid' }).eq('id', order.id);
+                    setMarkedSent(true);
+                  }}
+                >
+                  I've sent the payment
+                </button>
+              </>
+            )}
+          </section>
+        )}
+
         <section className="tracking-details">
           <h2>Your Order</h2>
           <div className="tracking-items">
@@ -80,6 +123,13 @@ export function OrderTracking() {
 
         <section className="tracking-footer">
           <p className="tracking-order-id">Order #{order.id.slice(0, 8).toUpperCase()}</p>
+          <p className="tracking-receipt-line">
+            {new Date(order.created_at).toLocaleString()} · {PAYMENT_LABELS[order.payment_method ?? 'cash']}
+            {order.payment_status === 'confirmed' ? ' · Paid ✓' : order.payment_method !== 'cash' ? ' · Payment pending' : ''}
+          </p>
+          <button className="btn-outline btn-sm receipt-print-btn" onClick={() => window.print()}>
+            🧾 Print / Save Receipt
+          </button>
           {order.status !== 'completed' && order.status !== 'cancelled' && (
             <p className="tracking-live-note">🔴 This page updates live — no refresh needed</p>
           )}

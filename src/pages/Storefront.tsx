@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Vendor, MenuItem, Location, Special, Review, CartItem } from '../lib/types';
+import { availableMethods, PAYMENT_LABELS } from '../lib/payments';
 
 function Countdown({ expiresAt }: { expiresAt: string }) {
   const [remaining, setRemaining] = useState(() => Math.max(0, new Date(expiresAt).getTime() - Date.now()));
@@ -315,10 +316,11 @@ export function Storefront() {
             const email = fd.get('email') as string;
             const note = fd.get('note') as string;
             const referralCode = ((fd.get('referral_code') as string) || '').trim().toUpperCase();
+            const paymentMethod = (fd.get('payment_method') as string) || 'cash';
 
             const { data, error } = await supabase
               .from('orders')
-              .insert({ vendor_id: vendor.id, customer_name: name, customer_email: email || null, customer_note: note || null, items: cart, total: cartTotal, status: 'pending' })
+              .insert({ vendor_id: vendor.id, customer_name: name, customer_email: email || null, customer_note: note || null, items: cart, total: cartTotal, status: 'pending', payment_method: paymentMethod, payment_status: 'unpaid' })
               .select('id')
               .single();
 
@@ -411,6 +413,15 @@ export function Storefront() {
               <input name="referral_code" placeholder="e.g. KAIE-7X4Q" style={{ textTransform: 'uppercase' }} />
             </label>
             <label>Special Instructions <textarea name="note" rows={2} placeholder="Allergies, substitutions…"></textarea></label>
+            <label>Payment
+              <select name="payment_method" defaultValue={availableMethods(vendor)[0]}>
+                {availableMethods(vendor).map(m => (
+                  <option key={m} value={m}>
+                    {PAYMENT_LABELS[m]}{m !== 'cash' ? ' — pay now, skip the line' : ''}
+                  </option>
+                ))}
+              </select>
+            </label>
             <button type="submit" className="btn-primary">Place Order</button>
           </form>
         </section>
