@@ -5,6 +5,9 @@ import type { Vendor, VendorFeature } from '../lib/types';
 import { SearchBar } from '../components/ui/SearchBar';
 import { CommerceGrid } from '../components/CommerceGrid';
 import ShopAgent from '../components/ShopAgent';
+import { MarketplaceNav } from '../components/MarketplaceNav';
+import { FeaturedVendorCard } from '../components/FeaturedVendorCard';
+import { FEATURED_VENDORS } from '../lib/marketplace';
 import { trackEvent } from '../lib/analytics';
 
 interface Announcement {
@@ -194,6 +197,8 @@ export function Landing() {
         </div>
       </header>
 
+      <MarketplaceNav />
+
       {/* Announcement banners */}
       {announcements.filter(a => !dismissedAnnouncements.has(a.id)).map(a => (
         <div key={a.id} className="announcement-banner" role="alert">
@@ -229,6 +234,16 @@ export function Landing() {
             <div className="trust-stat"><span className="trust-num">Free</span><span className="trust-label">to Browse</span></div>
             <div className="trust-stat"><span className="trust-num">Realtime</span><span className="trust-label">Order Tracking</span></div>
           </div>
+        </section>
+
+        {/* Featured Vendors — premium placement, clearly separated from marketplace listings */}
+        <section className="landing-section fv-home-section" aria-label="Featured vendors">
+          <h2>Featured Vendors</h2>
+          {FEATURED_VENDORS.map(fv => <FeaturedVendorCard key={fv.id} vendor={fv} />)}
+          <p className="fv-disclosure">
+            Featured vendors are independent local businesses with premium placement on
+            Local Grindz. Browse all florists and vendors in the <Link to="/vendors?cat=flowers">Flowers</Link> category.
+          </p>
         </section>
 
         {/* Commerce grid — live products and coming soon */}
