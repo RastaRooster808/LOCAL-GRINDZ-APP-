@@ -4,6 +4,33 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Bug-fix + polish pass: Maya / Leilani / Sage (2026-07-21)
+
+### Fixed — live updates were completely dead (Maya + Leilani)
+- **`supabase_realtime` publication was EMPTY.** The customer order-tracking page
+  promised "🔴 updates live — no refresh needed" but never moved, and vendors
+  never saw new orders without refreshing. Published `orders` + set replica
+  identity full. Live order flow now works both directions.
+
+### Fixed — customer payment signal was a silent no-op (Maya)
+- "I've sent the payment" wrote an anon UPDATE that RLS denied → vendor never saw
+  it. Added narrow security-definer RPC `mark_order_payment_sent` (unpaid→marked_paid
+  only); client now calls it. Vendor "Confirm Received" remains the billing truth.
+
+### Improved — discoverability (Sage)
+- `index.html`: broadened title/description/keywords to the real marketplace
+  (food trucks, bakery, wellness, flowers/protea, fruit, markets, makers);
+  added canonical URL, `og:url`, and WebSite/Organization JSON-LD structured data.
+
+### Findings (flagged, not silently fixed)
+- **`vendor_messages` table does not exist** on the live DB (Phase 4L never applied)
+  → vendor↔customer chat/inbox is entirely non-functional. Re-apply
+  `docs/migrations/phase-4l-messaging.sql` before relying on that feature.
+- HashRouter (`/#/`) limits deep-link SEO for vendor pages — architectural, deferred.
+- No `og:image` — needs a real marketplace/Sunday Funday hero photo (owner input).
+
+---
+
 ## [Unreleased] — Phase 4.4: Guest Checkout Fixed (found via KaRas order test) (2026-07-21)
 
 Ran a full end-to-end order test as KaRas. Guest checkout was **completely broken**
