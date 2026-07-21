@@ -4,6 +4,28 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Phase 4.3: KaRas Onboarding + RLS Drift Fixes (2026-07-21)
+
+### Fixed (live DB — schema drift discovered during KaRas onboarding)
+- **`vendors.user_id` never existed on the live table** despite app code + storage
+  RLS referencing it. Added + backfilled by email (`docs/migrations/phase-4-3-*`).
+- **`orders` had RLS on with no UPDATE policy** — vendor status changes
+  (accept/preparing/ready/cancel) and Phase 4.2 payment confirm were being
+  silently denied. Added `vendor update own orders`.
+- Added `vendor update own` on `vendors` so the profile + payment-methods forms
+  actually persist (previously SELECT-only → denied on save).
+
+### Added
+- KaRas Freshly Baked vendor login provisioned against the live project
+  (auth user + identity, email-confirmed, linked to the seeded vendor row).
+  Full chain verified: login → vendor match → 7 menu items, 1 location.
+
+### Known follow-up
+- Customer "I've sent the payment" writes as anon with no UPDATE policy → only
+  flips local UI; vendor "Confirm Received" (billing source of truth) works.
+
+---
+
 ## [Unreleased] — Phase 4.2: Vendor Payments, Receipts, EOM Statements (2026-07-21)
 
 ### Added
