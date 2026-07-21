@@ -3,15 +3,16 @@
 -- Run as a migration (service role). Apply AFTER restoring the Supabase project.
 
 -- ── Vendors ──────────────────────────────────────────────────────────────
-insert into vendors (slug, name, cuisine_type, description, neighborhood, is_active)
+-- email is NOT NULL + UNIQUE; plus-addressed variants keep dashboards claimable by the owner
+insert into vendors (slug, name, email, cuisine_type, description, neighborhood, is_active)
 values
-  ('alas-kitchen', 'Ala''s Kitchen — Get Smashed', 'Burger',
+  ('alas-kitchen', 'Ala''s Kitchen — Get Smashed', 'bankspham5+alas@gmail.com', 'Burger',
    'Hand-smashed patties, local beef, island-style toppings. Find the truck, order ahead, get smashed.',
    'Puna', true),
-  ('karas-freshly-baked', 'KaRas Freshly Baked', 'Bakery',
+  ('karas-freshly-baked', 'KaRas Freshly Baked', 'bankspham5+karas@gmail.com', 'Bakery',
    'Warm artisan bakery on the lava: fresh sourdough, French bread, cookies, brownies, cinnamon rolls, banana bread, and seasonal specials. Baked in small batches — when it sells out, it sells out.',
    'Kalapana', true),
-  ('golden-shot', 'Golden Shot', 'Wellness',
+  ('golden-shot', 'Golden Shot', 'bankspham5+goldenshot@gmail.com', 'Wellness',
    'Turmeric, ginger, and island botanicals pressed into daily wellness shots. Singles, bundles, and a daily cleanse — subscription coming soon.',
    'Kalapana', true)
 on conflict (slug) do update
