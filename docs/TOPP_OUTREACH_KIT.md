@@ -11,7 +11,7 @@ time; let the first "yes" define capacity before pitching the next.
 - **Cut & delivery:** Friday morning, same-day
 - **Delivery area:** Islandwide; Hilo & Puna core, Volcano & Kona by arrangement
 - **Lead time:** one week to open a standing account
-- **Origin:** Puna a‘a lava, ~800–1,200 ft elevation
+- **Origin:** Napuʻuapele, Puna · a‘a lava, ~800–1,200 ft elevation
 - **Species:** _Protea cynaroides_ (King), _Leucospermum_ (Pincushion),
   _Leucadendron_, seasonal island botanicals
 - **Honest revenue ceiling:** ~$1,000–1,400/mo from flowers at this yield
@@ -26,7 +26,7 @@ Published artifact — TOPP archival aesthetic, three tiers:
 
 Live sheet (send this link):
 <https://claude.ai/code/artifact/ae3bc5da-5090-4c30-82cc-bf92f5066cfe>
-Reserve contact: Ken B. · (808) 333-3147 · khparelations@gmail.com
+Reserve contact: Ranell · (808) 731-9809 · khparelations@gmail.com · protea.khpa.io
 
 The close on every pitch is a **free sample bunch** on the coming Friday's cut:
 a $10–15 cost that lets a manager *see* the two-to-three-week vase life of
@@ -64,7 +64,7 @@ as an art object. SCP empowers the on-site GM — no corporate flower committee.
 > one-pager: https://claude.ai/code/artifact/ae3bc5da-5090-4c30-82cc-bf92f5066cfe.
 >
 > Mahalo,
-> Ken B. · TOPP · (808) 333-3147
+> Ranell · TOPP · (808) 731-9809
 
 ### 🥈 #2 — The Inn at Kulaniapia Falls (Kulaniapia Drive)
 
@@ -93,7 +93,7 @@ and scale (smaller operation → Counter, not Lobby).
 > here: https://claude.ai/code/artifact/ae3bc5da-5090-4c30-82cc-bf92f5066cfe.
 >
 > Mahalo,
-> Ken B. · TOPP · (808) 333-3147
+> Ranell · TOPP · (808) 731-9809
 
 ### 🥉 #3 — Grand Naniloa (DoubleTree by Hilton, Banyan Drive)
 
@@ -123,7 +123,7 @@ property with live hula should have native Hawaiian-grown protea, not imports.
 > it holds. One-pager: https://claude.ai/code/artifact/ae3bc5da-5090-4c30-82cc-bf92f5066cfe.
 >
 > Mahalo,
-> Ken B. · TOPP · (808) 333-3147
+> Ranell · TOPP · (808) 731-9809
 
 ---
 
@@ -172,7 +172,7 @@ Hawaiian flower + Old Hawaiiana room is a seamless match.
 > two to three weeks. One-pager: https://claude.ai/code/artifact/ae3bc5da-5090-4c30-82cc-bf92f5066cfe.
 >
 > Mahalo,
-> Ken B. · TOPP · (808) 333-3147
+> Ranell · TOPP · (808) 731-9809
 
 ### Moon and Turtle — the philosophy match
 
@@ -198,7 +198,7 @@ the best of what's cut that morning." Small and intimate, so pitch The Counter.
 > a sample bunch by this Friday for the tables. One-pager: https://claude.ai/code/artifact/ae3bc5da-5090-4c30-82cc-bf92f5066cfe.
 >
 > Mahalo,
-> Ken B. · TOPP · (808) 333-3147
+> Ranell · TOPP · (808) 731-9809
 
 ### The Seaside Restaurant and Aqua Farm — the stewardship match
 
@@ -225,7 +225,7 @@ rooms fit The Lobby.
 > One-pager: https://claude.ai/code/artifact/ae3bc5da-5090-4c30-82cc-bf92f5066cfe.
 >
 > Mahalo,
-> Ken B. · TOPP · (808) 333-3147
+> Ranell · TOPP · (808) 731-9809
 
 ---
 
