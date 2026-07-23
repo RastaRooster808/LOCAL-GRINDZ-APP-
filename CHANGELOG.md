@@ -4,6 +4,19 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Rebrand: The Kingdom Emporium (2026-07-21)
+
+### Changed
+- Official name is now **The Kingdom Emporium**; **Local Grindz** kept as the
+  colloquial nickname. Updated across user-facing app surfaces: page headers,
+  landing hero (shows "a.k.a. Local Grindz"), footers, referral copy, vendor
+  dashboard copy, `index.html` title/OG/Twitter/JSON-LD (`alternateName`),
+  `manifest.json` (PWA name), `404.html`. Storefront doc-title + meta updated.
+- Docs, SQL, and legacy static files retain "Local Grindz" (non-user-facing).
+
+---
+
+
 ## [Unreleased] — Bug-fix + polish pass: Maya / Leilani / Sage (2026-07-21)
 
 ### Fixed — live updates were completely dead (Maya + Leilani)

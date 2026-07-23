@@ -34,7 +34,7 @@ export function Apply() {
   if (submitted) {
     return (
       <div>
-        <header className="site-header"><Link to="/" className="back-link">← Home</Link><h1>Local Grindz</h1></header>
+        <header className="site-header"><Link to="/" className="back-link">← Home</Link><h1>The Kingdom Emporium</h1></header>
         <main className="apply-main">
           <section className="success-box">
             <div className="success-icon">🎉</div>
@@ -49,11 +49,11 @@ export function Apply() {
 
   return (
     <div>
-      <header className="site-header"><Link to="/" className="back-link">← Home</Link><h1>Local Grindz</h1></header>
+      <header className="site-header"><Link to="/" className="back-link">← Home</Link><h1>The Kingdom Emporium</h1></header>
       <main className="apply-main">
         <div className="apply-intro">
           <h2>Join as a Vendor</h2>
-          <p>Get your food truck or pop-up listed on Local Grindz — free to apply.</p>
+          <p>Get your food truck or pop-up listed on The Kingdom Emporium — free to apply.</p>
           <ul className="apply-benefits">
             <li>Your own storefront page with live location and menu</li>
             <li>Online ordering and loyalty points for customers</li>

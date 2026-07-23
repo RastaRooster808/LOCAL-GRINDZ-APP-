@@ -583,7 +583,7 @@ export function VendorDashboard() {
             <h2 style={{ marginTop: '1.5rem' }}>Payment Methods</h2>
             <p className="payment-settings-hint">
               Customers pay you directly — money goes straight to your own account, never through
-              Local Grindz. Add the handles you already use to run your business.
+              The Kingdom Emporium. Add the handles you already use to run your business.
             </p>
             <form onSubmit={async e => {
               e.preventDefault();
@@ -645,7 +645,7 @@ export function VendorDashboard() {
           <div className="vendor-tab">
             <h2>Monthly Statement</h2>
             <p className="billing-hint">
-              Local Grindz charges <strong>5% only on confirmed online prepayments above $500 per
+              The Kingdom Emporium charges <strong>5% only on confirmed online prepayments above $500 per
               month</strong>. Cash orders and your first $500 of prepaid volume each month are always
               free. Nothing is charged automatically — this becomes your end-of-month statement.
             </p>

@@ -15,7 +15,7 @@ export function OrderTracking() {
     return (
       <div className="tracking-page">
         <header className="site-header">
-          <h1>Local Grindz</h1>
+          <h1>The Kingdom Emporium</h1>
         </header>
         <main className="tracking-main">
           <p className="loading-msg">Loading your order…</p>
@@ -28,7 +28,7 @@ export function OrderTracking() {
     return (
       <div className="tracking-page">
         <header className="site-header">
-          <h1>Local Grindz</h1>
+          <h1>The Kingdom Emporium</h1>
         </header>
         <main className="tracking-main">
           <section>
@@ -81,7 +81,7 @@ export function OrderTracking() {
                 </p>
                 {(() => {
                   const link = order.vendors
-                    ? paymentLink(order.payment_method, order.vendors, Number(order.total), `Local Grindz order ${order.id.slice(0, 8).toUpperCase()}`)
+                    ? paymentLink(order.payment_method, order.vendors, Number(order.total), `The Kingdom Emporium order ${order.id.slice(0, 8).toUpperCase()}`)
                     : null;
                   return link ? (
                     <a href={link} target="_blank" rel="noopener noreferrer" className="btn-primary payment-pay-btn">

@@ -110,7 +110,7 @@ export const CTAS: Record<string, CTADefinition> = {
   apply_vendor: {
     id: 'apply_vendor',
     label: 'Join as Vendor',
-    description: 'List your food truck or pop-up on Local Grindz.',
+    description: 'List your food truck or pop-up on The Kingdom Emporium.',
     href: '/apply',
     shopifyUrl: undefined,
     status: 'live',

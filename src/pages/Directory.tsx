@@ -102,7 +102,7 @@ export function Directory() {
     <div>
       <header className="site-header">
         <Link to="/" className="back-link">← Home</Link>
-        <h1>Local Grindz</h1>
+        <h1>The Kingdom Emporium</h1>
         <p className="tagline">{CATEGORY_TAGLINES[catSlug] ?? CATEGORY_TAGLINES.all}</p>
         <Link to="/map" className="btn-outline btn-sm" style={{ marginLeft: 'auto' }}>🗺 Map View</Link>
       </header>

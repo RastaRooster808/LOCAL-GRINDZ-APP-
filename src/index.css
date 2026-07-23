@@ -1796,3 +1796,5 @@
 .billing-table td:nth-child(n+2), .billing-table th:nth-child(n+2) { text-align: right; font-variant-numeric: tabular-nums; }
 
 .account-email-line { font-size: 0.9rem; color: var(--muted, #666); }
+
+.brand-nickname { font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.72; margin-top: -0.15rem; }

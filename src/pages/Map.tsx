@@ -226,7 +226,7 @@ export function Map() {
         <div className="map-loading" role="status" aria-live="polite">Loading vendors…</div>
       )}
 
-      <div ref={mapEl} className="map-canvas" aria-label="Interactive map of Local Grindz vendors" role="application" />
+      <div ref={mapEl} className="map-canvas" aria-label="Interactive map of The Kingdom Emporium vendors" role="application" />
 
       <nav className="map-footer-nav" aria-label="Map footer navigation">
         <Link to="/vendors">All Vendors</Link>

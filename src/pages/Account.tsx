@@ -118,7 +118,7 @@ export function Account() {
 
   function handleCopyCode() {
     if (!referral) return;
-    const shareText = `Use my Local Grindz referral code ${referral.code} on your first order and earn 25 bonus Grindz Points! ${window.location.origin}/#/vendors`;
+    const shareText = `Use my The Kingdom Emporium referral code ${referral.code} on your first order and earn 25 bonus Grindz Points! ${window.location.origin}/#/vendors`;
     navigator.clipboard.writeText(shareText).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
