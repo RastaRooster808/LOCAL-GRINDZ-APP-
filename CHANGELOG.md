@@ -4,6 +4,23 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — TOPP flower outreach kit (2026-07-23)
+
+### Added
+- **`docs/TOPP_OUTREACH_KIT.md`** — florist/hotel/restaurant wholesale outreach
+  kit for TOPP's Ohana Bloom weekly Puna protea harvest. Grounded in the real
+  operating numbers (~50 stems/week, Friday same-day, Hilo/Puna core, 1-week
+  lead, ~$1–1.4k/mo honest ceiling). Three supply tiers (Counter $42 / Lobby $88
+  / House Account). Tailored, per-venue pitches for six named Hilo targets:
+  hotels (SCP Hilo, Inn at Kulaniapia Falls, Grand Naniloa) and farm-to-table
+  restaurants (Lehua, Moon and Turtle, Seaside). Ranked approach order + the
+  free-sample-bunch close. Companion one-page supply sheet published as an
+  Artifact (TOPP archival aesthetic).
+- Strategy note: premium-and-scarce, one account at a time — scarcity is the
+  pitch. Contact block on the supply sheet still needs real name/phone/email.
+
+---
+
 ## [Unreleased] — Rebrand: The Kingdom Emporium (2026-07-21)
 
 ### Changed
