@@ -4,6 +4,33 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — protea.khpa.io hub + Field Report freemium gate (2026-07-23)
+
+### Added
+- **`/protea` route + `src/pages/Protea.tsx`** — the TOPP · Ohana Bloom hub for
+  protea.khpa.io. Freemium structure:
+  - **Public, no login:** the three LIVE Ohana Bloom weekly tiers (Counter $42,
+    Ohana Home $48, Statement $88 — real Shopify checkout) + a minimal set of the
+    print archive (first 6 prints, individually buyable at $4.99).
+  - **Greyed / locked:** the rest of the 35-print archive shows a grayscale-blur
+    lock overlay, gated behind membership.
+  - **The unlock:** "The Field Report — $4.99/mo" newsletter membership with an
+    email join (waitlist + presentation-only unlock via `localStorage`).
+- Scoped `.protea-*` styles in `index.css` (TOPP archival aesthetic: lava
+  masthead, Georgia serif, Courier data, blush/gold/leaf accents).
+- Three analytics events: `protea_tier_reserve`, `protea_print_buy`,
+  `field_report_join`.
+
+### Notes / remaining wiring
+- Membership entitlement is **presentation-only** — real high-res files are
+  delivered by Sky Pilot after Shopify purchase, so the grey-out exposes nothing.
+  Flip `isMember` to a real check once the Shopify $4.99/mo subscription product
+  and auth entitlement exist.
+- The app uses HashRouter; the page lives at `/#/protea`. Pointing the
+  protea.khpa.io apex at this page is a deploy step (redirect / dedicated build).
+
+---
+
 ## [Unreleased] — TOPP flower outreach kit (2026-07-23)
 
 ### Added
