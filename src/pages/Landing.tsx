@@ -181,8 +181,9 @@ export function Landing() {
     <div className="landing-body">
       <header className="landing-header">
         <div className="landing-header-inner">
-          <h1>Local Grindz</h1>
-          <p className="tagline">Big Island's food truck marketplace</p>
+          <h1>The Kingdom Emporium</h1>
+          <p className="brand-nickname">a.k.a. Local Grindz</p>
+          <p className="tagline">The Big Island community marketplace</p>
           <div className="hero-search">
             <SearchBar placeholder="Search trucks, dishes, or cuisines…" />
           </div>
@@ -222,7 +223,7 @@ export function Landing() {
           </div>
           <p className="fv-disclosure">
             Featured vendors are independent local businesses with premium placement on
-            Local Grindz. Browse every category — <Link to="/vendors">all vendors welcome</Link>.
+            The Kingdom Emporium. Browse every category — <Link to="/vendors">all vendors welcome</Link>.
           </p>
         </section>
 
@@ -261,7 +262,7 @@ export function Landing() {
         <section className="landing-cta">
           <div className="cta-box">
             <h2>Got a food truck?</h2>
-            <p>Join Local Grindz and connect with hungry customers across the Big Island.</p>
+            <p>Join The Kingdom Emporium and connect with hungry customers across the Big Island.</p>
             <Link
               to="/apply"
               className="btn-primary"
@@ -322,7 +323,7 @@ export function Landing() {
       </main>
 
       <footer>
-        <p>Local Grindz — Puna, Big Island, Hawaii</p>
+        <p>The Kingdom Emporium — Puna, Big Island, Hawaii</p>
         <nav className="footer-nav">
           <Link to="/vendors">All Vendors</Link>
           <Link to="/map">Map</Link>

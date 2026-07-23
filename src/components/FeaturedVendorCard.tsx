@@ -29,7 +29,7 @@ export function FeaturedVendorCard({ vendor }: { vendor: FeaturedVendor }) {
             </p>
             <h3 className="fv-tagline">{vendor.tagline}</h3>
             <p className="fv-rating">
-              {vendor.rating === 'New' ? '✨ New on Local Grindz' : `★ ${vendor.rating}`}
+              {vendor.rating === 'New' ? '✨ New Vendor' : `★ ${vendor.rating}`}
             </p>
           </div>
         </div>

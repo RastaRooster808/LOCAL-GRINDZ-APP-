@@ -32,7 +32,7 @@ export function Events() {
     <div>
       <header className="site-header">
         <Link to="/" className="back-link">← Home</Link>
-        <h1>Local Grindz</h1>
+        <h1>The Kingdom Emporium</h1>
         <p className="tagline">Events & Announcements</p>
       </header>
       <MarketplaceNav />

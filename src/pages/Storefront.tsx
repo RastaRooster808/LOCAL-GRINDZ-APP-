@@ -69,9 +69,9 @@ export function Storefront() {
       const vid = data.id;
 
       // Update page title and meta for SEO
-      document.title = `${v.name} – Local Grindz Hawaiʻi`;
+      document.title = `${v.name} – The Kingdom Emporium Hawaiʻi`;
       const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) metaDesc.setAttribute('content', v.description ?? `Order from ${v.name} on Local Grindz – Hawaiʻi's food truck marketplace.`);
+      if (metaDesc) metaDesc.setAttribute('content', v.description ?? `Order from ${v.name} on The Kingdom Emporium – Hawaiʻi's food truck marketplace.`);
 
       // JSON-LD structured data
       const existingLd = document.getElementById('vendor-jsonld');
@@ -193,7 +193,7 @@ export function Storefront() {
   if (notFound) {
     return (
       <div>
-        <header className="site-header"><h1>Local Grindz</h1></header>
+        <header className="site-header"><h1>The Kingdom Emporium</h1></header>
         <main style={{ padding: '2rem', textAlign: 'center' }}>
           <h2>Truck not found</h2>
           <Link to="/vendors" className="btn-primary">Browse all trucks</Link>
@@ -205,7 +205,7 @@ export function Storefront() {
   if (!vendor) {
     return (
       <div>
-        <header className="site-header"><h1>Local Grindz</h1></header>
+        <header className="site-header"><h1>The Kingdom Emporium</h1></header>
         <main style={{ padding: '2rem' }}><p className="loading-msg">Loading…</p></main>
       </div>
     );
@@ -530,7 +530,7 @@ export function Storefront() {
         </section>
       </main>
 
-      <footer><p>Local Grindz – Big Island, Hawaii</p></footer>
+      <footer><p>The Kingdom Emporium – Big Island, Hawaii</p></footer>
 
       {/* Floating customer chat widget */}
       <button
