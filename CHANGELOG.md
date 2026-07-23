@@ -17,7 +17,8 @@ All notable changes to Local Grindz are documented here.
   free-sample-bunch close. Companion one-page supply sheet published as an
   Artifact (TOPP archival aesthetic).
 - Strategy note: premium-and-scarce, one account at a time — scarcity is the
-  pitch. Contact block on the supply sheet still needs real name/phone/email.
+  pitch. Supply sheet + all six pitches finalized with real contact
+  (Ken B. · (808) 333-3147 · khparelations@gmail.com) — kit is send-ready.
 
 ---
 

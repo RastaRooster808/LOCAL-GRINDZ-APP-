@@ -24,8 +24,9 @@ Published artifact — TOPP archival aesthetic, three tiers:
 - **The Lobby** — $88/wk · 12–15 stems (hotel lobbies, restaurant host stands)
 - **House Account** — by arrangement (a venue that wants the majority of the cut)
 
-> The Reserve block on the sheet has placeholder contact fields
-> `[ your name ] · [ phone ] · [ email ]` — fill before sending.
+Live sheet (send this link):
+<https://claude.ai/code/artifact/ae3bc5da-5090-4c30-82cc-bf92f5066cfe>
+Reserve contact: Ken B. · (808) 333-3147 · khparelations@gmail.com
 
 The close on every pitch is a **free sample bunch** on the coming Friday's cut:
 a $10–15 cost that lets a manager *see* the two-to-three-week vase life of
@@ -60,10 +61,10 @@ as an art object. SCP empowers the on-site GM — no corporate flower committee.
 > accounts, so this is a real reservation, not a mailing list. I'd love to leave
 > a sample bunch at your front desk this Friday — protea cut at source holds two
 > to three weeks, and I'd rather you *see* that than take my word. Here's the
-> one-pager: [supply sheet link].
+> one-pager: https://claude.ai/code/artifact/ae3bc5da-5090-4c30-82cc-bf92f5066cfe.
 >
 > Mahalo,
-> [your name] · TOPP · [phone]
+> Ken B. · TOPP · (808) 333-3147
 
 ### 🥈 #2 — The Inn at Kulaniapia Falls (Kulaniapia Drive)
 
@@ -89,10 +90,10 @@ and scale (smaller operation → Counter, not Lobby).
 > I cut ~50 premium stems a week and keep only a few standing accounts. I'd love
 > to drop a sample bunch by this Friday so your pavilion tables can wear it for a
 > couple of weeks — that's the real vase life of protea cut at source. One-pager
-> here: [supply sheet link].
+> here: https://claude.ai/code/artifact/ae3bc5da-5090-4c30-82cc-bf92f5066cfe.
 >
 > Mahalo,
-> [your name] · TOPP · [phone]
+> Ken B. · TOPP · (808) 333-3147
 
 ### 🥉 #3 — Grand Naniloa (DoubleTree by Hilton, Banyan Drive)
 
@@ -119,10 +120,10 @@ property with live hula should have native Hawaiian-grown protea, not imports.
 > I only harvest ~50 premium stems a week, so I place standing orders with just a
 > handful of properties. I'd be honored if the Naniloa were one — and I'd start
 > by leaving a statement bunch for your lobby this week so your team can see how
-> it holds. One-pager: [supply sheet link].
+> it holds. One-pager: https://claude.ai/code/artifact/ae3bc5da-5090-4c30-82cc-bf92f5066cfe.
 >
 > Mahalo,
-> [your name] · TOPP · [phone]
+> Ken B. · TOPP · (808) 333-3147
 
 ---
 
@@ -168,10 +169,10 @@ Hawaiian flower + Old Hawaiiana room is a seamless match.
 >
 > I only cut ~50 premium stems a week, so I keep a handful of standing accounts.
 > I'd love to leave a statement bunch this Friday so your team can see it hold
-> two to three weeks. One-pager: [supply sheet link].
+> two to three weeks. One-pager: https://claude.ai/code/artifact/ae3bc5da-5090-4c30-82cc-bf92f5066cfe.
 >
 > Mahalo,
-> [your name] · TOPP · [phone]
+> Ken B. · TOPP · (808) 333-3147
 
 ### Moon and Turtle — the philosophy match
 
@@ -194,10 +195,10 @@ the best of what's cut that morning." Small and intimate, so pitch The Counter.
 > philosophy, different harvest.
 >
 > I cut ~50 stems a week and keep only a few standing accounts. I'd love to bring
-> a sample bunch by this Friday for the tables. One-pager: [supply sheet link].
+> a sample bunch by this Friday for the tables. One-pager: https://claude.ai/code/artifact/ae3bc5da-5090-4c30-82cc-bf92f5066cfe.
 >
 > Mahalo,
-> [your name] · TOPP · [phone]
+> Ken B. · TOPP · (808) 333-3147
 
 ### The Seaside Restaurant and Aqua Farm — the stewardship match
 
@@ -221,10 +222,10 @@ rooms fit The Lobby.
 >
 > I only cut ~50 premium stems a week, so I hold just a few standing accounts.
 > I'd love to leave a statement bunch this Friday so you can see the vase life.
-> One-pager: [supply sheet link].
+> One-pager: https://claude.ai/code/artifact/ae3bc5da-5090-4c30-82cc-bf92f5066cfe.
 >
 > Mahalo,
-> [your name] · TOPP · [phone]
+> Ken B. · TOPP · (808) 333-3147
 
 ---
 
