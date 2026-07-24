@@ -24,7 +24,10 @@ export type EventName =
   | 'push_subscribe'
   | 'vendor_apply'
   | 'order_placed'
-  | 'review_submitted';
+  | 'review_submitted'
+  | 'protea_tier_reserve'
+  | 'protea_print_buy'
+  | 'field_report_join';
 
 export interface EventPayload {
   label?: string;

@@ -552,6 +552,22 @@ export const commerce = [
     checkoutUrl: null,
     status: PRODUCT_STATUS.COMING_SOON,
   },
+  {
+    // The Field Report — protea.khpa.io membership. Shopify DRAFT product
+    // (id 10550949151007). COMING_SOON until published ACTIVE with a monthly
+    // Subscriptions selling plan attached; then set checkoutUrl + flip to LIVE.
+    id: 'membership-field-report-monthly',
+    title: 'The Field Report — Monthly Membership',
+    type: PRODUCT_TYPES.MEMBERSHIP,
+    price: 4.99,
+    description: 'A monthly dispatch from the Napuʻuapele growing site — harvest notes, new protea prints released to members first, and full protea print archive access. Cancel anytime. Proceeds are a priority sponsor of KHPA operations.',
+    image: null,
+    tags: ['membership', 'topp', 'field-report', 'newsletter', 'monthly', 'recurring', 'protea', 'khpa'],
+    shopifyProductHandle: 'the-field-report-monthly-membership',
+    shopifyVariantId: '52700604104991',
+    checkoutUrl: null,
+    status: PRODUCT_STATUS.COMING_SOON,
+  },
 
   // ── Merch ───────────────────────────────────────────────────────────────
   {

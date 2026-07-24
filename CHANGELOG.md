@@ -4,6 +4,51 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — protea.khpa.io hub + Field Report freemium gate (2026-07-23)
+
+### Added
+- **`/protea` route + `src/pages/Protea.tsx`** — the TOPP · Ohana Bloom hub for
+  protea.khpa.io. Freemium structure:
+  - **Public, no login:** the three LIVE Ohana Bloom weekly tiers (Counter $42,
+    Ohana Home $48, Statement $88 — real Shopify checkout) + a minimal set of the
+    print archive (first 6 prints, individually buyable at $4.99).
+  - **Greyed / locked:** the rest of the 35-print archive shows a grayscale-blur
+    lock overlay, gated behind membership.
+  - **The unlock:** "The Field Report — $4.99/mo" newsletter membership with an
+    email join (waitlist + presentation-only unlock via `localStorage`).
+- Scoped `.protea-*` styles in `index.css` (TOPP archival aesthetic: lava
+  masthead, Georgia serif, Courier data, blush/gold/leaf accents).
+- Three analytics events: `protea_tier_reserve`, `protea_print_buy`,
+  `field_report_join`.
+
+### Notes / remaining wiring
+- Membership entitlement is **presentation-only** — real high-res files are
+  delivered by Sky Pilot after Shopify purchase, so the grey-out exposes nothing.
+  Flip `isMember` to a real check once the Shopify $4.99/mo subscription product
+  and auth entitlement exist.
+- The app uses HashRouter; the page lives at `/#/protea`. Pointing the
+  protea.khpa.io apex at this page is a deploy step (redirect / dedicated build).
+
+---
+
+## [Unreleased] — TOPP flower outreach kit (2026-07-23)
+
+### Added
+- **`docs/TOPP_OUTREACH_KIT.md`** — florist/hotel/restaurant wholesale outreach
+  kit for TOPP's Ohana Bloom weekly Puna protea harvest. Grounded in the real
+  operating numbers (~50 stems/week, Friday same-day, Hilo/Puna core, 1-week
+  lead, ~$1–1.4k/mo honest ceiling). Three supply tiers (Counter $42 / Lobby $88
+  / House Account). Tailored, per-venue pitches for six named Hilo targets:
+  hotels (SCP Hilo, Inn at Kulaniapia Falls, Grand Naniloa) and farm-to-table
+  restaurants (Lehua, Moon and Turtle, Seaside). Ranked approach order + the
+  free-sample-bunch close. Companion one-page supply sheet published as an
+  Artifact (TOPP archival aesthetic).
+- Strategy note: premium-and-scarce, one account at a time — scarcity is the
+  pitch. Supply sheet + all six pitches finalized with real contact
+  (Ken B. · (808) 333-3147 · khparelations@gmail.com) — kit is send-ready.
+
+---
+
 ## [Unreleased] — Rebrand: The Kingdom Emporium (2026-07-21)
 
 ### Changed

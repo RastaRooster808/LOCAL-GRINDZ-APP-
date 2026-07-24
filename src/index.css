@@ -1798,3 +1798,78 @@
 .account-email-line { font-size: 0.9rem; color: var(--muted, #666); }
 
 .brand-nickname { font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.72; margin-top: -0.15rem; }
+
+/* ── protea.khpa.io — TOPP · Ohana Bloom hub ─────────────────────────── */
+.protea-page {
+  --p-ink: #1c1918; --p-ground: #f5f3ef; --p-surface: #edeae4; --p-lava: #141110;
+  --p-blush: #c49b96; --p-leaf: #445e3a; --p-stone: #857f79; --p-rule: #d6d0c9; --p-gold: #b98a2e;
+  background: var(--p-ground); color: var(--p-ink);
+  font-family: Georgia, 'Times New Roman', serif; line-height: 1.7;
+  max-width: 760px; margin: 0 auto; min-height: 100vh;
+}
+.protea-page h1, .protea-page h2, .protea-page h3, .protea-page h4 { font-weight: normal; }
+
+.protea-masthead { background: var(--p-lava); padding: 2.6rem 1.8rem 2.2rem; border-bottom: 3px solid var(--p-blush); }
+.protea-mast-label { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+  font-family: 'Courier New', monospace; font-size: 0.64rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--p-stone); margin-bottom: 1.2rem; }
+.protea-mast-home { color: var(--p-blush); text-decoration: none; }
+.protea-mast-home:hover { text-decoration: underline; }
+.protea-masthead h1 { font-size: clamp(1.9rem, 6vw, 2.7rem); line-height: 1.08; color: var(--p-ground); text-wrap: balance; }
+.protea-mast-sub { margin-top: 1rem; font-style: italic; color: var(--p-blush); font-size: 1.02rem; line-height: 1.5; text-wrap: balance; }
+.protea-mast-cta { margin-top: 1.6rem; display: flex; gap: 0.7rem; flex-wrap: wrap; }
+
+.protea-section { padding: 2.2rem 1.8rem; border-bottom: 1px solid var(--p-rule); }
+.protea-section--alt { background: var(--p-surface); }
+.protea-eyebrow { font-family: 'Courier New', monospace; font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--p-leaf); margin-bottom: 1.1rem; }
+.protea-eyebrow--blush { color: var(--p-blush); }
+.protea-lede { font-size: 0.98rem; margin-bottom: 1.4rem; max-width: 58ch; }
+
+/* Buttons */
+.protea-btn { display: inline-block; font-family: 'Courier New', monospace; font-size: 0.76rem; letter-spacing: 0.06em;
+  text-transform: uppercase; text-decoration: none; padding: 0.6rem 1.05rem; border-radius: 2px; cursor: pointer; border: 0; transition: opacity .15s ease; }
+.protea-btn:hover { opacity: 0.85; }
+.protea-btn-gold { background: var(--p-gold); color: #141110; }
+.protea-btn-line { background: transparent; border: 1px solid var(--p-blush); color: var(--p-blush); }
+.protea-btn-soon { background: transparent; border: 1px dashed var(--p-stone); color: var(--p-stone); cursor: default; }
+
+/* Tiers */
+.protea-tiers { display: grid; gap: 1.1rem; }
+.protea-tier { display: grid; grid-template-columns: 96px 1fr; gap: 1rem; background: var(--p-ground); border: 1px solid var(--p-rule); border-radius: 3px; overflow: hidden; }
+.protea-section--alt .protea-tier { background: var(--p-surface); }
+.protea-tier-photo { background: var(--p-surface); }
+.protea-tier-photo img { width: 96px; height: 100%; min-height: 96px; object-fit: cover; display: block; }
+.protea-tier-body { padding: 1rem 1rem 1.1rem 0; }
+.protea-tier-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.75rem; }
+.protea-tier-head h3 { font-size: 1.05rem; font-weight: bold; }
+.protea-tier-price { font-family: 'Courier New', monospace; font-size: 1rem; color: var(--p-gold); white-space: nowrap; }
+.protea-tier-price span { font-size: 0.7rem; color: var(--p-stone); }
+.protea-tier-body p { font-size: 0.88rem; color: var(--p-ink); margin: 0.4rem 0 0.9rem; }
+@media (max-width: 460px) { .protea-tier { grid-template-columns: 1fr; } .protea-tier-photo img { width: 100%; height: 150px; } .protea-tier-body { padding: 0 1rem 1.1rem; } }
+
+/* Print archive */
+.protea-prints { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; }
+.protea-print { border: 1px solid var(--p-rule); border-radius: 3px; overflow: hidden; background: var(--p-ground); }
+.protea-print-photo { position: relative; aspect-ratio: 1; background: var(--p-surface); }
+.protea-print-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.protea-print-photo--placeholder { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 2rem; }
+.protea-print--locked .protea-print-photo img { filter: grayscale(1) blur(3px) brightness(0.82); }
+.protea-print-lock { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(20,17,16,0.28); font-size: 1.5rem; }
+.protea-print-body { padding: 0.6rem 0.7rem 0.8rem; }
+.protea-print-body h4 { font-size: 0.82rem; line-height: 1.25; margin-bottom: 0.5rem; text-wrap: balance; }
+.protea-print--locked .protea-print-body h4 { color: var(--p-stone); }
+.protea-print-tag { font-family: 'Courier New', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--p-stone); }
+
+/* Membership */
+.protea-join { background: var(--p-lava); color: var(--p-ground); text-align: center; border-bottom: 0; }
+.protea-join h2 { font-size: 1.55rem; color: var(--p-ground); margin-bottom: 0.7rem; }
+.protea-join-copy { color: var(--p-blush); font-size: 0.97rem; max-width: 46ch; margin: 0 auto 1.5rem; }
+.protea-join-form { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; max-width: 420px; margin: 0 auto; }
+.protea-join-form input { flex: 1 1 200px; padding: 0.6rem 0.9rem; border: 1px solid var(--p-stone); border-radius: 2px; background: #0d0b0a; color: var(--p-ground); font-family: 'Courier New', monospace; font-size: 0.9rem; }
+.protea-join-form input::placeholder { color: var(--p-stone); }
+.protea-join-form input:focus-visible { outline: 2px solid var(--p-blush); outline-offset: 2px; }
+.protea-join-done { color: var(--p-gold); font-size: 1rem; max-width: 40ch; margin: 0 auto; }
+.protea-join-fine { margin-top: 1.4rem; font-family: 'Courier New', monospace; font-size: 0.64rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--p-stone); }
+
+.protea-foot { padding: 1.4rem 1.8rem 2.4rem; background: var(--p-surface); text-align: center; }
+.protea-foot p { font-family: 'Courier New', monospace; font-size: 0.68rem; letter-spacing: 0.06em; color: var(--p-stone); line-height: 1.7; }
+.protea-foot p:first-child { text-transform: uppercase; color: var(--p-blush); letter-spacing: 0.1em; }
