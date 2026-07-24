@@ -75,6 +75,8 @@ export interface FeaturedVendor {
   shopUrl?: string;
   /** internal storefront slug — renders a View Menu button */
   menuSlug?: string;
+  /** internal app route (e.g. '/blissings') — renders an in-app link, takes precedence */
+  routeTo?: string;
   shopLabel: string;
   /** display rating; 'New' until real reviews accumulate */
   rating: string;
@@ -141,6 +143,22 @@ export const FEATURED_VENDORS: FeaturedVendor[] = [
     theme: { banner: 'linear-gradient(135deg, #2c241f 0%, #8a4a54 60%, #dc94a8 100%)', accent: '#E63946' },
     shopUrl: 'https://rastarooster.com/collections/wholesale-flowers',
     shopLabel: 'Shop TOPP',
+    rating: 'New',
+  },
+  {
+    id: 'eijahu-blissings',
+    name: 'EijaHu Blissings',
+    categorySlug: 'wellness',
+    categoryLabel: 'Featured Healing Arts',
+    tagline: 'Ceremonial Handpoke Tatu — Answer the Call',
+    description:
+      'Eija & Sanoi offer ceremonial handpoke tatus as a sacred blood ritual — each marking a prayer, an activation, a reflection of one’s journey. A deep, intentional container for the warriors and medicine people of the Light.',
+    badges: ['Ceremonial Handpoke', 'Sacred Container', 'By Appointment'],
+    bannerUrl: 'https://img1.wsimg.com/isteam/ip/9757f747-97e9-4b1d-a88f-a379a83ce12c/Eijablissing4.jpg/:/rs=w:1300,h:800',
+    emoji: '🪶',
+    theme: { banner: 'linear-gradient(135deg, #14100c 0%, #4a3826 55%, #b98a2e 100%)', accent: '#b98a2e' },
+    routeTo: '/blissings',
+    shopLabel: 'Answer the Call',
     rating: 'New',
   },
 ];

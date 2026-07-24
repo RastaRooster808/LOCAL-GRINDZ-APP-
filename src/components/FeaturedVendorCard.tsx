@@ -39,7 +39,11 @@ export function FeaturedVendorCard({ vendor }: { vendor: FeaturedVendor }) {
             <span key={b} className="fv-badge">✓ {b}</span>
           ))}
         </div>
-        {vendor.menuSlug ? (
+        {vendor.routeTo ? (
+          <Link to={vendor.routeTo} className="fv-shop-btn" style={{ background: vendor.theme.accent }}>
+            {vendor.shopLabel} →
+          </Link>
+        ) : vendor.menuSlug ? (
           <Link to={`/vendors/${vendor.menuSlug}`} className="fv-shop-btn" style={{ background: vendor.theme.accent }}>
             {vendor.shopLabel} →
           </Link>
