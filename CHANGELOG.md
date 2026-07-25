@@ -4,6 +4,30 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Image uploads fixed + vendor photo gallery (2026-07-25)
+
+### Fixed — image uploads were completely broken
+- **The `vendor-assets` storage bucket never existed** — every upload (vendor
+  logo, banner, menu photos, customer review photos) silently failed. Created it
+  (public, 5 MB limit, image mime types). `docs/migrations/phase-4-7-*.sql`.
+- **The storage write RLS was buggy** — it split the vendor's *name* instead of
+  the object *path* and keyed on `auth.email()`, so the check was always false
+  (uploads denied even with a bucket). Repaired to match on the path's first
+  segment (`{vendor_id}/…`) and `vendors.user_id = auth.uid()` per the project
+  rule. Added a `delete` policy (own assets) and a constrained anon policy for
+  review-photo uploads (reviews/ subfolder only).
+
+### Added — vendor photo gallery (multi-image)
+- **`public.vendor_photos`** table + RLS (`docs/migrations/phase-4-8-*.sql`):
+  public read, vendor manages own; added to realtime.
+- **Vendor Dashboard → Gallery tab** — multi-file upload (compressed to webp,
+  stored at `{vendor_id}/gallery/*.webp`), thumbnail grid, one-tap remove.
+- **Storefront** shows a Photos section + bottom-nav link when a vendor has
+  gallery photos.
+- `VendorPhoto` type added.
+
+---
+
 ## [Unreleased] — EijaHu Blissings partner page (2026-07-24)
 
 ### Added

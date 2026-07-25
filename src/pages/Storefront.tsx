@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Vendor, MenuItem, Location, Special, Review, CartItem } from '../lib/types';
+import { Vendor, MenuItem, Location, Special, Review, CartItem, VendorPhoto } from '../lib/types';
 import { availableMethods, PAYMENT_LABELS } from '../lib/payments';
 
 function Countdown({ expiresAt }: { expiresAt: string }) {
@@ -44,6 +44,7 @@ export function Storefront() {
   const [location, setLocation] = useState<Location | null>(null);
   const [specials, setSpecials] = useState<Special[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [photos, setPhotos] = useState<VendorPhoto[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loyaltyPoints, setLoyaltyPoints] = useState<number | null>(null);
   const [loyaltyEmail, setLoyaltyEmail] = useState('');
@@ -102,16 +103,18 @@ export function Storefront() {
       // Record page view
       supabase.from('vendor_events').insert({ vendor_id: vid, event_type: 'page_view', source });
 
-      const [menuR, locR, specR, revR] = await Promise.all([
+      const [menuR, locR, specR, revR, photoR] = await Promise.all([
         supabase.from('menu_items').select('*').eq('vendor_id', vid).eq('available', true).order('category'),
         supabase.from('locations').select('*').eq('vendor_id', vid).order('updated_at', { ascending: false }).limit(1).single(),
         supabase.from('specials').select('*').eq('vendor_id', vid).eq('active', true),
         supabase.from('reviews').select('*').eq('vendor_id', vid).eq('approved', true).order('created_at', { ascending: false }).limit(10),
+        supabase.from('vendor_photos').select('*').eq('vendor_id', vid).order('sort_order').order('created_at'),
       ]);
       setMenu((menuR.data as MenuItem[]) || []);
       if (locR.data) setLocation(locR.data as Location);
       setSpecials((specR.data as Special[]) || []);
       setReviews((revR.data as Review[]) || []);
+      setPhotos((photoR.data as VendorPhoto[]) || []);
     })();
   }, [slug]);
 
@@ -229,6 +232,7 @@ export function Storefront() {
         <a href="#location">Location</a>
         <a href="#specials">Specials</a>
         <a href="#menu">Menu</a>
+        {photos.length > 0 && <a href="#gallery">Photos</a>}
         <a href="#order">Order</a>
         <a href="#reviews">Reviews</a>
       </nav>
@@ -267,6 +271,20 @@ export function Storefront() {
             : <p>No specials today.</p>
           }
         </section>
+
+        {/* Gallery */}
+        {photos.length > 0 && (
+          <section id="gallery">
+            <h2>Photos</h2>
+            <div className="storefront-gallery">
+              {photos.map(p => (
+                <a key={p.id} href={p.url} target="_blank" rel="noopener noreferrer" className="storefront-gallery-item">
+                  <img src={p.url} alt={p.caption ?? `${vendor.name} photo`} loading="lazy" />
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Menu */}
         <section id="menu">

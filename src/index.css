@@ -1942,3 +1942,19 @@
 .bliss-fine { margin-top: 1.6rem; font-family: 'Courier New', monospace; font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--b-stone); }
 .bliss-connect-btns { display: flex; gap: 0.7rem; justify-content: center; flex-wrap: wrap; }
 .bliss-btn-line { background: transparent; border: 1px solid var(--b-gold); color: var(--b-gold-lite); }
+
+/* ── Vendor photo gallery (dashboard + storefront) ───────────────────── */
+.gallery-hint { color: var(--muted, #666); font-size: 0.9rem; margin-bottom: 0.9rem; }
+.gallery-upload-btn { display: inline-flex; align-items: center; cursor: pointer; }
+.gallery-empty { color: var(--muted, #888); font-style: italic; margin-top: 1rem; }
+.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.6rem; margin-top: 1rem; }
+.gallery-item { position: relative; aspect-ratio: 1; border-radius: var(--radius, 8px); overflow: hidden; background: #f0f0f0; }
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gallery-remove { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border: 0; border-radius: 999px;
+  background: rgba(20,17,16,0.72); color: #fff; font-size: 1.1rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.gallery-remove:hover { background: #c0392b; }
+
+.storefront-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem; }
+.storefront-gallery-item { display: block; aspect-ratio: 1; border-radius: var(--radius, 8px); overflow: hidden; background: #f0f0f0; }
+.storefront-gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .2s ease; }
+.storefront-gallery-item:hover img { transform: scale(1.04); }
