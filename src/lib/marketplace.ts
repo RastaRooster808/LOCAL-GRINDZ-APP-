@@ -154,7 +154,7 @@ export const FEATURED_VENDORS: FeaturedVendor[] = [
     description:
       'Eija & Sanoi offer ceremonial handpoke tatus as a sacred blood ritual — each marking a prayer, an activation, a reflection of one’s journey. A deep, intentional container for the warriors and medicine people of the Light.',
     badges: ['Ceremonial Handpoke', 'Sacred Container', 'By Appointment'],
-    bannerUrl: 'https://img1.wsimg.com/isteam/ip/9757f747-97e9-4b1d-a88f-a379a83ce12c/Eijablissing4.jpg/:/rs=w:1300,h:800',
+    bannerUrl: 'https://pqzygehnnojdttmqadrz.supabase.co/storage/v1/object/public/vendor-assets/partners/eijahu-blissings/hero.jpg',
     emoji: '🪶',
     theme: { banner: 'linear-gradient(135deg, #14100c 0%, #4a3826 55%, #b98a2e 100%)', accent: '#b98a2e' },
     routeTo: '/blissings',

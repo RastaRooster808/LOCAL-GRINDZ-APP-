@@ -9,10 +9,12 @@ import { trackEvent } from '../lib/analytics';
  * "Blissing", "innerstanding") are intentional to the brand — preserved as given.
  */
 
-const IMG = 'https://img1.wsimg.com/isteam/ip/9757f747-97e9-4b1d-a88f-a379a83ce12c/';
-const img = (file: string) => `${IMG}${file}/:/rs=w:1300,h:800`;
+// Rehosted from the partner's wsimg CDN into our Supabase vendor-assets bucket
+// (partners/eijahu-blissings/*). No external hotlink dependency.
+const BUCKET =
+  'https://pqzygehnnojdttmqadrz.supabase.co/storage/v1/object/public/vendor-assets/partners/eijahu-blissings';
 
-const HERO = `${IMG}Eijablissing4.jpg/:/cr=t:0%25,l:0%25,w:100%25,h:100%25/rs=w:1300,h:800`;
+const HERO = `${BUCKET}/hero.jpg`;
 
 /** EijaHu Blissings social links. Add real handles here and they render as
  *  gold buttons; the "Explore Local Grindz" fallback is always present. */
@@ -20,11 +22,7 @@ const SOCIALS: { label: string; url: string }[] = [
   // e.g. { label: 'Instagram', url: 'https://instagram.com/…' },
 ];
 
-const GALLERY = [
-  '20230304_113228.jpg', '20230304_113301.jpg', 'IMG-20260131-WA0020.jpg',
-  '20251208_105844.jpg', '20251225_104933.jpg', '20260126_173723.jpg',
-  '20210403_132538.jpg', '20230331_153644.jpg', '20230304_113841.jpg',
-];
+const GALLERY = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8', 'g9'].map(n => `${BUCKET}/${n}.jpg`);
 
 const CEREMONY = [
   {
@@ -140,8 +138,8 @@ export function Blissings() {
       <section className="bliss-gallery-section">
         <p className="bliss-eyebrow">The Work</p>
         <div className="bliss-gallery">
-          {GALLERY.map(file => (
-            <img key={file} src={img(file)} alt="EijaHu Blissings ceremonial handpoke tatu work" loading="lazy" />
+          {GALLERY.map((url, i) => (
+            <img key={url} src={url} alt={`EijaHu Blissings ceremonial handpoke tatu work ${i + 1}`} loading="lazy" />
           ))}
         </div>
       </section>
