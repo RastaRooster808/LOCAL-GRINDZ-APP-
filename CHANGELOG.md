@@ -4,6 +4,20 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — EijaHu gallery rehosted into Supabase (2026-07-25)
+
+### Changed
+- **EijaHu Blissings images rehosted** off the partner's wsimg CDN into our own
+  `vendor-assets` bucket (`partners/eijahu-blissings/*`). The Blissings page hero
+  + gallery and the marketplace featured-card banner now serve from Supabase —
+  no external hotlink dependency. Done via a one-off `rehost-eija-gallery` edge
+  function (runs in Supabase infra, which can reach wsimg; writes with the
+  service role). pg_net enabled to trigger it.
+- Follow-up: the `rehost-eija-gallery` edge function can be deleted from the
+  Supabase dashboard now that the copy is complete.
+
+---
+
 ## [Unreleased] — Image uploads fixed + vendor photo gallery (2026-07-25)
 
 ### Fixed — image uploads were completely broken
