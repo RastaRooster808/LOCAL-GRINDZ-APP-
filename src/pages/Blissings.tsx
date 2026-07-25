@@ -14,7 +14,9 @@ import { trackEvent } from '../lib/analytics';
 const BUCKET =
   'https://pqzygehnnojdttmqadrz.supabase.co/storage/v1/object/public/vendor-assets/partners/eijahu-blissings';
 
-const HERO = `${BUCKET}/hero.jpg`;
+// Hero uses a high-res gallery photo (g2); the branded Eijablissing4 source
+// was only 18 KB. g2 is excluded from the grid below to avoid duplication.
+const HERO = `${BUCKET}/g2.jpg`;
 
 /** EijaHu Blissings social links. Add real handles here and they render as
  *  gold buttons; the "Explore Local Grindz" fallback is always present. */
@@ -22,7 +24,7 @@ const SOCIALS: { label: string; url: string }[] = [
   // e.g. { label: 'Instagram', url: 'https://instagram.com/…' },
 ];
 
-const GALLERY = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8', 'g9'].map(n => `${BUCKET}/${n}.jpg`);
+const GALLERY = ['g1', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8', 'g9'].map(n => `${BUCKET}/${n}.jpg`);
 
 const CEREMONY = [
   {
