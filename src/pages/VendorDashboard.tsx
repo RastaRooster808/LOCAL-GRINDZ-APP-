@@ -5,7 +5,7 @@ import { useVendorOrders } from '../hooks/useOrders';
 import { OrderCard } from '../components/vendor/OrderCard';
 import { showToast } from '../components/ui/Toast';
 import { ImageUpload, compressImage } from '../components/ui/ImageUpload';
-import { MenuItem, Location, Special, Order, OrderStatus, Vendor, Review } from '../lib/types';
+import { MenuItem, Location, Special, Order, OrderStatus, Vendor, Review, VendorPhoto } from '../lib/types';
 import { VendorInbox } from './VendorInbox';
 import { usePushSubscription } from '../hooks/usePushSubscription';
 import QRCode from 'qrcode';
@@ -21,7 +21,7 @@ interface AnalyticsState {
   orders30: Order[];
 }
 
-type Tab = 'orders' | 'menu' | 'location' | 'specials' | 'profile' | 'qr' | 'analytics' | 'reviews' | 'inbox' | 'billing' | 'account';
+type Tab = 'orders' | 'menu' | 'gallery' | 'location' | 'specials' | 'profile' | 'qr' | 'analytics' | 'reviews' | 'inbox' | 'billing' | 'account';
 
 interface MonthlyStatement {
   statement_month: string;
@@ -43,6 +43,8 @@ export function VendorDashboard() {
   const [specials, setSpecials] = useState<Special[]>([]);
   const [qrCodes, setQrCodes] = useState<Record<string, string>>({});
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [photos, setPhotos] = useState<VendorPhoto[]>([]);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
   const revenueChartRef = useRef<HTMLCanvasElement>(null);
@@ -84,9 +86,63 @@ export function VendorDashboard() {
           loadLocation(data.id);
           loadSpecials(data.id);
           loadReviews(data.id);
+          loadPhotos(data.id);
         }
       });
   }, [user]);
+
+  async function loadPhotos(vid: string) {
+    const { data } = await supabase
+      .from('vendor_photos')
+      .select('*')
+      .eq('vendor_id', vid)
+      .order('sort_order')
+      .order('created_at');
+    setPhotos((data as VendorPhoto[]) || []);
+  }
+
+  async function handleGalleryUpload(files: FileList) {
+    if (!vendor) return;
+    setUploadingPhotos(true);
+    let nextOrder = photos.length ? Math.max(...photos.map(p => p.sort_order)) + 1 : 0;
+    const added: VendorPhoto[] = [];
+    try {
+      for (const file of Array.from(files)) {
+        if (!file.type.startsWith('image/')) continue;
+        const compressed = await compressImage(file, 1400, 1400);
+        const key = crypto.randomUUID();
+        const path = `${vendor.id}/gallery/${key}.webp`;
+        const { error: upErr } = await supabase.storage
+          .from('vendor-assets')
+          .upload(path, compressed, { contentType: 'image/webp', upsert: true });
+        if (upErr) { showToast('Upload failed — try again', 'error'); continue; }
+        const { data: urlData } = supabase.storage.from('vendor-assets').getPublicUrl(path);
+        const { data: row, error: insErr } = await supabase
+          .from('vendor_photos')
+          .insert({ vendor_id: vendor.id, url: urlData.publicUrl, sort_order: nextOrder++ })
+          .select()
+          .single();
+        if (!insErr && row) added.push(row as VendorPhoto);
+      }
+      if (added.length) {
+        setPhotos(prev => [...prev, ...added]);
+        showToast(`Added ${added.length} photo${added.length > 1 ? 's' : ''}`, 'success');
+      }
+    } finally {
+      setUploadingPhotos(false);
+    }
+  }
+
+  async function removePhoto(photo: VendorPhoto) {
+    const marker = '/vendor-assets/';
+    const idx = photo.url.indexOf(marker);
+    const storagePath = idx >= 0 ? photo.url.slice(idx + marker.length).split('?')[0] : null;
+    const { error } = await supabase.from('vendor_photos').delete().eq('id', photo.id);
+    if (error) { showToast('Could not remove photo', 'error'); return; }
+    if (storagePath) await supabase.storage.from('vendor-assets').remove([storagePath]);
+    setPhotos(prev => prev.filter(p => p.id !== photo.id));
+    showToast('Photo removed', 'success');
+  }
 
   async function loadMenu(vid: string) {
     const { data } = await supabase.from('menu_items').select('*').eq('vendor_id', vid).order('category');
@@ -260,7 +316,7 @@ export function VendorDashboard() {
 
       <section className="vendor-section">
         <nav className="vendor-tabs">
-          {(['orders', 'menu', 'location', 'specials', 'profile', 'reviews', 'qr', 'analytics', 'billing', 'inbox', 'account'] as Tab[]).map(t => {
+          {(['orders', 'menu', 'gallery', 'location', 'specials', 'profile', 'reviews', 'qr', 'analytics', 'billing', 'inbox', 'account'] as Tab[]).map(t => {
             const pendingReviews = reviews.filter(r => !r.approved).length;
             let label = t.charAt(0).toUpperCase() + t.slice(1);
             if (t === 'orders' && newOrderCount > 0) label = `Orders (${newOrderCount})`;
@@ -356,6 +412,46 @@ export function VendorDashboard() {
               </label>
               <button type="submit" className="btn-primary">Add Item</button>
             </form>
+          </div>
+        )}
+
+        {/* GALLERY */}
+        {tab === 'gallery' && (
+          <div className="tab-panel">
+            <h2>Photo Gallery</h2>
+            <p className="gallery-hint">
+              Add photos of your work, space, or products. They appear on your public storefront.
+            </p>
+            <label className="btn-primary gallery-upload-btn">
+              {uploadingPhotos ? 'Uploading…' : '+ Add Photos'}
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                style={{ display: 'none' }}
+                disabled={uploadingPhotos}
+                onChange={e => { if (e.target.files?.length) handleGalleryUpload(e.target.files); e.target.value = ''; }}
+              />
+            </label>
+            {photos.length === 0 ? (
+              <p className="gallery-empty">No photos yet. Add a few to bring your storefront to life.</p>
+            ) : (
+              <div className="gallery-grid">
+                {photos.map(p => (
+                  <div className="gallery-item" key={p.id}>
+                    <img src={p.url} alt={p.caption ?? 'Gallery photo'} loading="lazy" />
+                    <button
+                      type="button"
+                      className="gallery-remove"
+                      aria-label="Remove photo"
+                      onClick={() => removePhoto(p)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

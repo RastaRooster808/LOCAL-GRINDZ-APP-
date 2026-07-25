@@ -150,3 +150,12 @@ export const STATUS_ICONS: Record<OrderStatus, string> = {
   completed: '🎉',
   cancelled: '❌',
 };
+
+export interface VendorPhoto {
+  id: string;
+  vendor_id: string;
+  url: string;
+  caption: string | null;
+  sort_order: number;
+  created_at: string;
+}
