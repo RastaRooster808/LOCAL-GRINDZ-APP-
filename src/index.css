@@ -1940,3 +1940,5 @@
 .bliss-connect h2 { font-size: 1.7rem; color: #fff; margin-bottom: 0.8rem; }
 .bliss-connect-copy { color: #cfc3ad; font-size: 1rem; max-width: 48ch; margin: 0 auto 1.7rem; }
 .bliss-fine { margin-top: 1.6rem; font-family: 'Courier New', monospace; font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--b-stone); }
+.bliss-connect-btns { display: flex; gap: 0.7rem; justify-content: center; flex-wrap: wrap; }
+.bliss-btn-line { background: transparent; border: 1px solid var(--b-gold); color: var(--b-gold-lite); }

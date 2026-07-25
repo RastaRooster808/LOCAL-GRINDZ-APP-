@@ -14,6 +14,12 @@ const img = (file: string) => `${IMG}${file}/:/rs=w:1300,h:800`;
 
 const HERO = `${IMG}Eijablissing4.jpg/:/cr=t:0%25,l:0%25,w:100%25,h:100%25/rs=w:1300,h:800`;
 
+/** EijaHu Blissings social links. Add real handles here and they render as
+ *  gold buttons; the "Explore Local Grindz" fallback is always present. */
+const SOCIALS: { label: string; url: string }[] = [
+  // e.g. { label: 'Instagram', url: 'https://instagram.com/…' },
+];
+
 const GALLERY = [
   '20230304_113228.jpg', '20230304_113301.jpg', 'IMG-20260131-WA0020.jpg',
   '20251208_105844.jpg', '20251225_104933.jpg', '20260126_173723.jpg',
@@ -147,13 +153,27 @@ export function Blissings() {
           If the Blissing is calling you, reach out. Eija &amp; Sanoi hold each ceremony as a sacred,
           intentional container — every marking a prayer, an activation, a reflection of your journey.
         </p>
-        <a
-          className="bliss-btn bliss-btn-gold"
-          href="mailto:khparelations@gmail.com?subject=EijaHu%20Blissings%20%E2%80%94%20Answering%20the%20Call"
-          onClick={() => trackEvent('cta_click', { label: 'bliss_connect', section: 'blissings' })}
-        >
-          Connect with us
-        </a>
+        <div className="bliss-connect-btns">
+          {SOCIALS.length > 0 && SOCIALS.map(s => (
+            <a
+              key={s.label}
+              className="bliss-btn bliss-btn-gold"
+              href={s.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackEvent('cta_click', { label: `bliss_social_${s.label}`, section: 'blissings' })}
+            >
+              {s.label}
+            </a>
+          ))}
+          <Link
+            className={`bliss-btn ${SOCIALS.length > 0 ? 'bliss-btn-line' : 'bliss-btn-gold'}`}
+            to="/"
+            onClick={() => trackEvent('cta_click', { label: 'bliss_back_to_local_grindz', section: 'blissings' })}
+          >
+            Explore Local Grindz
+          </Link>
+        </div>
         <p className="bliss-fine">EijaHu Blissings · Ceremonial Handpoke Tatu · Hawaiʻi Island</p>
       </section>
     </div>
