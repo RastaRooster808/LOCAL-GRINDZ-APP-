@@ -1873,3 +1873,72 @@
 .protea-foot { padding: 1.4rem 1.8rem 2.4rem; background: var(--p-surface); text-align: center; }
 .protea-foot p { font-family: 'Courier New', monospace; font-size: 0.68rem; letter-spacing: 0.06em; color: var(--p-stone); line-height: 1.7; }
 .protea-foot p:first-child { text-transform: uppercase; color: var(--p-blush); letter-spacing: 0.1em; }
+
+/* ── EijaHu Blissings — partner page ─────────────────────────────────── */
+.bliss-page {
+  --b-ground: #14100c; --b-surface: #1e1813; --b-parch: #efe6d6; --b-ink: #2a2119;
+  --b-gold: #b98a2e; --b-gold-lite: #cfa14e; --b-sage: #7a8471; --b-clay: #b07a5e;
+  --b-stone: #8a7d6d; --b-rule: #34291f;
+  background: var(--b-ground); color: var(--b-parch);
+  font-family: Georgia, 'Times New Roman', serif; line-height: 1.75;
+  max-width: 820px; margin: 0 auto; min-height: 100vh;
+}
+.bliss-page h1, .bliss-page h2, .bliss-page h3 { font-weight: normal; }
+
+/* Hero */
+.bliss-hero { position: relative; min-height: 78vh; display: flex; }
+.bliss-hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.bliss-hero-overlay { position: relative; z-index: 1; width: 100%; align-self: stretch;
+  display: flex; flex-direction: column; justify-content: flex-end; padding: 2.4rem 1.9rem 2.8rem;
+  background: linear-gradient(180deg, rgba(20,16,12,0.55) 0%, rgba(20,16,12,0.15) 35%, rgba(20,16,12,0.82) 100%); }
+.bliss-mast-label { position: absolute; top: 1.6rem; left: 1.9rem; right: 1.9rem; display: flex;
+  justify-content: space-between; align-items: center; gap: 0.5rem;
+  font-family: 'Courier New', monospace; font-size: 0.66rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--b-parch); }
+.bliss-home { color: var(--b-gold-lite); text-decoration: none; }
+.bliss-home:hover { text-decoration: underline; }
+.bliss-kicker { font-family: 'Courier New', monospace; font-size: 0.72rem; letter-spacing: 0.34em; text-transform: uppercase; color: var(--b-gold-lite); margin-bottom: 0.7rem; }
+.bliss-hero h1 { font-size: clamp(2.1rem, 7vw, 3.2rem); line-height: 1.05; color: #fff; text-wrap: balance; }
+.bliss-blessing { margin-top: 1rem; font-style: italic; font-size: 1.12rem; color: var(--b-parch); max-width: 40ch; text-wrap: balance; }
+.bliss-hero .bliss-btn { margin-top: 1.8rem; align-self: flex-start; }
+
+/* Buttons */
+.bliss-btn { display: inline-block; font-family: 'Courier New', monospace; font-size: 0.76rem; letter-spacing: 0.14em;
+  text-transform: uppercase; text-decoration: none; padding: 0.75rem 1.5rem; border-radius: 1px; cursor: pointer; transition: opacity .15s ease; }
+.bliss-btn:hover { opacity: 0.88; }
+.bliss-btn-gold { background: var(--b-gold); color: #14100c; }
+
+/* Sections */
+.bliss-section { padding: 2.6rem 1.9rem; border-bottom: 1px solid var(--b-rule); }
+.bliss-section--alt { background: var(--b-surface); }
+.bliss-eyebrow { font-family: 'Courier New', monospace; font-size: 0.64rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--b-gold-lite); margin-bottom: 1.2rem; }
+.bliss-eyebrow--gold { color: var(--b-gold); }
+.bliss-lede { font-size: 1.16rem; font-style: italic; color: var(--b-parch); max-width: 46ch; margin-bottom: 1.4rem; text-wrap: balance; }
+.bliss-body { font-size: 0.99rem; color: #d8cdb9; margin-bottom: 1.1rem; max-width: 62ch; }
+.bliss-signature { font-style: italic; color: var(--b-gold-lite); margin-top: 0.4rem; line-height: 1.7; }
+
+/* Ceremony */
+.bliss-ceremony { display: grid; gap: 1.7rem; }
+.bliss-phase { display: grid; grid-template-columns: 3rem 1fr; gap: 1rem; }
+.bliss-phase-num { font-family: 'Courier New', monospace; font-size: 1.4rem; color: var(--b-gold); line-height: 1; }
+.bliss-phase h3 { font-size: 1.2rem; color: var(--b-parch); margin-bottom: 0.45rem; }
+.bliss-phase p { font-size: 0.95rem; color: #d0c4af; max-width: 58ch; }
+
+/* Testimonies */
+.bliss-testimonies { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.3rem; }
+.bliss-testimony { border-left: 2px solid var(--b-gold); padding-left: 1.1rem; margin: 0; }
+.bliss-testimony-title { font-family: 'Courier New', monospace; font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--b-gold-lite); margin-bottom: 0.6rem; }
+.bliss-testimony blockquote { margin: 0; font-style: italic; font-size: 0.96rem; color: #ded3bf; }
+.bliss-testimony-who { font-family: 'Courier New', monospace; font-size: 0.7rem; letter-spacing: 0.06em; color: var(--b-stone); margin-top: 0.7rem; }
+
+/* Gallery */
+.bliss-gallery-section { padding: 2.6rem 1.9rem; background: var(--b-surface); border-bottom: 1px solid var(--b-rule); }
+.bliss-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.6rem; }
+.bliss-gallery img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 2px; display: block; background: var(--b-ground); }
+
+/* Connect */
+.bliss-connect { padding: 3rem 1.9rem 3.4rem; text-align: center; background: linear-gradient(180deg, var(--b-ground) 0%, #0d0a07 100%); }
+.bliss-connect h2 { font-size: 1.7rem; color: #fff; margin-bottom: 0.8rem; }
+.bliss-connect-copy { color: #cfc3ad; font-size: 1rem; max-width: 48ch; margin: 0 auto 1.7rem; }
+.bliss-fine { margin-top: 1.6rem; font-family: 'Courier New', monospace; font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--b-stone); }
+.bliss-connect-btns { display: flex; gap: 0.7rem; justify-content: center; flex-wrap: wrap; }
+.bliss-btn-line { background: transparent; border: 1px solid var(--b-gold); color: var(--b-gold-lite); }

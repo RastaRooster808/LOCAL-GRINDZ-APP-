@@ -4,6 +4,21 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — EijaHu Blissings partner page (2026-07-24)
+
+### Added
+- **`/blissings` route + `src/pages/Blissings.tsx`** — partner page for EijaHu
+  Blissings (Eija & Sanoi, ceremonial handpoke tatu). Hero, their story,
+  the three-day ceremony, testimonies, a work gallery, and an "Answer the Call"
+  connect CTA. Content and imagery are the partner's own; brand voice/spelling
+  preserved. Scoped `.bliss-*` styles in an earthy ceremonial palette.
+- **Featured card** for EijaHu Blissings in the Wellness (Healing Arts) category.
+- `FeaturedVendor.routeTo` — optional internal app route for featured cards
+  (takes precedence over `menuSlug`/`shopUrl`); `FeaturedVendorCard` renders it
+  as an in-app link.
+
+---
+
 ## [Unreleased] — protea.khpa.io hub + Field Report freemium gate (2026-07-23)
 
 ### Added
