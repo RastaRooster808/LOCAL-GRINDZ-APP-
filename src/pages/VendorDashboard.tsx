@@ -660,6 +660,10 @@ export function VendorDashboard() {
               const updates = {
                 description: (fd.get('description') as string).trim() || null,
                 cuisine_type: (fd.get('cuisine') as string).trim() || null,
+                phone: (fd.get('phone') as string).trim() || null,
+                contact_email: (fd.get('contact_email') as string).trim() || null,
+                instagram_url: (fd.get('instagram_url') as string).trim() || null,
+                facebook_url: (fd.get('facebook_url') as string).trim() || null,
               };
               await supabase.from('vendors').update(updates).eq('id', vendor.id);
               setVendor(prev => prev ? { ...prev, ...updates } : prev);
@@ -672,6 +676,18 @@ export function VendorDashboard() {
               </label>
               <label>Cuisine Type
                 <input name="cuisine" defaultValue={vendor.cuisine_type || ''} placeholder="e.g. Hawaiian Plate, Burger, Tacos…" />
+              </label>
+              <label>Phone
+                <input name="phone" type="tel" defaultValue={vendor.phone || ''} placeholder="(808) 555-1234" />
+              </label>
+              <label>Contact Email
+                <input name="contact_email" type="email" defaultValue={vendor.contact_email || ''} placeholder="you@example.com" />
+              </label>
+              <label>Instagram URL
+                <input name="instagram_url" type="url" defaultValue={vendor.instagram_url || ''} placeholder="https://instagram.com/yourhandle" />
+              </label>
+              <label>Facebook URL
+                <input name="facebook_url" type="url" defaultValue={vendor.facebook_url || ''} placeholder="https://facebook.com/yourpage" />
               </label>
               <button type="submit" className="btn-primary">Save Profile</button>
             </form>

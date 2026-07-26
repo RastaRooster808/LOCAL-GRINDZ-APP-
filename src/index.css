@@ -1958,3 +1958,12 @@
 .storefront-gallery-item { display: block; aspect-ratio: 1; border-radius: var(--radius, 8px); overflow: hidden; background: #f0f0f0; }
 .storefront-gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .2s ease; }
 .storefront-gallery-item:hover img { transform: scale(1.04); }
+
+/* ── Storefront description + contact links ──────────────────────────── */
+.storefront-desc { margin-top: 0.5rem; font-size: 0.95rem; line-height: 1.5; opacity: 0.9; max-width: 60ch; }
+.storefront-contact { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin-top: 0.8rem; }
+.storefront-contact a { font-size: 0.85rem; font-weight: 600; text-decoration: none; color: inherit;
+  display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.7rem; border: 1px solid currentColor;
+  border-radius: 999px; opacity: 0.9; }
+.storefront-contact a:hover { opacity: 1; }
+.storefront-header-content.has-banner .storefront-contact a { border-color: rgba(255,255,255,0.6); }

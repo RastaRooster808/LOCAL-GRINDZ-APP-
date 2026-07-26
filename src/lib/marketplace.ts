@@ -88,10 +88,10 @@ export const FEATURED_VENDORS: FeaturedVendor[] = [
     name: "Ala's Kitchen — Get Smashed",
     categorySlug: 'foodtrucks',
     categoryLabel: 'Featured Food Truck',
-    tagline: 'Big Island Smash Burgers, Done Right',
+    tagline: 'The Famous Smash Burgers',
     description:
-      'Hand-smashed patties, local beef, island-style toppings. Find the truck, order ahead, get smashed.',
-    badges: ['Order Ahead', 'Daily Specials'],
+      'Serving up deliciously created grinds in Keaʻau — specializing in the famous "Smash Burgers." Pacific Islander-owned.',
+    badges: ['Smash Burgers', 'Pacific Islander-Owned', 'Order Ahead'],
     emoji: '🍔',
     theme: { banner: 'linear-gradient(135deg, #2b1d16 0%, #6e2b1e 45%, #E63946 100%)', accent: '#E63946' },
     menuSlug: 'alas-kitchen',

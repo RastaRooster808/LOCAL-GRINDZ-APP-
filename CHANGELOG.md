@@ -4,6 +4,26 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Vendor contact fields + real Ala's / KaRas info (2026-07-25)
+
+### Added
+- Vendor **phone, contact_email, facebook_url, instagram_url** fields
+  (`docs/migrations/phase-4-9-*.sql`, `phase-4-10-*.sql`). `email` stays the
+  auth login identity — public contact lives in the new columns.
+- **Storefront** now shows the vendor description + a contact row (tap-to-call
+  phone, email, Instagram, Facebook).
+- **Vendor Dashboard → Profile** lets vendors edit phone, contact email, and
+  Instagram/Facebook URLs.
+
+### Changed
+- **Ala's Kitchen** populated with real info: "Serving up deliciously created
+  grinds… the famous Smash Burgers. Pacific Islander-owned." · (808) 289-0328 ·
+  chefalamaui@mail.com · Facebook · address 16-1668 Keaau-Pāhoa Rd, Keaʻau, HI
+  96749. Featured-card copy + badges updated.
+- **KaRas Freshly Baked** Instagram wired: instagram.com/karasfreshlybaked.
+
+---
+
 ## [Unreleased] — EijaHu gallery rehosted into Supabase (2026-07-25)
 
 ### Changed

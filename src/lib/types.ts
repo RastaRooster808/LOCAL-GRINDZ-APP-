@@ -11,6 +11,10 @@ export interface Vendor {
   user_id?: string | null;
   badges?: string[];
   email?: string;
+  phone?: string | null;
+  contact_email?: string | null;
+  facebook_url?: string | null;
+  instagram_url?: string | null;
   paypal_handle?: string | null;
   venmo_handle?: string | null;
   cashapp_handle?: string | null;
