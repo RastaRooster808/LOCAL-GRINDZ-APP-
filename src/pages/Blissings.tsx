@@ -21,7 +21,7 @@ const HERO = `${BUCKET}/g2.jpg`;
 /** EijaHu Blissings social links. Add real handles here and they render as
  *  gold buttons; the "Explore Local Grindz" fallback is always present. */
 const SOCIALS: { label: string; url: string }[] = [
-  // e.g. { label: 'Instagram', url: 'https://instagram.com/…' },
+  { label: 'Instagram', url: 'https://www.instagram.com/eijahu.blissings' },
 ];
 
 const GALLERY = ['g1', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8', 'g9'].map(n => `${BUCKET}/${n}.jpg`);
