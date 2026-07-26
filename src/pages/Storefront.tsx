@@ -225,6 +225,23 @@ export function Storefront() {
           <Link to="/vendors" className="back-link">← All Trucks</Link>
           <h1 id="vendor-title">{vendor.name}</h1>
           <p className="tagline">{vendor.cuisine_type || ''}</p>
+          {vendor.description && <p className="storefront-desc">{vendor.description}</p>}
+          {(vendor.phone || vendor.contact_email || vendor.facebook_url || vendor.instagram_url) && (
+            <div className="storefront-contact">
+              {vendor.phone && (
+                <a href={`tel:${vendor.phone.replace(/[^0-9+]/g, '')}`}>📞 {vendor.phone}</a>
+              )}
+              {vendor.contact_email && (
+                <a href={`mailto:${vendor.contact_email}`}>✉️ Email</a>
+              )}
+              {vendor.instagram_url && (
+                <a href={vendor.instagram_url} target="_blank" rel="noopener noreferrer">Instagram ↗</a>
+              )}
+              {vendor.facebook_url && (
+                <a href={vendor.facebook_url} target="_blank" rel="noopener noreferrer">Facebook ↗</a>
+              )}
+            </div>
+          )}
         </div>
       </header>
 
