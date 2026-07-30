@@ -2047,3 +2047,25 @@
   .sponsor-spot--open { background: repeating-linear-gradient(135deg, #1e1a18, #1e1a18 10px, #232019 10px, #232019 20px); border-color: #3d372e; }
   .sponsor-open-head { color: #efe7da; }
 }
+
+/* ── Protea prints as menu items (sponsor section rework) ────────────── */
+.protea-print-group { margin-bottom: 1.6rem; }
+.protea-print-group:last-child { margin-bottom: 0; }
+.protea-subhead { font-size: 1.05rem; font-weight: normal; color: var(--p-ink); margin: 0 0 0.8rem;
+  padding-bottom: 0.35rem; border-bottom: 1px solid var(--p-rule); }
+.protea-print-buy { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-top: 0.5rem; }
+.protea-print-price { font-family: 'Courier New', monospace; font-size: 0.9rem; color: var(--p-gold); font-weight: bold; }
+.protea-print-soon { font-family: 'Courier New', monospace; font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--p-stone); }
+.protea-print .protea-btn-line { padding: 0.35rem 0.9rem; font-size: 0.7rem; }
+
+/* Fresh arrangement (Counter) — out of season */
+.protea-arrangement { display: grid; grid-template-columns: 120px 1fr; gap: 1rem; align-items: center;
+  border: 1px solid var(--p-rule); border-radius: 4px; overflow: hidden; background: var(--p-ground); }
+.protea-arr-photo img { width: 120px; height: 120px; object-fit: cover; display: block; filter: grayscale(0.35); }
+.protea-arr-body { padding: 0.9rem 1rem 0.9rem 0; }
+.protea-arr-body h3 { font-size: 1.05rem; font-weight: bold; margin-bottom: 0.3rem; }
+.protea-arr-body p { font-size: 0.85rem; color: var(--p-stone); margin-bottom: 0.6rem; }
+.protea-oos-badge { display: inline-block; font-family: 'Courier New', monospace; font-size: 0.64rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: #9a3b2e; background: rgba(154,59,46,0.1); border: 1px solid rgba(154,59,46,0.35);
+  padding: 0.25rem 0.6rem; border-radius: 999px; }
+@media (max-width: 460px) { .protea-arrangement { grid-template-columns: 1fr; } .protea-arr-photo img { width: 100%; height: 150px; } .protea-arr-body { padding: 0 1rem 0.9rem; } }

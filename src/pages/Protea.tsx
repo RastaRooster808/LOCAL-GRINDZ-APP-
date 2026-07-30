@@ -1,112 +1,85 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getByType, PRODUCT_STATUS } from '../data/commerce';
+import { getByType, getById, PRODUCT_STATUS } from '../data/commerce';
 import type { CommerceItem } from '../data/commerce';
 import { trackEvent } from '../lib/analytics';
 
 /**
- * Protea.tsx — protea.khpa.io hub for TOPP · Ohana Bloom
+ * Protea.tsx — protea.khpa.io hub, reached by clicking the TOPP sponsor spot.
  *
- * Freemium structure:
- *   PUBLIC (no login):  the three Ohana Bloom weekly tiers + a minimal set of
- *                       the print archive (FREE_PRINT_COUNT prints, buyable).
- *   GATED:              the rest of the print archive is greyed / locked behind
- *                       "The Field Report" — a $4.99/mo newsletter membership.
- *
- * Membership entitlement is presentation-only here (`isMember`): the actual
- * high-res files are delivered by Sky Pilot after a Shopify purchase, so the
- * grey-out never exposes protected assets. Wiring a real entitlement signal
- * (Shopify $4.99/mo subscription + auth check) is the remaining backend step —
- * flip `isMember` to read that once it exists. See CHANGELOG.
+ * The botanical prints are listed as buyable menu items, grouped into sections.
+ * Each Buy button links to the Shopify checkout (digital prints deliver via Sky
+ * Pilot). The Field Report ($4.99/mo) is an optional upsell, not a paywall.
+ * The Counter arrangement is listed but flagged out-of-season / out of stock.
  */
 
-const FREE_PRINT_COUNT = 6;
 const MEMBER_KEY = 'topp_field_report_member';
 
-function TierCard({ tier }: { tier: CommerceItem }) {
-  return (
-    <div className="protea-tier">
-      {tier.image && (
-        <div className="protea-tier-photo">
-          <img src={tier.image} alt={tier.title} loading="lazy" />
-        </div>
-      )}
-      <div className="protea-tier-body">
-        <div className="protea-tier-head">
-          <h3>{tier.title.replace(' — ', ' · ').replace('Ohana Bloom · ', '')}</h3>
-          <span className="protea-tier-price">${tier.price.toFixed(0)}<span>/wk</span></span>
-        </div>
-        <p>{tier.description}</p>
-        {tier.checkoutUrl ? (
-          <a
-            className="protea-btn protea-btn-gold"
-            href={tier.checkoutUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => trackEvent('protea_tier_reserve', { id: tier.id })}
-          >
-            Reserve weekly
-          </a>
-        ) : (
-          <span className="protea-btn protea-btn-soon">Coming soon</span>
-        )}
-      </div>
-    </div>
-  );
+// Botanical sections, matched by title/tag keywords (first match wins).
+const SECTIONS: { label: string; match: (t: string) => boolean }[] = [
+  { label: 'King Protea', match: t => t.includes('king') },
+  { label: 'Pincushions', match: t => t.includes('pincushion') || t.includes('leucospermum') },
+  { label: 'Conebush & Lava', match: t => t.includes('conebush') || t.includes('leucadendron') || t.includes('lava') },
+  { label: 'Landscapes & Foliage', match: t => t.includes('landscape') || t.includes('field') || t.includes('foliage') },
+];
+
+function sectionOf(p: CommerceItem): string {
+  const t = `${p.title} ${p.tags.join(' ')}`.toLowerCase();
+  return SECTIONS.find(s => s.match(t))?.label ?? 'Botanical Studies';
 }
 
-function PrintCard({ print, locked }: { print: CommerceItem; locked: boolean }) {
+function PrintItem({ print }: { print: CommerceItem }) {
   return (
-    <div className={`protea-print${locked ? ' protea-print--locked' : ''}`}>
+    <div className="protea-print">
       <div className="protea-print-photo">
         {print.image
           ? <img src={print.image} alt={print.title} loading="lazy" />
           : <div className="protea-print-photo--placeholder">🌺</div>}
-        {locked && (
-          <div className="protea-print-lock" aria-hidden="true">
-            <span>🔒</span>
-          </div>
-        )}
       </div>
       <div className="protea-print-body">
         <h4>{print.title.replace(' — Digital Print', '')}</h4>
-        {locked ? (
-          <span className="protea-print-tag">Members only</span>
-        ) : (
-          <a
-            className="protea-btn protea-btn-line"
-            href={print.checkoutUrl ?? undefined}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => trackEvent('protea_print_buy', { id: print.id })}
-          >
-            Download · ${print.price.toFixed(2)}
-          </a>
-        )}
+        <div className="protea-print-buy">
+          <span className="protea-print-price">${print.price.toFixed(2)}</span>
+          {print.checkoutUrl ? (
+            <a
+              className="protea-btn protea-btn-line"
+              href={print.checkoutUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackEvent('protea_print_buy', { id: print.id })}
+            >
+              Buy
+            </a>
+          ) : (
+            <span className="protea-print-soon">Soon</span>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
 export function Protea() {
-  const [isMember, setIsMember] = useState(
-    () => typeof localStorage !== 'undefined' && localStorage.getItem(MEMBER_KEY) === '1',
-  );
   const [email, setEmail] = useState('');
   const [joined, setJoined] = useState(false);
 
-  const tiers = getByType('florist_hotel').filter(p => p.status === PRODUCT_STATUS.LIVE);
   const prints = getByType('digital_print').filter(p => p.status === PRODUCT_STATUS.LIVE);
-  const lockedCount = Math.max(0, prints.length - FREE_PRINT_COUNT);
+  const counter = getById('ohana-bloom-counter');
+
+  // Group prints into ordered sections.
+  const grouped = new Map<string, CommerceItem[]>();
+  for (const p of prints) {
+    const label = sectionOf(p);
+    if (!grouped.has(label)) grouped.set(label, []);
+    grouped.get(label)!.push(p);
+  }
+  const orderedLabels = [...SECTIONS.map(s => s.label), 'Botanical Studies'].filter(l => grouped.has(l));
 
   function handleJoin(e: React.FormEvent) {
     e.preventDefault();
     const value = email.trim();
     if (!value || !value.includes('@')) return;
-    // Presentation-only unlock + waitlist. Real membership checkout (Shopify
-    // $4.99/mo subscription) and list delivery are the remaining backend wiring.
     localStorage.setItem(MEMBER_KEY, '1');
-    setIsMember(true);
     setJoined(true);
     trackEvent('field_report_join', { email: value });
   }
@@ -118,51 +91,62 @@ export function Protea() {
           <span>TOPP · Ohana Bloom</span>
           <Link to="/" className="protea-mast-home">← Kingdom Emporium</Link>
         </div>
-        <h1>A Limited Weekly Protea Harvest</h1>
+        <h1>The Original Protea Project</h1>
         <p className="protea-mast-sub">
-          Grown on lava in Napuʻuapele, Puna. Cut Friday morning, delivered the same day across
-          Hawaiʻi Island. Reserved for a handful of standing accounts.
+          Hawaiian protea grown on lava in Napuʻuapele, Puna — fresh weekly arrangements and an
+          archive of original botanical prints.
         </p>
         <div className="protea-mast-cta">
-          <a className="protea-btn protea-btn-gold" href="#tiers">Reserve a standing order</a>
-          <a className="protea-btn protea-btn-line" href="#archive">Browse the print archive</a>
+          <a className="protea-btn protea-btn-gold" href="#archive">Browse the print archive</a>
+          <a className="protea-btn protea-btn-line" href="#arrangements">Fresh arrangements</a>
         </div>
       </header>
 
-      {/* THREE TIERS — public, no login */}
-      <section id="tiers" className="protea-section">
-        <p className="protea-eyebrow">Reserve a Standing Weekly Delivery</p>
-        <div className="protea-tiers">
-          {tiers.map(t => <TierCard key={t.id} tier={t} />)}
-        </div>
-      </section>
+      {/* FRESH ARRANGEMENTS — Counter, flagged out of season */}
+      {counter && (
+        <section id="arrangements" className="protea-section">
+          <p className="protea-eyebrow">Fresh Arrangements</p>
+          <div className="protea-arrangement">
+            {counter.image && (
+              <div className="protea-arr-photo"><img src={counter.image} alt={counter.title} loading="lazy" /></div>
+            )}
+            <div className="protea-arr-body">
+              <h3>{counter.title.replace('Ohana Bloom — ', '').replace(' (Weekly)', '')}</h3>
+              <p>{counter.description}</p>
+              <span className="protea-oos-badge">Out of season · Out of stock</span>
+            </div>
+          </div>
+        </section>
+      )}
 
-      {/* PRINT ARCHIVE — freemium gate */}
+      {/* PRINT ARCHIVE — all prints, grouped, as buyable menu items */}
       <section id="archive" className="protea-section protea-section--alt">
         <p className="protea-eyebrow">The Protea Print Archive</p>
         <p className="protea-lede">
-          Original botanical photography, documented by the founding grower in Puna. A handful are
-          open to everyone{isMember ? '' : ` — the full archive of ${prints.length} opens with The Field Report`}.
+          Original botanical photography, documented by the founding grower in Puna. High-resolution
+          digital downloads, ${prints[0] ? prints[0].price.toFixed(2) : '4.99'} each.
         </p>
-        <div className="protea-prints">
-          {prints.map((p, i) => (
-            <PrintCard key={p.id} print={p} locked={!isMember && i >= FREE_PRINT_COUNT} />
-          ))}
-        </div>
+        {orderedLabels.map(label => (
+          <div key={label} className="protea-print-group">
+            <h3 className="protea-subhead">{label}</h3>
+            <div className="protea-prints">
+              {grouped.get(label)!.map(p => <PrintItem key={p.id} print={p} />)}
+            </div>
+          </div>
+        ))}
       </section>
 
-      {/* MEMBERSHIP — $4.99/mo newsletter */}
+      {/* FIELD REPORT — optional upsell, not a wall */}
       <section id="join" className="protea-section protea-join">
         <p className="protea-eyebrow protea-eyebrow--blush">The Field Report · $4.99 / month</p>
-        <h2>Unlock the full archive</h2>
+        <h2>Get new prints first</h2>
         <p className="protea-join-copy">
-          A monthly dispatch from the Napuʻuapele growing site — harvest notes, new prints the week
-          they're shot, and the full {prints.length}-print archive at member access. Cancel anytime.
+          Every print above is available to buy à la carte. Members of The Field Report get a monthly
+          dispatch from the Napuʻuapele growing site — harvest notes and new prints the week they’re shot.
+          Optional, cancel anytime.
         </p>
         {joined ? (
-          <p className="protea-join-done">
-            🌺 You're on the list. We'll email you the moment The Field Report opens.
-          </p>
+          <p className="protea-join-done">🌺 You’re on the list — we’ll email you when The Field Report opens.</p>
         ) : (
           <form className="protea-join-form" onSubmit={handleJoin}>
             <input
@@ -177,9 +161,6 @@ export function Protea() {
             <button type="submit" className="protea-btn protea-btn-gold">Join · $4.99/mo</button>
           </form>
         )}
-        <p className="protea-join-fine">
-          {lockedCount} more prints inside · Napuʻuapele, Puna, Hawaiʻi Island
-        </p>
       </section>
 
       <footer className="protea-foot">

@@ -4,6 +4,20 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — TOPP sponsor section: prints as menu items (2026-07-25)
+
+### Changed
+- Reworked the `/protea` hub (reached by clicking the TOPP sponsor). The
+  botanical prints are now **all listed as buyable menu items**, grouped into
+  sections (King Protea, Pincushions, Conebush & Lava, Landscapes & Foliage,
+  Botanical Studies), each with a Buy → Shopify link. The members-only grey-out
+  **wall is removed**; The Field Report ($4.99/mo) is now an **optional upsell**
+  banner, not a paywall.
+- The **Ohana Bloom Counter** arrangement is listed but flagged
+  **"Out of season · Out of stock."**
+
+---
+
 ## [Unreleased] — Monthly sponsor spots + raffle launch (2026-07-25)
 
 ### Added
