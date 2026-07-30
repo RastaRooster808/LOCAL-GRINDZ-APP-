@@ -2016,3 +2016,9 @@
 .raffle-done p { margin-bottom: 0.9rem; }
 .raffle-note { font-style: italic; color: var(--r-stone); }
 .raffle-fine { margin-top: 1.4rem; font-size: 0.76rem; color: var(--r-stone); line-height: 1.5; max-width: 52ch; }
+
+/* ── Admin raffle view ───────────────────────────────────────────────── */
+.admin-table-wrap { overflow-x: auto; }
+.raffle-winner-box { margin-top: 0.9rem; padding: 0.9rem 1rem; border: 2px solid var(--lava, #a9791f); border-radius: 8px; background: #fffaf0; }
+.raffle-winner-head { font-family: 'Courier New', monospace; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: #a9791f; margin-bottom: 0.4rem; }
+.raffle-winner-box p { margin: 0.15rem 0; }

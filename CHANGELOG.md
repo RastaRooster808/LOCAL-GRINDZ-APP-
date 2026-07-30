@@ -17,11 +17,13 @@ All notable changes to Local Grindz are documented here.
   donation link. Framed as a "$1 donation entry · monthly thank-you drawing."
 - Seeded the **Ekalesia Hoʻole Pope o Kekaha** (Kekaha, Kauaʻi) raffle + a
   homepage promo linking to it. `Raffle` type added.
+- **Admin Dashboard → Raffles tab**: per-raffle entrant table (name/email/phone),
+  live entry count, and a **Draw Winner** button (random pick, shows the winner's
+  contact). Entrant reads use the admin's authenticated session per RLS.
 
 ### Pending before launch (NOT yet merged to production)
 - Church **payment handle + method** (Venmo/PayPal/Cash App) to enable the $1 link.
 - **Prize + draw date**; confirm the **legal framing** (HI raffle rules).
-- Admin view to list entrants / draw a winner (follow-up).
 
 ---
 
