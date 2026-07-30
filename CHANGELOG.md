@@ -4,6 +4,22 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Raffle: tickets, gifting, Shopify pay, animated draw (2026-07-25)
+
+### Changed
+- **`/raffle` legibility overhaul** — sans-serif body, larger type, higher contrast.
+- **$1 tickets pay through rastarooster.com** (Shopify). Created a "Camry Raffle
+  Ticket — $1" DRAFT product; the pay button opens `rastarooster.com/cart/{variant}:{qty}`.
+- **Multiple tickets** (quantity stepper, up to 50) and **gift-a-friend** (records
+  the friend as the entrant + the gift-giver). `raffle_entries` gains
+  `tickets`, `is_gift`, `gifted_by`; `raffles` gains `ticket_variant_id`
+  (`docs/migrations/phase-4-13-*.sql`).
+- **Admin digital draw** is now an animated, ticket-weighted randomizer — the
+  name spins slot-machine style and eases to a stop on the winner. Entrant table
+  shows ticket counts and gift attribution.
+
+---
+
 ## [Unreleased] — Camry is the raffle prize (2026-07-25)
 
 ### Changed

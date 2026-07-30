@@ -173,8 +173,9 @@ export interface Raffle {
   prize: string | null;
   prize_image_url: string | null;
   price: number;
-  payment_method: 'venmo' | 'paypal' | 'cashapp' | null;
+  payment_method: 'venmo' | 'paypal' | 'cashapp' | 'shopify' | null;
   payment_handle: string | null;
+  ticket_variant_id: string | null;
   draw_date: string | null;
   is_active: boolean;
   created_at: string;

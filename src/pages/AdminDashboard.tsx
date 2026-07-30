@@ -10,6 +10,9 @@ interface RaffleEntry {
   name: string;
   email: string | null;
   phone: string | null;
+  tickets: number;
+  is_gift: boolean;
+  gifted_by: string | null;
   created_at: string;
 }
 
@@ -60,6 +63,8 @@ export function AdminDashboard() {
   const [raffleEntries, setRaffleEntries] = useState<RaffleEntry[]>([]);
   const [activeRaffleId, setActiveRaffleId] = useState<string | null>(null);
   const [drawnWinner, setDrawnWinner] = useState<RaffleEntry | null>(null);
+  const [drawing, setDrawing] = useState(false);
+  const [drawDisplay, setDrawDisplay] = useState('');
 
   useEffect(() => {
     if (!user) { setIsAdmin(null); return; }
@@ -97,10 +102,33 @@ export function AdminDashboard() {
   }
 
   function drawWinner() {
-    if (!raffleEntries.length) return;
-    const pick = raffleEntries[Math.floor(Math.random() * raffleEntries.length)];
-    setDrawnWinner(pick);
+    if (!raffleEntries.length || drawing) return;
+    // Weighted pool: each entrant appears once per ticket purchased.
+    const pool: RaffleEntry[] = [];
+    for (const en of raffleEntries) {
+      for (let i = 0; i < Math.max(1, en.tickets || 1); i++) pool.push(en);
+    }
+    const winner = pool[Math.floor(Math.random() * pool.length)];
+    setDrawnWinner(null);
+    setDrawing(true);
+    let elapsed = 0;
+    let delay = 55;
+    const spin = () => {
+      setDrawDisplay(pool[Math.floor(Math.random() * pool.length)].name);
+      elapsed += delay;
+      if (elapsed < 2800) {
+        if (elapsed > 1900) delay += 45; // ease to a stop
+        window.setTimeout(spin, delay);
+      } else {
+        setDrawDisplay(winner.name);
+        setDrawnWinner(winner);
+        setDrawing(false);
+      }
+    };
+    spin();
   }
+
+  const totalTickets = raffleEntries.reduce((s, e) => s + (e.tickets || 1), 0);
 
   async function loadApplications(status = 'pending') {
     const { data } = await supabase.from('vendor_applications').select('*').eq('status', status).order('created_at');
@@ -512,20 +540,27 @@ export function AdminDashboard() {
                         {r.draw_date ? ` · draws ${new Date(r.draw_date + 'T00:00:00').toLocaleDateString()}` : ''}</p>
                       <p className="admin-desc">Prize: {r.prize || 'TBA'}</p>
                       <p className="admin-date">
-                        {raffleEntries.length} {raffleEntries.length === 1 ? 'entry' : 'entries'}
+                        {raffleEntries.length} {raffleEntries.length === 1 ? 'entrant' : 'entrants'} · {totalTickets} {totalTickets === 1 ? 'ticket' : 'tickets'} in the drum
                       </p>
                       <div className="admin-actions">
-                        <button className="btn-primary" onClick={drawWinner} disabled={!raffleEntries.length}>
-                          🎟️ Draw Winner
+                        <button className="btn-primary" onClick={drawWinner} disabled={!raffleEntries.length || drawing}>
+                          {drawing ? 'Drawing…' : '🎟️ Draw Winner'}
                         </button>
                       </div>
-                      {drawnWinner && (
-                        <div className="raffle-winner-box">
-                          <p className="raffle-winner-head">🌺 Winner</p>
-                          <p><strong>{drawnWinner.name}</strong></p>
-                          {drawnWinner.email && <p><a href={`mailto:${drawnWinner.email}`}>{drawnWinner.email}</a></p>}
-                          {drawnWinner.phone && <p><a href={`tel:${drawnWinner.phone.replace(/[^0-9+]/g, '')}`}>{drawnWinner.phone}</a></p>}
-                          <p className="admin-date">Drawn just now · not saved — record it before redrawing.</p>
+                      {(drawing || drawnWinner) && (
+                        <div className={`raffle-draw-stage${drawnWinner ? ' raffle-draw-stage--won' : ''}`}>
+                          <span className="raffle-draw-label">{drawing ? 'Drawing…' : '🌺 Winner'}</span>
+                          <span className={`raffle-draw-name${drawing ? ' raffle-draw-name--spin' : ''}`}>
+                            {drawDisplay || '—'}
+                          </span>
+                          {drawnWinner && !drawing && (
+                            <div className="raffle-winner-contact">
+                              {drawnWinner.is_gift && drawnWinner.gifted_by && <p className="admin-date">Gift from {drawnWinner.gifted_by}</p>}
+                              {drawnWinner.email && <p><a href={`mailto:${drawnWinner.email}`}>{drawnWinner.email}</a></p>}
+                              {drawnWinner.phone && <p><a href={`tel:${drawnWinner.phone.replace(/[^0-9+]/g, '')}`}>{drawnWinner.phone}</a></p>}
+                              <p className="admin-date">Held {drawnWinner.tickets} {drawnWinner.tickets === 1 ? 'ticket' : 'tickets'} · not saved — record it before redrawing.</p>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -539,12 +574,13 @@ export function AdminDashboard() {
                   <div className="admin-table-wrap">
                     <table className="billing-table">
                       <thead>
-                        <tr><th>Name</th><th>Email</th><th>Phone</th><th>Entered</th></tr>
+                        <tr><th>Name</th><th>Tickets</th><th>Email</th><th>Phone</th><th>Entered</th></tr>
                       </thead>
                       <tbody>
                         {raffleEntries.map(en => (
                           <tr key={en.id}>
-                            <td>{en.name}</td>
+                            <td>{en.name}{en.is_gift && en.gifted_by ? ` (gift from ${en.gifted_by})` : ''}</td>
+                            <td>{en.tickets}</td>
                             <td>{en.email || '—'}</td>
                             <td>{en.phone || '—'}</td>
                             <td>{new Date(en.created_at).toLocaleDateString()}</td>
