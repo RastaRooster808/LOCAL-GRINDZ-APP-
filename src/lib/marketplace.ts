@@ -213,3 +213,34 @@ export const HOME_PROMOS: Promo[] = [
     accent: '#E63946',
   },
 ];
+
+/**
+ * Monthly sponsor spots — three premium slots. One is held by TOPP; the other
+ * two are open for local businesses to advertise. Presentation-layer only.
+ */
+export interface SponsorSpot {
+  id: string;
+  filled: boolean;
+  name?: string;
+  tagline?: string;
+  emoji?: string;
+  logoUrl?: string;
+  routeTo?: string;   // internal app route
+  shopUrl?: string;   // external link
+  accent?: string;
+}
+
+export const SPONSOR_SPOTS: SponsorSpot[] = [
+  {
+    id: 'sponsor-topp',
+    filled: true,
+    name: 'TOPP',
+    tagline: 'Hawaiian protea, grown on Puna lava — weekly arrangements & prints.',
+    emoji: '🌺',
+    logoUrl: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/King-Protea_close_up.jpg?v=1783653584',
+    routeTo: '/protea',
+    accent: '#b98a2e',
+  },
+  { id: 'sponsor-open-2', filled: false },
+  { id: 'sponsor-open-3', filled: false },
+];

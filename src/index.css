@@ -2022,3 +2022,28 @@
 .raffle-winner-box { margin-top: 0.9rem; padding: 0.9rem 1rem; border: 2px solid var(--lava, #a9791f); border-radius: 8px; background: #fffaf0; }
 .raffle-winner-head { font-family: 'Courier New', monospace; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: #a9791f; margin-bottom: 0.4rem; }
 .raffle-winner-box p { margin: 0.15rem 0; }
+
+/* ── Monthly sponsor spots ───────────────────────────────────────────── */
+.sponsors-section { }
+.sponsors-intro { color: var(--muted, #666); font-size: 0.92rem; margin: -0.3rem 0 1rem; }
+.sponsors-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.sponsor-spot { display: flex; gap: 0.9rem; padding: 1rem; border-radius: 12px; text-decoration: none; color: inherit; border: 1px solid #e2ddd4; background: #fff; transition: transform .15s ease, box-shadow .15s ease; }
+.sponsor-spot:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+.sponsor-spot--filled { align-items: center; }
+.sponsor-logo { flex: 0 0 60px; width: 60px; height: 60px; border-radius: 50%; overflow: hidden; border: 2px solid #b98a2e; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; background: #faf7f1; }
+.sponsor-logo img { width: 100%; height: 100%; object-fit: cover; }
+.sponsor-tag { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.sponsor-body h3 { margin: 0.15rem 0; font-size: 1.1rem; }
+.sponsor-body p { margin: 0; font-size: 0.85rem; color: var(--muted, #555); line-height: 1.4; }
+.sponsor-cta { display: inline-block; margin-top: 0.4rem; font-size: 0.8rem; font-weight: 700; color: #b98a2e; }
+.sponsor-spot--open { flex-direction: column; gap: 0.3rem; align-items: flex-start; justify-content: center;
+  border: 1.5px dashed #c9bfae; background: repeating-linear-gradient(135deg, #faf8f3, #faf8f3 10px, #f4f0e7 10px, #f4f0e7 20px); text-align: left; }
+.sponsor-open-num { font-family: 'Courier New', monospace; font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; color: #a99; }
+.sponsor-open-head { font-size: 1.15rem; font-weight: 800; color: #3a2f28; }
+.sponsor-open-sub { font-size: 0.82rem; color: var(--muted, #666); }
+.sponsor-open-cta { margin-top: 0.35rem; font-size: 0.82rem; font-weight: 700; color: #a9791f; }
+@media (prefers-color-scheme: dark) {
+  .sponsor-spot--filled, .sponsor-spot { background: #1e1a18; border-color: #33302c; }
+  .sponsor-spot--open { background: repeating-linear-gradient(135deg, #1e1a18, #1e1a18 10px, #232019 10px, #232019 20px); border-color: #3d372e; }
+  .sponsor-open-head { color: #efe7da; }
+}

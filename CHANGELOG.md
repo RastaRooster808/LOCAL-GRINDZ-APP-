@@ -4,6 +4,24 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Monthly sponsor spots + raffle launch (2026-07-25)
+
+### Added
+- **Monthly Sponsor Spots** on the home page (`SponsorSpots` component,
+  `SPONSOR_SPOTS` data): three premium slots — TOPP holds one (links to /protea);
+  the other two are open "Your Business Here · Ask about our rates" cards linking
+  to /apply. TOPP's product catalog is left intact — it's now framed as a sponsor,
+  not the store.
+
+### Changed
+- **Raffle launched with entrant capture** (payment still pending). Church record
+  corrected to **Keaukaha, Hilo** — admin office 67 Keokea Loop, Sunday services
+  at Keaukaha Elementary Cafeteria (240 Desha Ave), (808) 933-4463,
+  halepulekeolahou@gmail.com. The $1 payment method is still TBD (Shopify vs
+  church P2P) — until set, the page records entrants and says the church follows up.
+
+---
+
 ## [Unreleased] — Community raffle / donation drawing (2026-07-25)
 
 ### Added
