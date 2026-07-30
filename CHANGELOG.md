@@ -4,6 +4,47 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Monthly sponsor spots + raffle launch (2026-07-25)
+
+### Added
+- **Monthly Sponsor Spots** on the home page (`SponsorSpots` component,
+  `SPONSOR_SPOTS` data): three premium slots — TOPP holds one (links to /protea);
+  the other two are open "Your Business Here · Ask about our rates" cards linking
+  to /apply. TOPP's product catalog is left intact — it's now framed as a sponsor,
+  not the store.
+
+### Changed
+- **Raffle launched with entrant capture** (payment still pending). Church record
+  corrected to **Keaukaha, Hilo** — admin office 67 Keokea Loop, Sunday services
+  at Keaukaha Elementary Cafeteria (240 Desha Ave), (808) 933-4463,
+  halepulekeolahou@gmail.com. The $1 payment method is still TBD (Shopify vs
+  church P2P) — until set, the page records entrants and says the church follows up.
+
+---
+
+## [Unreleased] — Community raffle / donation drawing (2026-07-25)
+
+### Added
+- **`raffles` + `raffle_entries` tables** (`docs/migrations/phase-4-11-*.sql`):
+  a monthly community drawing. Platform holds no funds — a $1 entry deep-links
+  to the org's own Venmo/PayPal/Cash App (vendor-payment model). Entrants are
+  recorded; PII is insert-only for the public, admin-read only (RLS). Anon
+  insert verified.
+- **`/raffle` page** (`src/pages/Raffle.tsx`): reads the active raffle, shows
+  prize/draw date, captures entrant name/email/phone, then presents the $1
+  donation link. Framed as a "$1 donation entry · monthly thank-you drawing."
+- Seeded the **Ekalesia Hoʻole Pope o Kekaha** (Kekaha, Kauaʻi) raffle + a
+  homepage promo linking to it. `Raffle` type added.
+- **Admin Dashboard → Raffles tab**: per-raffle entrant table (name/email/phone),
+  live entry count, and a **Draw Winner** button (random pick, shows the winner's
+  contact). Entrant reads use the admin's authenticated session per RLS.
+
+### Pending before launch (NOT yet merged to production)
+- Church **payment handle + method** (Venmo/PayPal/Cash App) to enable the $1 link.
+- **Prize + draw date**; confirm the **legal framing** (HI raffle rules).
+
+---
+
 ## [Unreleased] — Vendor contact fields + real Ala's / KaRas info (2026-07-25)
 
 ### Added

@@ -2,9 +2,18 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
-import type { VendorApplication, Vendor, Review } from '../lib/types';
+import type { VendorApplication, Vendor, Review, Raffle } from '../lib/types';
 
-type AdminTab = 'applications' | 'vendors' | 'featured' | 'reviews' | 'analytics' | 'announcements';
+interface RaffleEntry {
+  id: string;
+  raffle_id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  created_at: string;
+}
+
+type AdminTab = 'applications' | 'vendors' | 'featured' | 'reviews' | 'analytics' | 'announcements' | 'raffles';
 
 interface FeaturedRow {
   id: string;
@@ -47,6 +56,10 @@ export function AdminDashboard() {
   const [loginError, setLoginError] = useState('');
   const [rejectId, setRejectId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+  const [raffles, setRaffles] = useState<Raffle[]>([]);
+  const [raffleEntries, setRaffleEntries] = useState<RaffleEntry[]>([]);
+  const [activeRaffleId, setActiveRaffleId] = useState<string | null>(null);
+  const [drawnWinner, setDrawnWinner] = useState<RaffleEntry | null>(null);
 
   useEffect(() => {
     if (!user) { setIsAdmin(null); return; }
@@ -62,7 +75,32 @@ export function AdminDashboard() {
     loadReportedReviews();
     loadAnnouncements();
     loadPlatformStats();
+    loadRaffles();
   }, [isAdmin]);
+
+  async function loadRaffles() {
+    const { data } = await supabase.from('raffles').select('*').order('created_at', { ascending: false });
+    const list = (data as Raffle[]) || [];
+    setRaffles(list);
+    if (list.length && !activeRaffleId) selectRaffle(list[0].id);
+  }
+
+  async function selectRaffle(raffleId: string) {
+    setActiveRaffleId(raffleId);
+    setDrawnWinner(null);
+    const { data } = await supabase
+      .from('raffle_entries')
+      .select('*')
+      .eq('raffle_id', raffleId)
+      .order('created_at', { ascending: false });
+    setRaffleEntries((data as RaffleEntry[]) || []);
+  }
+
+  function drawWinner() {
+    if (!raffleEntries.length) return;
+    const pick = raffleEntries[Math.floor(Math.random() * raffleEntries.length)];
+    setDrawnWinner(pick);
+  }
 
   async function loadApplications(status = 'pending') {
     const { data } = await supabase.from('vendor_applications').select('*').eq('status', status).order('created_at');
@@ -186,6 +224,7 @@ export function AdminDashboard() {
     { key: 'reviews', label: 'Reports', badge: reportedReviews.length || undefined },
     { key: 'analytics', label: 'Analytics' },
     { key: 'announcements', label: 'Announcements' },
+    { key: 'raffles', label: 'Raffles' },
   ];
 
   return (
@@ -436,6 +475,87 @@ export function AdminDashboard() {
               <label>Expires <input name="expires" type="date" /></label>
               <button type="submit" className="btn-primary">Post Announcement</button>
             </form>
+          </div>
+        )}
+
+        {/* RAFFLES */}
+        {tab === 'raffles' && (
+          <div>
+            {raffles.length === 0 ? (
+              <p className="empty-msg">No raffles yet.</p>
+            ) : (
+              <>
+                {raffles.length > 1 && (
+                  <div className="tab-filters">
+                    {raffles.map(r => (
+                      <button
+                        key={r.id}
+                        className={`filter-chip${activeRaffleId === r.id ? ' filter-chip--active' : ''}`}
+                        onClick={() => selectRaffle(r.id)}
+                      >
+                        {r.org_name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {(() => {
+                  const r = raffles.find(x => x.id === activeRaffleId) ?? raffles[0];
+                  return (
+                    <div className="admin-card">
+                      <div className="admin-card-header">
+                        <strong>{r.org_name}</strong>
+                        <span className={`badge badge-${r.is_active ? 'approved' : 'rejected'}`}>
+                          {r.is_active ? 'active' : 'inactive'}
+                        </span>
+                      </div>
+                      <p>{r.title} · ${Number(r.price).toFixed(2)} entry
+                        {r.draw_date ? ` · draws ${new Date(r.draw_date + 'T00:00:00').toLocaleDateString()}` : ''}</p>
+                      <p className="admin-desc">Prize: {r.prize || 'TBA'}</p>
+                      <p className="admin-date">
+                        {raffleEntries.length} {raffleEntries.length === 1 ? 'entry' : 'entries'}
+                      </p>
+                      <div className="admin-actions">
+                        <button className="btn-primary" onClick={drawWinner} disabled={!raffleEntries.length}>
+                          🎟️ Draw Winner
+                        </button>
+                      </div>
+                      {drawnWinner && (
+                        <div className="raffle-winner-box">
+                          <p className="raffle-winner-head">🌺 Winner</p>
+                          <p><strong>{drawnWinner.name}</strong></p>
+                          {drawnWinner.email && <p><a href={`mailto:${drawnWinner.email}`}>{drawnWinner.email}</a></p>}
+                          {drawnWinner.phone && <p><a href={`tel:${drawnWinner.phone.replace(/[^0-9+]/g, '')}`}>{drawnWinner.phone}</a></p>}
+                          <p className="admin-date">Drawn just now · not saved — record it before redrawing.</p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                <h3 style={{ margin: '1.2rem 0 0.6rem' }}>Entrants</h3>
+                {raffleEntries.length === 0 ? (
+                  <p className="empty-msg">No entries yet.</p>
+                ) : (
+                  <div className="admin-table-wrap">
+                    <table className="billing-table">
+                      <thead>
+                        <tr><th>Name</th><th>Email</th><th>Phone</th><th>Entered</th></tr>
+                      </thead>
+                      <tbody>
+                        {raffleEntries.map(en => (
+                          <tr key={en.id}>
+                            <td>{en.name}</td>
+                            <td>{en.email || '—'}</td>
+                            <td>{en.phone || '—'}</td>
+                            <td>{new Date(en.created_at).toLocaleDateString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
       </section>

@@ -181,6 +181,14 @@ export interface Promo {
 
 export const HOME_PROMOS: Promo[] = [
   {
+    id: 'community-raffle',
+    label: 'Monthly Community Drawing',
+    text: 'Support Ekalesia Hoʻole Pope o Kekaha — a $1 donation enters you in the monthly thank-you drawing.',
+    emoji: '🎟️',
+    to: '/raffle',
+    accent: '#a9791f',
+  },
+  {
     id: 'fresh-bread',
     label: 'Fresh Bread Today',
     text: 'KaRas sourdough comes out of the oven this morning — preorder for pickup before it sells out.',
@@ -204,4 +212,35 @@ export const HOME_PROMOS: Promo[] = [
     to: '/vendors/alas-kitchen',
     accent: '#E63946',
   },
+];
+
+/**
+ * Monthly sponsor spots — three premium slots. One is held by TOPP; the other
+ * two are open for local businesses to advertise. Presentation-layer only.
+ */
+export interface SponsorSpot {
+  id: string;
+  filled: boolean;
+  name?: string;
+  tagline?: string;
+  emoji?: string;
+  logoUrl?: string;
+  routeTo?: string;   // internal app route
+  shopUrl?: string;   // external link
+  accent?: string;
+}
+
+export const SPONSOR_SPOTS: SponsorSpot[] = [
+  {
+    id: 'sponsor-topp',
+    filled: true,
+    name: 'TOPP',
+    tagline: 'Hawaiian protea, grown on Puna lava — weekly arrangements & prints.',
+    emoji: '🌺',
+    logoUrl: 'https://cdn.shopify.com/s/files/1/0737/8885/0463/files/King-Protea_close_up.jpg?v=1783653584',
+    routeTo: '/protea',
+    accent: '#b98a2e',
+  },
+  { id: 'sponsor-open-2', filled: false },
+  { id: 'sponsor-open-3', filled: false },
 ];

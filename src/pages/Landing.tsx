@@ -9,6 +9,7 @@ import { MarketplaceNav } from '../components/MarketplaceNav';
 import { FeaturedVendorCard } from '../components/FeaturedVendorCard';
 import { FEATURED_VENDORS } from '../lib/marketplace';
 import { PromoRotator } from '../components/PromoRotator';
+import { SponsorSpots } from '../components/SponsorSpots';
 import { trackEvent } from '../lib/analytics';
 
 interface Announcement {
@@ -226,6 +227,9 @@ export function Landing() {
             The Kingdom Emporium. Browse every category — <Link to="/vendors">all vendors welcome</Link>.
           </p>
         </section>
+
+        {/* Monthly sponsor spots — one held, two open */}
+        <SponsorSpots />
 
         {/* Rotating promotions */}
         <PromoRotator />

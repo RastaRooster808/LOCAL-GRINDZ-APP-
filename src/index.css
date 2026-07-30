@@ -1967,3 +1967,83 @@
   border-radius: 999px; opacity: 0.9; }
 .storefront-contact a:hover { opacity: 1; }
 .storefront-header-content.has-banner .storefront-contact a { border-color: rgba(255,255,255,0.6); }
+
+/* ── Community raffle / donation drawing ─────────────────────────────── */
+.raffle-page {
+  --r-ground: #f4f1ea; --r-ink: #241f1a; --r-koa: #3a2a1c; --r-green: #2f5233;
+  --r-gold: #a9791f; --r-cream: #fbf8f1; --r-stone: #857b6d; --r-rule: #ddd4c6;
+  background: var(--r-ground); color: var(--r-ink);
+  font-family: Georgia, 'Times New Roman', serif; line-height: 1.7;
+  max-width: 620px; margin: 0 auto; min-height: 100vh;
+}
+@media (prefers-color-scheme: dark) {
+  .raffle-page { --r-ground:#191410; --r-ink:#efe7da; --r-cream:#221a13; --r-rule:#372c20; --r-gold:#cf9a3a; --r-stone:#9a8d7b; }
+}
+.raffle-page h1 { font-weight: normal; }
+.raffle-loading { padding: 3rem 2rem; text-align: center; color: var(--r-stone); }
+
+.raffle-masthead { background: var(--r-koa); color: var(--r-cream); padding: 2.6rem 1.9rem 2.2rem; border-bottom: 4px solid var(--r-gold); }
+.raffle-mast-label { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;
+  font-family: 'Courier New', monospace; font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(251,248,241,0.6); margin-bottom: 1.2rem; }
+.raffle-home { color: var(--r-gold); text-decoration: none; }
+.raffle-home:hover { text-decoration: underline; }
+.raffle-kicker { font-family: 'Courier New', monospace; font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--r-gold); margin-bottom: 0.5rem; }
+.raffle-masthead h1 { font-size: clamp(1.8rem, 6vw, 2.5rem); line-height: 1.1; color: var(--r-cream); text-wrap: balance; }
+.raffle-sub { margin-top: 0.7rem; font-style: italic; color: rgba(251,248,241,0.82); }
+
+.raffle-section { padding: 2rem 1.9rem; border-bottom: 1px solid var(--r-rule); }
+.raffle-eyebrow { font-family: 'Courier New', monospace; font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--r-green); margin-bottom: 1rem; }
+.raffle-lede { font-size: 1.02rem; margin-bottom: 1.3rem; }
+.raffle-facts { display: grid; gap: 0.7rem; }
+.raffle-facts div { display: grid; grid-template-columns: 9rem 1fr; gap: 0.6rem; padding-bottom: 0.6rem; border-bottom: 1px dotted var(--r-rule); }
+.raffle-facts dt { font-family: 'Courier New', monospace; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--r-stone); }
+.raffle-facts dd { margin: 0; font-size: 0.98rem; }
+@media (max-width: 440px){ .raffle-facts div { grid-template-columns: 1fr; gap: 0.1rem; } }
+
+.raffle-enter { background: var(--r-cream); }
+.raffle-form { display: grid; gap: 0.9rem; max-width: 380px; }
+.raffle-form label { display: grid; gap: 0.3rem; font-size: 0.85rem; color: var(--r-stone); }
+.raffle-form input { padding: 0.6rem 0.8rem; border: 1px solid var(--r-rule); border-radius: 4px; font-size: 1rem; background: var(--r-ground); color: var(--r-ink); font-family: inherit; }
+.raffle-form input:focus-visible { outline: 2px solid var(--r-gold); outline-offset: 1px; }
+
+.raffle-btn { display: inline-block; font-family: 'Courier New', monospace; font-size: 0.8rem; letter-spacing: 0.06em;
+  text-transform: uppercase; text-decoration: none; padding: 0.75rem 1.3rem; border-radius: 3px; cursor: pointer; border: 0; }
+.raffle-btn-gold { background: var(--r-gold); color: #2a1e08; }
+.raffle-btn-gold:disabled { opacity: 0.6; cursor: default; }
+.raffle-btn-line { background: transparent; border: 1px solid var(--r-gold); color: var(--r-gold); }
+
+.raffle-done-head { font-size: 1.2rem; color: var(--r-green); margin-bottom: 0.5rem; }
+.raffle-done p { margin-bottom: 0.9rem; }
+.raffle-note { font-style: italic; color: var(--r-stone); }
+.raffle-fine { margin-top: 1.4rem; font-size: 0.76rem; color: var(--r-stone); line-height: 1.5; max-width: 52ch; }
+
+/* ── Admin raffle view ───────────────────────────────────────────────── */
+.admin-table-wrap { overflow-x: auto; }
+.raffle-winner-box { margin-top: 0.9rem; padding: 0.9rem 1rem; border: 2px solid var(--lava, #a9791f); border-radius: 8px; background: #fffaf0; }
+.raffle-winner-head { font-family: 'Courier New', monospace; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: #a9791f; margin-bottom: 0.4rem; }
+.raffle-winner-box p { margin: 0.15rem 0; }
+
+/* ── Monthly sponsor spots ───────────────────────────────────────────── */
+.sponsors-section { }
+.sponsors-intro { color: var(--muted, #666); font-size: 0.92rem; margin: -0.3rem 0 1rem; }
+.sponsors-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.sponsor-spot { display: flex; gap: 0.9rem; padding: 1rem; border-radius: 12px; text-decoration: none; color: inherit; border: 1px solid #e2ddd4; background: #fff; transition: transform .15s ease, box-shadow .15s ease; }
+.sponsor-spot:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+.sponsor-spot--filled { align-items: center; }
+.sponsor-logo { flex: 0 0 60px; width: 60px; height: 60px; border-radius: 50%; overflow: hidden; border: 2px solid #b98a2e; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; background: #faf7f1; }
+.sponsor-logo img { width: 100%; height: 100%; object-fit: cover; }
+.sponsor-tag { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.sponsor-body h3 { margin: 0.15rem 0; font-size: 1.1rem; }
+.sponsor-body p { margin: 0; font-size: 0.85rem; color: var(--muted, #555); line-height: 1.4; }
+.sponsor-cta { display: inline-block; margin-top: 0.4rem; font-size: 0.8rem; font-weight: 700; color: #b98a2e; }
+.sponsor-spot--open { flex-direction: column; gap: 0.3rem; align-items: flex-start; justify-content: center;
+  border: 1.5px dashed #c9bfae; background: repeating-linear-gradient(135deg, #faf8f3, #faf8f3 10px, #f4f0e7 10px, #f4f0e7 20px); text-align: left; }
+.sponsor-open-num { font-family: 'Courier New', monospace; font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; color: #a99; }
+.sponsor-open-head { font-size: 1.15rem; font-weight: 800; color: #3a2f28; }
+.sponsor-open-sub { font-size: 0.82rem; color: var(--muted, #666); }
+.sponsor-open-cta { margin-top: 0.35rem; font-size: 0.82rem; font-weight: 700; color: #a9791f; }
+@media (prefers-color-scheme: dark) {
+  .sponsor-spot--filled, .sponsor-spot { background: #1e1a18; border-color: #33302c; }
+  .sponsor-spot--open { background: repeating-linear-gradient(135deg, #1e1a18, #1e1a18 10px, #232019 10px, #232019 20px); border-color: #3d372e; }
+  .sponsor-open-head { color: #efe7da; }
+}
