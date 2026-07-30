@@ -182,9 +182,9 @@ export interface Promo {
 export const HOME_PROMOS: Promo[] = [
   {
     id: 'community-raffle',
-    label: 'Monthly Community Drawing',
-    text: 'Support Ekalesia Hoʻole Pope o Kekaha — a $1 donation enters you in the monthly thank-you drawing.',
-    emoji: '🎟️',
+    label: 'Win a 2003 Toyota Camry',
+    text: 'Monthly drawing for Ekalesia Hoʻole Pope o Kekaha — a $1 donation enters you to win a white Camry with Hawaiian Kingdom plates.',
+    emoji: '🚗',
     to: '/raffle',
     accent: '#a9791f',
   },

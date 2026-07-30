@@ -104,6 +104,12 @@ export function Raffle() {
       </header>
 
       <section className="raffle-section">
+        {raffle.prize_image_url && (
+          <figure className="raffle-prize-photo">
+            <img src={raffle.prize_image_url} alt={raffle.prize ?? 'Raffle prize'} loading="eager" />
+            <figcaption>This month’s prize</figcaption>
+          </figure>
+        )}
         {raffle.description && <p className="raffle-lede">{raffle.description}</p>}
         <dl className="raffle-facts">
           <div><dt>This month’s prize</dt><dd>{raffle.prize || 'To be announced'}</dd></div>
