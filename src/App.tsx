@@ -9,6 +9,7 @@ import { Account } from './pages/Account';
 import { Events } from './pages/Events';
 import { Protea } from './pages/Protea';
 import { Blissings } from './pages/Blissings';
+import { Raffle } from './pages/Raffle';
 import { ToastContainer } from './components/ui/Toast';
 
 // Heavy pages: code-split to keep initial bundle lean
@@ -34,6 +35,7 @@ export default function App() {
         <Route path="/events" element={<Events />} />
         <Route path="/protea" element={<Protea />} />
         <Route path="/blissings" element={<Blissings />} />
+        <Route path="/raffle" element={<Raffle />} />
         <Route path="/vendor" element={<Suspense fallback={<PageLoader />}><VendorDashboard /></Suspense>} />
         <Route path="/admin" element={<Suspense fallback={<PageLoader />}><AdminDashboard /></Suspense>} />
         <Route path="/map" element={<Suspense fallback={<PageLoader />}><Map /></Suspense>} />

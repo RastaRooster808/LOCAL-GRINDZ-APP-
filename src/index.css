@@ -1967,3 +1967,52 @@
   border-radius: 999px; opacity: 0.9; }
 .storefront-contact a:hover { opacity: 1; }
 .storefront-header-content.has-banner .storefront-contact a { border-color: rgba(255,255,255,0.6); }
+
+/* ── Community raffle / donation drawing ─────────────────────────────── */
+.raffle-page {
+  --r-ground: #f4f1ea; --r-ink: #241f1a; --r-koa: #3a2a1c; --r-green: #2f5233;
+  --r-gold: #a9791f; --r-cream: #fbf8f1; --r-stone: #857b6d; --r-rule: #ddd4c6;
+  background: var(--r-ground); color: var(--r-ink);
+  font-family: Georgia, 'Times New Roman', serif; line-height: 1.7;
+  max-width: 620px; margin: 0 auto; min-height: 100vh;
+}
+@media (prefers-color-scheme: dark) {
+  .raffle-page { --r-ground:#191410; --r-ink:#efe7da; --r-cream:#221a13; --r-rule:#372c20; --r-gold:#cf9a3a; --r-stone:#9a8d7b; }
+}
+.raffle-page h1 { font-weight: normal; }
+.raffle-loading { padding: 3rem 2rem; text-align: center; color: var(--r-stone); }
+
+.raffle-masthead { background: var(--r-koa); color: var(--r-cream); padding: 2.6rem 1.9rem 2.2rem; border-bottom: 4px solid var(--r-gold); }
+.raffle-mast-label { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;
+  font-family: 'Courier New', monospace; font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(251,248,241,0.6); margin-bottom: 1.2rem; }
+.raffle-home { color: var(--r-gold); text-decoration: none; }
+.raffle-home:hover { text-decoration: underline; }
+.raffle-kicker { font-family: 'Courier New', monospace; font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--r-gold); margin-bottom: 0.5rem; }
+.raffle-masthead h1 { font-size: clamp(1.8rem, 6vw, 2.5rem); line-height: 1.1; color: var(--r-cream); text-wrap: balance; }
+.raffle-sub { margin-top: 0.7rem; font-style: italic; color: rgba(251,248,241,0.82); }
+
+.raffle-section { padding: 2rem 1.9rem; border-bottom: 1px solid var(--r-rule); }
+.raffle-eyebrow { font-family: 'Courier New', monospace; font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--r-green); margin-bottom: 1rem; }
+.raffle-lede { font-size: 1.02rem; margin-bottom: 1.3rem; }
+.raffle-facts { display: grid; gap: 0.7rem; }
+.raffle-facts div { display: grid; grid-template-columns: 9rem 1fr; gap: 0.6rem; padding-bottom: 0.6rem; border-bottom: 1px dotted var(--r-rule); }
+.raffle-facts dt { font-family: 'Courier New', monospace; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--r-stone); }
+.raffle-facts dd { margin: 0; font-size: 0.98rem; }
+@media (max-width: 440px){ .raffle-facts div { grid-template-columns: 1fr; gap: 0.1rem; } }
+
+.raffle-enter { background: var(--r-cream); }
+.raffle-form { display: grid; gap: 0.9rem; max-width: 380px; }
+.raffle-form label { display: grid; gap: 0.3rem; font-size: 0.85rem; color: var(--r-stone); }
+.raffle-form input { padding: 0.6rem 0.8rem; border: 1px solid var(--r-rule); border-radius: 4px; font-size: 1rem; background: var(--r-ground); color: var(--r-ink); font-family: inherit; }
+.raffle-form input:focus-visible { outline: 2px solid var(--r-gold); outline-offset: 1px; }
+
+.raffle-btn { display: inline-block; font-family: 'Courier New', monospace; font-size: 0.8rem; letter-spacing: 0.06em;
+  text-transform: uppercase; text-decoration: none; padding: 0.75rem 1.3rem; border-radius: 3px; cursor: pointer; border: 0; }
+.raffle-btn-gold { background: var(--r-gold); color: #2a1e08; }
+.raffle-btn-gold:disabled { opacity: 0.6; cursor: default; }
+.raffle-btn-line { background: transparent; border: 1px solid var(--r-gold); color: var(--r-gold); }
+
+.raffle-done-head { font-size: 1.2rem; color: var(--r-green); margin-bottom: 0.5rem; }
+.raffle-done p { margin-bottom: 0.9rem; }
+.raffle-note { font-style: italic; color: var(--r-stone); }
+.raffle-fine { margin-top: 1.4rem; font-size: 0.76rem; color: var(--r-stone); line-height: 1.5; max-width: 52ch; }

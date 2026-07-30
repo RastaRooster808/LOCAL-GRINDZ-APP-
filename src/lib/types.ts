@@ -163,3 +163,18 @@ export interface VendorPhoto {
   sort_order: number;
   created_at: string;
 }
+
+export interface Raffle {
+  id: string;
+  slug: string;
+  org_name: string;
+  title: string;
+  description: string | null;
+  prize: string | null;
+  price: number;
+  payment_method: 'venmo' | 'paypal' | 'cashapp' | null;
+  payment_handle: string | null;
+  draw_date: string | null;
+  is_active: boolean;
+  created_at: string;
+}

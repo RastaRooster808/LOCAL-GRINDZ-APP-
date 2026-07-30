@@ -181,6 +181,14 @@ export interface Promo {
 
 export const HOME_PROMOS: Promo[] = [
   {
+    id: 'community-raffle',
+    label: 'Monthly Community Drawing',
+    text: 'Support Ekalesia Hoʻole Pope o Kekaha — a $1 donation enters you in the monthly thank-you drawing.',
+    emoji: '🎟️',
+    to: '/raffle',
+    accent: '#a9791f',
+  },
+  {
     id: 'fresh-bread',
     label: 'Fresh Bread Today',
     text: 'KaRas sourdough comes out of the oven this morning — preorder for pickup before it sells out.',

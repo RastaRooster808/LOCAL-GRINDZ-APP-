@@ -4,6 +4,27 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Community raffle / donation drawing (2026-07-25)
+
+### Added
+- **`raffles` + `raffle_entries` tables** (`docs/migrations/phase-4-11-*.sql`):
+  a monthly community drawing. Platform holds no funds — a $1 entry deep-links
+  to the org's own Venmo/PayPal/Cash App (vendor-payment model). Entrants are
+  recorded; PII is insert-only for the public, admin-read only (RLS). Anon
+  insert verified.
+- **`/raffle` page** (`src/pages/Raffle.tsx`): reads the active raffle, shows
+  prize/draw date, captures entrant name/email/phone, then presents the $1
+  donation link. Framed as a "$1 donation entry · monthly thank-you drawing."
+- Seeded the **Ekalesia Hoʻole Pope o Kekaha** (Kekaha, Kauaʻi) raffle + a
+  homepage promo linking to it. `Raffle` type added.
+
+### Pending before launch (NOT yet merged to production)
+- Church **payment handle + method** (Venmo/PayPal/Cash App) to enable the $1 link.
+- **Prize + draw date**; confirm the **legal framing** (HI raffle rules).
+- Admin view to list entrants / draw a winner (follow-up).
+
+---
+
 ## [Unreleased] — Vendor contact fields + real Ala's / KaRas info (2026-07-25)
 
 ### Added
