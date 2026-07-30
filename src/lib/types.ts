@@ -171,6 +171,7 @@ export interface Raffle {
   title: string;
   description: string | null;
   prize: string | null;
+  prize_image_url: string | null;
   price: number;
   payment_method: 'venmo' | 'paypal' | 'cashapp' | null;
   payment_handle: string | null;

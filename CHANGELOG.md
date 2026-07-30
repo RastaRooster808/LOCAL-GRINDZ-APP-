@@ -4,6 +4,20 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Camry is the raffle prize (2026-07-25)
+
+### Changed
+- The **2003 Toyota Camry is now the raffle prize** (not an auction). Raffle
+  record updated with the prize + a prize photo (`prize_image_url` column added,
+  `docs/migrations/phase-4-12-*.sql`). The `/raffle` page shows the Camry photo.
+- Homepage promo now reads **"Win a 2003 Toyota Camry"** and links to /raffle.
+- The Shopify draft was **archived + renamed** "…(Raffle Prize — not for sale)"
+  — it's a prize awarded via the raffle, not a Shopify checkout item. Noted the
+  Ko Hawaiʻi Pae ʻĀina provenance / Hawaiian Kingdom plates + a registration
+  disclosure for the winner.
+
+---
+
 ## [Unreleased] — TOPP sponsor section: prints as menu items (2026-07-25)
 
 ### Changed
