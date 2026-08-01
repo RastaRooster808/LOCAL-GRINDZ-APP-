@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getByType, getById, PRODUCT_STATUS } from '../data/commerce';
 import type { CommerceItem } from '../data/commerce';
@@ -13,7 +12,7 @@ import { trackEvent } from '../lib/analytics';
  * The Counter arrangement is listed but flagged out-of-season / out of stock.
  */
 
-const MEMBER_KEY = 'topp_field_report_member';
+const FIELD_REPORT_URL = 'https://rastarooster.com/products/the-field-report-monthly-membership';
 
 // Botanical sections, matched by title/tag keywords (first match wins).
 const SECTIONS: { label: string; match: (t: string) => boolean }[] = [
@@ -60,9 +59,6 @@ function PrintItem({ print }: { print: CommerceItem }) {
 }
 
 export function Protea() {
-  const [email, setEmail] = useState('');
-  const [joined, setJoined] = useState(false);
-
   const prints = getByType('digital_print').filter(p => p.status === PRODUCT_STATUS.LIVE);
   const counter = getById('ohana-bloom-counter');
 
@@ -74,15 +70,6 @@ export function Protea() {
     grouped.get(label)!.push(p);
   }
   const orderedLabels = [...SECTIONS.map(s => s.label), 'Botanical Studies'].filter(l => grouped.has(l));
-
-  function handleJoin(e: React.FormEvent) {
-    e.preventDefault();
-    const value = email.trim();
-    if (!value || !value.includes('@')) return;
-    localStorage.setItem(MEMBER_KEY, '1');
-    setJoined(true);
-    trackEvent('field_report_join', { email: value });
-  }
 
   return (
     <div className="protea-page">
@@ -143,24 +130,17 @@ export function Protea() {
         <p className="protea-join-copy">
           Every print above is available to buy à la carte. Members of The Field Report get a monthly
           dispatch from the Napuʻuapele growing site — harvest notes and new prints the week they’re shot.
-          Optional, cancel anytime.
+          Cancel anytime.
         </p>
-        {joined ? (
-          <p className="protea-join-done">🌺 You’re on the list — we’ll email you when The Field Report opens.</p>
-        ) : (
-          <form className="protea-join-form" onSubmit={handleJoin}>
-            <input
-              type="email"
-              inputMode="email"
-              placeholder="you@email.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              aria-label="Email address"
-              required
-            />
-            <button type="submit" className="protea-btn protea-btn-gold">Join · $4.99/mo</button>
-          </form>
-        )}
+        <a
+          className="protea-btn protea-btn-gold"
+          href={FIELD_REPORT_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => trackEvent('field_report_join', {})}
+        >
+          Join · $4.99/mo →
+        </a>
       </section>
 
       <footer className="protea-foot">
