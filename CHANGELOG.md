@@ -4,6 +4,17 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Field Report subscription is live (2026-07-25)
+
+### Changed
+- **The Field Report ($4.99/mo) is a live Shopify subscription** — monthly
+  selling plan attached (via Shopify admin). The `/protea` "Join · $4.99/mo"
+  button now links straight to the live subscription product
+  (rastarooster.com/products/the-field-report-monthly-membership); the email
+  waitlist stub is removed. Membership flipped to **LIVE** in `commerce.js`.
+
+---
+
 ## [Unreleased] — Raffle: tickets, gifting, Shopify pay, animated draw (2026-07-25)
 
 ### Changed

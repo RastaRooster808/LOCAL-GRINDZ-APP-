@@ -565,8 +565,8 @@ export const commerce = [
     tags: ['membership', 'topp', 'field-report', 'newsletter', 'monthly', 'recurring', 'protea', 'khpa'],
     shopifyProductHandle: 'the-field-report-monthly-membership',
     shopifyVariantId: '52700604104991',
-    checkoutUrl: null,
-    status: PRODUCT_STATUS.COMING_SOON,
+    checkoutUrl: 'https://rastarooster.com/products/the-field-report-monthly-membership',
+    status: PRODUCT_STATUS.LIVE,
   },
 
   // ── Merch ───────────────────────────────────────────────────────────────
