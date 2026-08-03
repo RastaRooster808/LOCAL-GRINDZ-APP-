@@ -4,6 +4,22 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Vendor chat/inbox restored (2026-07-25)
+
+### Fixed — messaging was dead (no table existed)
+- **Built `public.vendor_messages`** (Phase 4L, never applied) so the Vendor
+  Dashboard inbox and the storefront customer chat widget work again.
+  (`docs/migrations/phase-4-14-*.sql`.)
+- **Secure by design:** vendors read/update/realtime only their own threads
+  (scoped by `vendors.user_id = auth.uid()`); customers can send but have no
+  table read — a customer reads only their own thread via the scoped
+  security-definer `get_customer_thread` RPC. Verified: anon direct read = 0,
+  anon RPC read = 1.
+- Storefront customer widget now reads via the RPC and polls for replies (anon
+  has no realtime read); vendor inbox keeps realtime.
+
+---
+
 ## [Unreleased] — Field Report subscription is live (2026-07-25)
 
 ### Changed
