@@ -146,31 +146,20 @@ export function Storefront() {
   // Load message history when customer confirms email
   const loadChatMessages = useCallback(async () => {
     if (!vendor || !chatEmail) return;
-    const { data } = await supabase
-      .from('vendor_messages')
-      .select('id, sender, body, created_at')
-      .eq('vendor_id', vendor.id)
-      .eq('customer_email', chatEmail)
-      .order('created_at', { ascending: true });
+    // Customers read only their own thread via a scoped RPC (no table read).
+    const { data } = await supabase.rpc('get_customer_thread', {
+      p_vendor_id: vendor.id,
+      p_customer_email: chatEmail,
+    });
     setChatMessages((data as ChatMsg[]) || []);
   }, [vendor, chatEmail]);
 
   useEffect(() => {
     if (!chatConfirmed || !vendor) return;
     loadChatMessages();
-    const channel = supabase
-      .channel(`customer-chat-${vendor.id}-${chatEmail}`)
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'vendor_messages',
-        filter: `vendor_id=eq.${vendor.id}`,
-      }, payload => {
-        const msg = payload.new as ChatMsg & { customer_email: string };
-        if (msg.customer_email === chatEmail) setChatMessages(prev => [...prev, msg]);
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    // Poll for vendor replies while the chat is open (anon has no realtime read).
+    const interval = setInterval(loadChatMessages, 5000);
+    return () => clearInterval(interval);
   }, [chatConfirmed, vendor, chatEmail, loadChatMessages]);
 
   useEffect(() => {
@@ -189,6 +178,7 @@ export function Storefront() {
     });
     setChatInput('');
     setChatSending(false);
+    loadChatMessages(); // reflect the sent message immediately
   }
 
   const categories = [...new Set(menu.map(i => i.category))];
