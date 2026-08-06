@@ -4,6 +4,21 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Black Rock Cafe site scaffolded as a standalone app (2026-08-06)
+
+### Added
+- **New standalone Next.js 15 / React 19 app at `black-rock-cafe/`** for
+  Black Rock Cafe (Pahoa, HI) — an unrelated restaurant business, kept
+  fully independent of this repo's Vite/HashRouter app, Supabase backend,
+  and commerce.js/Shopify model (different framework, different hosting
+  target, different governance). See `black-rock-cafe/README.md` for what's
+  real vs. mocked and the full integration roadmap (AI concierge, CMS,
+  ordering/POS, SMS/email marketing, Google Reviews, social walls).
+- Real menu (with prices) and an interactive history timeline transcribed
+  from the restaurant's own physical menu and historical placard.
+
+---
+
 ## [Unreleased] — Vendor chat/inbox restored (2026-07-25)
 
 ### Fixed — messaging was dead (no table existed)

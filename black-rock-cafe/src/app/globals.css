@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  /* Local-safe stacks so the build never depends on a font CDN fetch.
+     Swap in next/font/google (e.g. Fraunces + Inter) once you want a
+     bespoke type pairing — the Tailwind config already points at these
+     custom properties. */
+  --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-night-950 text-stone-100 antialiased;
+}
+
+::selection {
+  @apply bg-lava-500 text-white;
+}
+
+.skip-link {
+  @apply sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-sunrise-400 focus:px-4 focus:py-2 focus:text-night-950 focus:font-semibold;
+}
+
+.focus-ring {
+  @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sunrise-300;
+}
+
+.container-cafe {
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+}
+
+.section-heading {
+  @apply font-display text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-white;
+}
+
+.prose-cafe {
+  @apply text-stone-300 leading-relaxed;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full bg-lava-500 px-6 py-3 font-semibold text-white shadow-lg shadow-lava-900/40 transition hover:bg-lava-400 hover:shadow-lava-700/50 focus-ring;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full border border-sunrise-300/60 bg-transparent px-6 py-3 font-semibold text-sunrise-100 transition hover:bg-sunrise-400/10 focus-ring;
+}
+
+.card-surface {
+  @apply rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm;
+}

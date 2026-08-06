@@ -1,0 +1,12 @@
+{
+  "name": "Black Rock Cafe — Pahoa, Hawaiʻi",
+  "short_name": "Black Rock Cafe",
+  "description": "Local grinds in the heart of Pahoa since 1998.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0706",
+  "theme_color": "#1a0e0a",
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
