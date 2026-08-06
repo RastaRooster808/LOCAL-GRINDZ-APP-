@@ -56,6 +56,12 @@ const restaurantJsonLd = {
     addressCountry: "US",
   },
   telephone: site.phone,
+  openingHoursSpecification: {
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    opens: "07:00",
+    closes: "21:00",
+  },
   servesBreakfast: true,
   acceptsReservations: true,
 };

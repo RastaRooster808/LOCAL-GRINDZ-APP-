@@ -64,9 +64,10 @@ relevant API keys/accounts.
 
 ## Business details still needed
 
-`src/data/site.ts` has clearly marked `TODO` placeholders for phone,
-address, and hours — **do not launch with fabricated contact info.** Fill
-these in with verified details.
+`src/data/site.ts` now has verified phone, address, and hours (cross-checked
+across Yelp/Tripadvisor and the phone number printed on the restaurant's own
+menu placard). Still marked `TODO`: email address and social media links —
+fill these in with verified details before launch.
 
 ## Getting started
 
