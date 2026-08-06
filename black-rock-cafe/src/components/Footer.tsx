@@ -47,9 +47,9 @@ export default function Footer() {
             </a>
           </address>
           <div className="mt-4 flex gap-4 text-sm text-stone-300">
-            <a className="focus-ring rounded hover:text-sunrise-300" href={site.social.instagram}>Instagram</a>
-            <a className="focus-ring rounded hover:text-sunrise-300" href={site.social.facebook}>Facebook</a>
-            <a className="focus-ring rounded hover:text-sunrise-300" href={site.social.tiktok}>TikTok</a>
+            <a className="focus-ring rounded hover:text-sunrise-300" href={site.social.google} target="_blank" rel="noreferrer">
+              Find & Review Us on Google
+            </a>
           </div>
         </div>
 

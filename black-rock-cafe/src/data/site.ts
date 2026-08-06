@@ -21,11 +21,10 @@ export const site = {
   hours: [
     { days: "Mon – Sun", time: "7:00 AM – 9:00 PM" },
   ],
+  // No Instagram/Facebook/TikTok accounts exist for this business — don't
+  // add placeholder links for them. Google is the only confirmed presence.
   social: {
-    instagram: "https://instagram.com/TODO",
-    facebook: "https://facebook.com/TODO",
-    tiktok: "https://tiktok.com/@TODO",
-    google: "https://g.page/r/TODO",
+    google: "https://share.google/lO6VcEmXEeAZqWTSL",
   },
   seoKeywords: [
     "Best Breakfast in Pahoa",

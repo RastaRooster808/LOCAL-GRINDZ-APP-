@@ -43,8 +43,6 @@ Mocked / placeholder, with the integration point documented in a comment at
 the top of each file:
 
 - Google Reviews (`src/data/reviews.ts`) — swap for the Places API
-- Instagram/Facebook/TikTok wall (`src/components/SocialWall.tsx`) — swap
-  for the Instagram Graph API / TikTok Display API / FB Page Feed
 - Community event calendar (`src/data/events.ts`) — swap for a CMS
   collection or Google Calendar embed
 - Online ordering checkout, reservations, gift cards, private events forms —
@@ -64,10 +62,12 @@ relevant API keys/accounts.
 
 ## Business details still needed
 
-`src/data/site.ts` now has verified phone, address, and hours (cross-checked
-across Yelp/Tripadvisor and the phone number printed on the restaurant's own
-menu placard). Still marked `TODO`: email address and social media links —
-fill these in with verified details before launch.
+`src/data/site.ts` now has verified phone, address, hours, and Google
+listing link (cross-checked across Yelp/Tripadvisor and the phone number
+printed on the restaurant's own menu placard). The business has no
+Instagram/Facebook/TikTok accounts, so no placeholder links for those were
+added — Google is the only social presence linked. Still marked `TODO`:
+email address — fill in with a verified address before launch.
 
 ## Getting started
 

@@ -2,9 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import LavaHero from "@/components/LavaHero";
 import GoogleReviews from "@/components/GoogleReviews";
-import SocialWall from "@/components/SocialWall";
 import { menu } from "@/data/menu";
 import { historyTimeline } from "@/data/history";
+import { site } from "@/data/site";
 
 const FEATURED_IDS = ["loco-moco", "bacon-cheeseburger", "kalua-pig-cabbage", "baby-back-ribs"];
 const featuredItems = menu.flatMap((c) => c.items).filter((i) => FEATURED_IDS.includes(i.id));
@@ -53,20 +53,17 @@ export default function HomePage() {
       </section>
 
       <section className="container-cafe py-20">
-        <h2 className="section-heading">What locals & visitors say</h2>
-        <p className="prose-cafe mt-2 max-w-xl">Live from Google Reviews (demo data — see integration notes in the README).</p>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h2 className="section-heading">What locals & visitors say</h2>
+            <p className="prose-cafe mt-2 max-w-xl">Live from Google Reviews (demo data — see integration notes in the README).</p>
+          </div>
+          <a href={site.social.google} target="_blank" rel="noreferrer" className="btn-secondary">
+            Find & Review Us on Google →
+          </a>
+        </div>
         <div className="mt-8">
           <GoogleReviews />
-        </div>
-      </section>
-
-      <section className="border-t border-white/10 bg-night-900 py-20">
-        <div className="container-cafe">
-          <h2 className="section-heading">Follow along</h2>
-          <p className="prose-cafe mt-2 max-w-xl">Instagram, Facebook & TikTok, all in one wall (demo grid — see integration notes).</p>
-          <div className="mt-8">
-            <SocialWall />
-          </div>
         </div>
       </section>
 
