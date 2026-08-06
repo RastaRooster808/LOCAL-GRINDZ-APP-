@@ -20,17 +20,55 @@ export default function HomePage() {
           <Image src="/images/exterior.jpg" alt="Black Rock Cafe storefront in Pahoa, Hawaiʻi" fill className="object-cover" sizes="(min-width: 1024px) 480px, 100vw" />
         </div>
         <div>
-          <h2 className="section-heading">Where Pahoa comes to eat</h2>
+          <h2 className="section-heading">An icon in the heart of Pāhoa</h2>
           <p className="prose-cafe mt-4">
-            Black Rock Cafe has served Pahoa&rsquo;s plate lunches, burgers,
+            Black Rock Cafe has served Pāhoa&rsquo;s plate lunches, burgers,
             and Loco Moco since 1998 — a gathering place in a town shaped by
             a century of immigration, ʻōhiʻa forest, and hard-won
-            &ldquo;firsts.&rdquo;
+            &ldquo;firsts.&rdquo; Ask anyone in Puna where to eat, and this is
+            where they&rsquo;ll send you.
           </p>
           <p className="prose-cafe mt-3">{cafeFounding?.description}</p>
           <Link href="/history" className="btn-secondary mt-6 inline-flex">
             Explore our history →
           </Link>
+        </div>
+      </section>
+
+      <section className="border-y border-white/10 bg-gradient-to-b from-sunrise-950/20 to-transparent py-20">
+        <div className="container-cafe">
+          <h2 className="section-heading">Planning a Big Island trip?</h2>
+          <p className="prose-cafe mt-3 max-w-2xl">
+            Start here — before your plane even lands. Here&rsquo;s what to
+            know about the local institution locals point visitors to.
+          </p>
+          <div className="mt-8 grid gap-5 sm:grid-cols-3">
+            <Link href="/history" className="card-surface group p-6 transition hover:border-sunrise-300/40">
+              <p className="font-display text-lg font-semibold text-white">Our Story</p>
+              <p className="prose-cafe mt-2 text-sm">
+                From ancient ʻōhiʻa forest to Pāhoa&rsquo;s &ldquo;last
+                frontier&rdquo; to a table since 1998 — the history behind
+                every plate.
+              </p>
+              <span className="mt-4 inline-block text-sm font-medium text-sunrise-300 group-hover:underline">Read the timeline →</span>
+            </Link>
+            <Link href="/menu" className="card-surface group p-6 transition hover:border-sunrise-300/40">
+              <p className="font-display text-lg font-semibold text-white">What to Order</p>
+              <p className="prose-cafe mt-2 text-sm">
+                Loco Moco, kalua pig, and burgers made with local island
+                beef — filter by allergen before you even sit down.
+              </p>
+              <span className="mt-4 inline-block text-sm font-medium text-sunrise-300 group-hover:underline">Browse the menu →</span>
+            </Link>
+            <Link href="/visit" className="card-surface group p-6 transition hover:border-sunrise-300/40">
+              <p className="font-display text-lg font-semibold text-white">Getting Here</p>
+              <p className="prose-cafe mt-2 text-sm">
+                Hours, directions, and a visitor&rsquo;s guide to Puna — lava
+                tree molds, hot ponds, and black-sand beaches nearby.
+              </p>
+              <span className="mt-4 inline-block text-sm font-medium text-sunrise-300 group-hover:underline">Plan your visit →</span>
+            </Link>
+          </div>
         </div>
       </section>
 

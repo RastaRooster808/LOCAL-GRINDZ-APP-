@@ -6,12 +6,14 @@
  */
 export const site = {
   name: "Black Rock Cafe",
-  tagline: "Local grinds in the heart of Pahoa since 1998",
+  tagline: "A Pāhoa institution since 1998",
   founded: 1998,
   town: "Pahoa",
   region: "Puna, Hawaiʻi Island",
   phone: "(808) 965-1177",
-  email: "TODO: aloha@blackrockcafepahoa.com",
+  // Use Black Rock Cafe's own official email once the client confirms one —
+  // do not substitute an agency/placeholder address here.
+  email: "TODO: awaiting Black Rock Cafe's official email",
   address: {
     line1: "15-2872 Pahoa Village Rd",
     city: "Pahoa",

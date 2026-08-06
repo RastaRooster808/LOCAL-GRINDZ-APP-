@@ -4,7 +4,8 @@ import { hawaiianWords } from "@/data/hawaiian-words";
 
 export const metadata: Metadata = {
   title: "About & Community",
-  description: "The story of Black Rock Cafe, our local farmers and suppliers, and a small ʻōlelo Hawaiʻi glossary.",
+  description:
+    "The story of Black Rock Cafe — a Pāhoa institution since 1998 — plus our local farmers and suppliers and a small ʻōlelo Hawaiʻi glossary.",
 };
 
 const FARMERS = [
@@ -23,10 +24,11 @@ export default function AboutPage() {
         <div>
           <p className="prose-cafe">
             Black Rock Cafe opened in Pahoa in 1998, in a town that calls
-            itself &ldquo;the last frontier in Hawaiʻi.&rdquo; We serve big,
-            honest plates — Loco Moco, plate lunches, burgers, and
-            comfort-food classics — to a community built by generations of
-            immigration and hard work.
+            itself &ldquo;the last frontier in Hawaiʻi.&rdquo; Nearly three
+            decades later, it&rsquo;s the kind of place locals just call
+            &ldquo;Black Rock&rdquo; — big, honest plates like Loco Moco,
+            plate lunches, and burgers, served to a community built by
+            generations of immigration and hard work.
           </p>
           <p className="prose-cafe mt-4">
             Welcome to our community.

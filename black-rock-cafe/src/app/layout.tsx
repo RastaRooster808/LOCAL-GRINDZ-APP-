@@ -11,22 +11,24 @@ import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 export const metadata: Metadata = {
   metadataBase: new URL("https://blackrockcafepahoa.example.com"),
   title: {
-    default: `${site.name} — Best Breakfast & Burgers in Pahoa, Hawaiʻi`,
+    default: `${site.name} — A Pāhoa Institution Since 1998 | Best Breakfast & Burgers, Big Island`,
     template: `%s | ${site.name}`,
   },
   description:
-    "Black Rock Cafe is Pahoa's local grinds since 1998 — big-portion breakfast, burgers, plate lunches, and small-town aloha on Hawaiʻi Island.",
+    "Black Rock Cafe has fed Pāhoa since 1998 — big-portion breakfast, burgers, and plate lunches rooted in Puna's history. Planning a Hawaiʻi Island trip? Start your visit here.",
   keywords: [...site.seoKeywords],
   openGraph: {
-    title: `${site.name} — Pahoa, Hawaiʻi`,
-    description: "Local grinds in the heart of Pahoa since 1998.",
+    title: `${site.name} — A Pāhoa Institution Since 1998`,
+    description:
+      "Big-portion local grinds and a story rooted in Puna, Hawaiʻi. Plan your Big Island visit around it.",
     images: ["/images/exterior.jpg"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: site.name,
-    description: "Local grinds in the heart of Pahoa since 1998.",
+    description:
+      "Big-portion local grinds and a story rooted in Puna, Hawaiʻi. Plan your Big Island visit around it.",
     images: ["/images/exterior.jpg"],
   },
   manifest: "/manifest.json",

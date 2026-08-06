@@ -21,8 +21,14 @@ export default function ContactPage() {
             <br />
             {site.address.city}, {site.address.state} {site.address.zip}
           </p>
-          <p className="prose-cafe mt-3 text-sm">{site.phone}</p>
-          <p className="prose-cafe text-sm">{site.email}</p>
+          <p className="prose-cafe mt-3 text-sm">
+            <a href={`tel:${site.phone}`} className="focus-ring rounded hover:text-sunrise-300">{site.phone}</a>
+          </p>
+          {!site.email.startsWith("TODO") && (
+            <p className="prose-cafe text-sm">
+              <a href={`mailto:${site.email}`} className="focus-ring rounded hover:text-sunrise-300">{site.email}</a>
+            </p>
+          )}
         </div>
       </div>
     </div>

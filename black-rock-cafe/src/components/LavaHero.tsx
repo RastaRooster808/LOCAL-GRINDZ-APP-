@@ -50,7 +50,7 @@ export default function LavaHero() {
           transition={{ duration: 0.6 }}
           className="mb-4 inline-block rounded-full border border-sunrise-300/40 bg-black/30 px-4 py-1 text-sm font-medium text-sunrise-200"
         >
-          Pahoa, Hawaiʻi Island · Since 1998
+          A Pāhoa Institution · Since 1998
         </motion.p>
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
