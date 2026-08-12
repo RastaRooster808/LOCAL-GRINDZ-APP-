@@ -32,6 +32,22 @@ All notable changes to Local Grindz are documented here.
   nothing is transmitted (the embed makes no network calls; the QR is a data URI).
   Displayed number is masked to the last four digits.
 
+### Added — per-coin deep-link QR (scan to hear that exact song)
+- Every coin now generates its **own** QR at runtime, encoding the song in a
+  deep link: `…/#/kullacoin?s=<12-digit code>`. Scanning it opens KullaCoin and
+  plays **that** coin — so a friend who sees your lock screen hears your exact
+  song, not a generic demo.
+- The QR is produced by the `qrcode` library bundled to a ~24 KB self-contained
+  IIFE (via esbuild) and inlined — no external requests, CSP-safe. The old
+  static QR data-URI is gone.
+- **Deep-link read:** opening `?s=<code>` (or, on the app route, the code passed
+  through by `KullaCoin.tsx` via `postMessage`, since HashRouter hides the query
+  from the iframe) shows a "🎁 A song was shared with you" banner and plays it.
+- **Robustness:** `sha256` gained a non-crypto fallback (see below), and the
+  share code is validated (`[0-3]{12}`, octave/velocity range-checked) before use.
+- Verified in a headless Chromium smoke test: QR generation, share URL, `?s=`
+  deep link, and the postMessage path — zero console errors.
+
 ### Added — The Trial (a rhythm run built from your coin)
 - **`⛰ Run this coin's Trial`** launches a Geometry-Dash-style runner generated
   deterministically from the current coin: a cube auto-scrolls and you tap /
