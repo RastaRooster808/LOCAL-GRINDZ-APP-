@@ -144,6 +144,25 @@ button.btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .levelbar-note b{color:var(--gold)}
 .medley-controls{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center}
 .btn-ghost.on{border-color:var(--gold);color:var(--gold)}
+
+/* The Trial (rhythm runner) */
+.trial-launch{margin-top:.35rem}
+.trial-overlay{position:fixed;inset:0;z-index:50;background:#07060b;display:flex;flex-direction:column}
+.trial-overlay[hidden],.trial-msg[hidden]{display:none}
+.trial-top{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem}
+.trial-progress{flex:1;height:8px;border-radius:999px;background:#15121e;border:1px solid var(--line);overflow:hidden}
+.trial-progress i{display:block;height:100%;width:0;border-radius:999px;
+  background:linear-gradient(90deg,var(--blue),var(--gold) 45%,var(--red) 70%,var(--green));transition:width .08s linear}
+.trial-cp{font:inherit;font-size:.74rem;font-weight:650;padding:.35rem .7rem;border-radius:999px;border:1px solid var(--line);
+  background:var(--vault);color:var(--gold);cursor:pointer}
+#trialCanvas{flex:1;width:100%;display:block;touch-action:none;background:#07060b}
+.trial-hint{position:absolute;left:0;right:0;bottom:1.5rem;text-align:center;color:var(--muted);font-size:.82rem;
+  pointer-events:none;letter-spacing:.04em}
+.trial-msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;
+  background:rgba(7,6,11,.85);text-align:center;padding:1.5rem}
+.trial-msg h3{font-family:Georgia,serif;font-size:1.9rem;color:var(--gold)}
+.trial-msg p{color:var(--muted);font-size:.95rem;max-width:30ch}
+.trial-msg .row{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center}
 .wallet-row{display:flex;gap:.6rem;overflow-x:auto;padding:.2rem .1rem .6rem;scrollbar-width:thin}
 .wallet-row:empty::after{content:"Play the song to mint your first coin ↑";color:var(--muted);font-size:.82rem;margin:auto;font-style:italic}
 .chip{flex:0 0 auto;width:58px;height:58px;border-radius:50%;cursor:pointer;border:1px solid var(--line);background:var(--vault);transition:transform .15s}
@@ -191,6 +210,7 @@ footer{color:var(--faint);font-size:.72rem;text-align:center;max-width:40ch;line
     <div class="rarity" id="rarity">—</div>
     <div class="serial mono" id="serial">—</div>
     <div class="blockline mono" id="blockline">—</div>
+    <button class="btn btn-ghost trial-launch" id="trialLaunch">⛰ Run this coin’s Trial</button>
   </div>
 
   <!-- Proof-of-Melody rig -->
@@ -288,6 +308,19 @@ footer{color:var(--faint);font-size:.72rem;text-align:center;max-width:40ch;line
   </footer>
 </div>
 
+<!-- The Trial: a Geometry-Dash-style rhythm run generated from a coin -->
+<div class="trial-overlay" id="trialOverlay" hidden>
+  <div class="trial-top">
+    <button class="linkbtn" id="trialExit">✕ close</button>
+    <div class="trial-progress"><i id="trialProg"></i></div>
+    <button class="trial-cp" id="trialCp" hidden>＋ checkpoint</button>
+    <label class="mic-toggle"><input type="checkbox" id="trialPractice"> practice</label>
+  </div>
+  <canvas id="trialCanvas"></canvas>
+  <div class="trial-hint" id="trialHint">tap / space to jump — clear your song</div>
+  <div class="trial-msg" id="trialMsg" hidden></div>
+</div>
+
 <script>
 // ── The four Kullas: colour = pitch (C, D, G, A) ────────────────────────────
 const COLORS = [
@@ -308,7 +341,16 @@ function randSlots(){const s=[];for(let i=0;i<SLOTS;i++)s.push({c:Math.floor(Mat
 function slotsCode(slots){return slots.map(s=>`${s.c}${s.o}${s.v}`).join('')}
 function freqOf(s){return COLORS[s.c].base*Math.pow(2,OCTAVES[s.o]-4)}
 function serialOf(slots){return slots.map(s=>COLORS[s.c].label.toUpperCase()).join('-')}
-async function sha256(msg){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(msg));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+async function sha256(msg){
+  if(self.crypto&&crypto.subtle&&crypto.subtle.digest){
+    const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(msg));
+    return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+  }
+  // fallback for non-secure contexts (file://, plain http) — keeps the toy working
+  const hx=n=>(n>>>0).toString(16).padStart(8,'0');
+  const a=fnv(msg),b=fnv(msg+'|1'),c=fnv(hx(a)+msg),d=fnv(msg+hx(b)),e=fnv(hx(c)+hx(d));
+  return (hx(a)+hx(b)+hx(c)+hx(d)+hx(e)+hx(a^d)+hx(b^c)+hx(e^a)).slice(0,64);
+}
 function rarityOf(slots){const d=new Set(slots.map(s=>s.c)).size;
   if(d===1)return{tag:'SOLID',worth:1000,note:'ultra-rare'};
   if(d===2)return{tag:'DUET',worth:25,note:'scarce'};
@@ -679,6 +721,118 @@ $('save').onclick=()=>{if(!current)return;
 $('qrimg').src=KULLA_QR;
 
 function idle(now){if(!reduce&&!idleFrozen&&current)draw(coinEl,current.slots,-1,(now-idleStart)/1000);requestAnimationFrame(idle);}
+
+// ── The Trial: a Geometry-Dash-style rhythm run built from a coin ────────────
+// Binary collision (clear or instant reset, no death animation), practice-mode
+// checkpoints, obstacles timed to the coin's looping song. Deterministic per coin.
+const trialOverlay=document.getElementById('trialOverlay');
+const trialCanvas=document.getElementById('trialCanvas');
+const trialCtx=trialCanvas.getContext('2d');
+const trialProg=document.getElementById('trialProg');
+const trialMsgEl=document.getElementById('trialMsg');
+const trialHintEl=document.getElementById('trialHint');
+const trialCpBtn=document.getElementById('trialCp');
+const trialPracticeChk=document.getElementById('trialPractice');
+let T=null, trialRAF=null, trialLast=0, trialAudioTimer=null, trialAudioTok=0;
+const T_BEAT=150, T_SPEED=356, T_GRAV=2600, T_JUMP=880, T_CUBE=30, T_GROUND=54, T_SPIKE=34;
+
+function trialBuild(coin){
+  const rnd=mulberry32(fnv('trial'+slotsCode(coin.slots)));
+  const BARS=8, beats=BARS*SLOTS, obs=[];
+  for(let i=3;i<beats;i++){                 // first 3 beats free to ease in
+    const s=coin.slots[i%SLOTS];
+    const diff=0.12+0.42*(i/beats);         // difficulty ramps across the run
+    if(s.v>=2 || rnd()<diff) obs.push({x:i*T_BEAT, dbl:(s.v>=3 && rnd()<0.4), c:s.c});
+  }
+  return {obs, endX:beats*T_BEAT+360};
+}
+function resizeTrial(){
+  const dpr=Math.min(devicePixelRatio||1,2);
+  const w=trialCanvas.clientWidth||innerWidth, h=trialCanvas.clientHeight||(innerHeight-58);
+  trialCanvas.width=Math.max(320,Math.round(w*dpr)); trialCanvas.height=Math.max(240,Math.round(h*dpr));
+  trialCtx.setTransform(dpr,0,0,dpr,0,0);
+}
+function trialStart(coin){
+  if(!coin) return;
+  const lvl=trialBuild(coin);
+  T={coin, obs:lvl.obs, endX:lvl.endX, worldX:0, y:0, vy:0, onGround:true,
+     checkpoint:0, attempts:1, practice:trialPracticeChk.checked, cleared:false};
+  trialOverlay.hidden=false; trialMsgEl.hidden=true; trialHintEl.style.opacity='1';
+  trialCpBtn.hidden=!T.practice;
+  resizeTrial(); startTrialAudio(coin);
+  trialLast=performance.now(); cancelAnimationFrame(trialRAF); trialRAF=requestAnimationFrame(trialLoop);
+}
+function startTrialAudio(coin){
+  const tok=++trialAudioTok; clearTimeout(trialAudioTimer);
+  const step=0.42, dur=SLOTS*step;
+  const loop=()=>{ if(tok!==trialAudioTok) return;
+    const t0=ac().currentTime+0.03;
+    coin.slots.forEach((s,i)=>voiceNote(freqOf(s),t0+i*step,0.5,0.08+0.05*s.v));
+    trialAudioTimer=setTimeout(loop,dur*1000); };
+  loop();
+}
+function stopTrialAudio(){ trialAudioTok++; clearTimeout(trialAudioTimer); }
+function trialJump(){ if(T&&!T.cleared&&T.onGround){ T.vy=T_JUMP; T.onGround=false; trialHintEl.style.opacity='0'; } }
+function trialReset(toCp){ T.worldX=toCp?T.checkpoint:0; T.y=0; T.vy=0; T.onGround=true; T.attempts++; }
+function trialLoop(now){
+  if(!T) return;
+  let dt=(now-trialLast)/1000; trialLast=now; if(dt>0.05)dt=0.05;
+  if(!T.cleared){
+    T.worldX+=T_SPEED*dt;
+    if(!T.onGround){ T.y+=T.vy*dt; T.vy-=T_GRAV*dt; if(T.y<=0){T.y=0;T.vy=0;T.onGround=true;} }
+    for(const o of T.obs){
+      const dx=o.x-T.worldX, half=o.dbl?46:26;
+      if(dx>-half && dx<half && T.y<T_SPIKE-4){ trialReset(T.practice); break; }
+    }
+    if(T.worldX>=T.endX){ T.cleared=true; trialClear(); }
+  }
+  trialProg.style.width=Math.min(100,(T.worldX/T.endX)*100)+'%';
+  trialRender();
+  trialRAF=requestAnimationFrame(trialLoop);
+}
+function drawSpike(ctx,x,groundY,color,dbl){
+  const w=26,h=T_SPIKE;
+  const one=cx=>{ctx.beginPath();ctx.moveTo(cx-w/2,groundY);ctx.lineTo(cx,groundY-h);ctx.lineTo(cx+w/2,groundY);ctx.closePath();
+    ctx.fillStyle=color;ctx.fill();ctx.strokeStyle='rgba(255,255,255,.28)';ctx.lineWidth=1;ctx.stroke();};
+  if(dbl){one(x-12);one(x+12);}else one(x);
+}
+function trialRender(){
+  const ctx=trialCtx, W=trialCanvas.clientWidth||innerWidth, H=trialCanvas.clientHeight||innerHeight;
+  const groundY=H-T_GROUND, camX=120;
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#07060b'; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,255,255,.045)'; ctx.lineWidth=1;
+  for(let x=-(T.worldX%80)+camX%80;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,groundY);ctx.stroke();}
+  ctx.fillStyle='#141020'; ctx.fillRect(0,groundY,W,T_GROUND);
+  ctx.globalAlpha=.55; ctx.strokeStyle=COLORS[T.coin.slots[0].c].color; ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(0,groundY);ctx.lineTo(W,groundY);ctx.stroke(); ctx.globalAlpha=1;
+  T.obs.forEach(o=>{ const sx=camX+(o.x-T.worldX); if(sx<-60||sx>W+60)return; drawSpike(ctx,sx,groundY,COLORS[o.c].color,o.dbl); });
+  const cy=groundY-T_CUBE-T.y;
+  ctx.save(); ctx.translate(camX+T_CUBE/2, cy+T_CUBE/2); ctx.rotate(T.onGround?0:(-T.worldX/T_CUBE));
+  const g=ctx.createLinearGradient(-T_CUBE/2,-T_CUBE/2,T_CUBE/2,T_CUBE/2);
+  g.addColorStop(0,COLORS[T.coin.slots[0].c].color); g.addColorStop(1,COLORS[T.coin.slots[2].c].color);
+  ctx.fillStyle=g; ctx.fillRect(-T_CUBE/2,-T_CUBE/2,T_CUBE,T_CUBE);
+  ctx.fillStyle='rgba(255,255,255,.85)'; ctx.fillRect(-T_CUBE/2+6,-T_CUBE/2+6,7,7); ctx.restore();
+}
+function trialBest(h){try{return (JSON.parse(localStorage.getItem('kulla_trial_best')||'{}')[h]) ?? null}catch{return null}}
+function trialSetBest(h,v){try{const m=JSON.parse(localStorage.getItem('kulla_trial_best')||'{}');m[h]=v;localStorage.setItem('kulla_trial_best',JSON.stringify(m));}catch{}}
+function trialClear(){
+  stopTrialAudio(); playCoin(T.coin);
+  const prev=trialBest(T.coin.hash), best=(prev===null)?T.attempts:Math.min(prev,T.attempts);
+  trialSetBest(T.coin.hash,best);
+  trialMsgEl.innerHTML=`<h3>Song cleared ✓</h3><p>You ran <b>${escapeHtml(serialOf(T.coin.slots))}</b> in ${T.attempts} ${T.attempts===1?'try':'tries'}. Best: ${best}.</p><div class="row"></div>`;
+  const row=trialMsgEl.querySelector('.row');
+  const again=document.createElement('button'); again.className='btn btn-mint'; again.textContent='↻ Run again'; again.onclick=()=>trialStart(T.coin);
+  const close=document.createElement('button'); close.className='btn btn-ghost'; close.textContent='Close'; close.onclick=trialClose;
+  row.append(again,close); trialMsgEl.hidden=false;
+}
+function trialClose(){ stopTrialAudio(); cancelAnimationFrame(trialRAF); T=null; trialOverlay.hidden=true; }
+trialCanvas.addEventListener('pointerdown',e=>{ if(!trialOverlay.hidden){ e.preventDefault(); trialJump(); } });
+addEventListener('keydown',e=>{ if(!trialOverlay.hidden && (e.key===' '||e.key==='ArrowUp'||e.key==='Enter')){ e.preventDefault(); trialJump(); } });
+trialCpBtn.onclick=()=>{ if(T) T.checkpoint=T.worldX; };
+trialPracticeChk.onchange=()=>{ if(T){ T.practice=trialPracticeChk.checked; trialCpBtn.hidden=!T.practice; if(!T.practice)T.checkpoint=0; } };
+document.getElementById('trialExit').onclick=trialClose;
+document.getElementById('trialLaunch').onclick=()=>{ ac(); trialStart(current); };
+addEventListener('resize',()=>{ if(!trialOverlay.hidden) resizeTrial(); });
 
 // ── Personal identity: enroll with name + number → your own signature song ──
 function loadProfile(){try{return JSON.parse(localStorage.getItem('kulla_profile')||'null')}catch{return null}}

@@ -32,6 +32,20 @@ All notable changes to Local Grindz are documented here.
   nothing is transmitted (the embed makes no network calls; the QR is a data URI).
   Displayed number is masked to the last four digits.
 
+### Added — The Trial (a rhythm run built from your coin)
+- **`⛰ Run this coin's Trial`** launches a Geometry-Dash-style runner generated
+  deterministically from the current coin: a cube auto-scrolls and you tap /
+  space / click to jump spikes timed to the coin's looping song, difficulty
+  ramping across the run.
+- **Binary collision, zero-death-penalty friction:** a miss resets instantly
+  (no death animation, no loading). **Practice mode** drops a checkpoint so you
+  can grind a hard section. Clearing records your fewest-tries best per coin.
+- Self-contained Canvas + Web Audio; verified end-to-end in a headless Chromium
+  smoke test (enroll → launch → run → clear), zero console errors.
+- **Robustness:** `sha256` now falls back to a non-crypto hash when
+  `crypto.subtle` is unavailable (file://, plain http), so the toy never
+  hard-fails outside a secure context.
+
 ### Added — levels & the medley (sequence + loop your songs)
 - **Level = floor(songs / 10).** A progress bar in the wallet shows how close you
   are to the next level; each 10 mints levels you up.
