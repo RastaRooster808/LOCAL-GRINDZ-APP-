@@ -134,6 +134,16 @@ button.btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .panel h2{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:.7rem;text-align:center;
   display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap}
 .songcount{color:var(--faint);font-size:.68rem;letter-spacing:.1em}
+
+/* level progress + medley */
+.levelbar{margin-top:.7rem;display:flex;flex-direction:column;gap:.35rem}
+.levelbar-track{height:7px;border-radius:999px;background:#0e0c16;border:1px solid var(--line);overflow:hidden}
+.levelbar-track i{display:block;height:100%;width:0;border-radius:999px;
+  background:linear-gradient(90deg,var(--blue),var(--gold) 45%,var(--red) 70%,var(--green));transition:width .5s ease}
+.levelbar-note{font-size:.72rem;color:var(--muted);text-align:center}
+.levelbar-note b{color:var(--gold)}
+.medley-controls{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center}
+.btn-ghost.on{border-color:var(--gold);color:var(--gold)}
 .wallet-row{display:flex;gap:.6rem;overflow-x:auto;padding:.2rem .1rem .6rem;scrollbar-width:thin}
 .wallet-row:empty::after{content:"Play the song to mint your first coin ↑";color:var(--muted);font-size:.82rem;margin:auto;font-style:italic}
 .chip{flex:0 0 auto;width:58px;height:58px;border-radius:50%;cursor:pointer;border:1px solid var(--line);background:var(--vault);transition:transform .15s}
@@ -216,6 +226,19 @@ footer{color:var(--faint);font-size:.72rem;text-align:center;max-width:40ch;line
   <div class="panel">
     <h2>Your wallet <span class="songcount" id="songcount"></span></h2>
     <div class="wallet-row" id="wallet"></div>
+    <div class="levelbar" id="levelbar">
+      <div class="levelbar-track"><i id="levelbar-fill"></i></div>
+      <span class="levelbar-note" id="levelbar-note"></span>
+    </div>
+  </div>
+
+  <div class="panel" id="medleyPanel" hidden>
+    <h2>Your medley <span class="songcount" id="levelbadge"></span></h2>
+    <div class="medley-controls">
+      <button class="btn btn-mint" id="medleyPlay">▶ Play medley</button>
+      <button class="btn btn-ghost" id="medleyLoop">⟳ Loop: off</button>
+    </div>
+    <p class="mintnote" id="levelnote"></p>
   </div>
 
   <div class="panel">
@@ -418,7 +441,54 @@ function drawWallet(){const w=loadWallet();
   walletEl.innerHTML='';
   w.slice().reverse().forEach(coin=>{const c=document.createElement('canvas');c.width=116;c.height=116;
     c.className='chip'+(current&&coin.hash===current.hash?' active':'');c.title=`Block #${coin.block} · ${serialOf(coin.slots)}`;
-    draw(c,coin.slots,-1,0);c.onclick=()=>{setCoin(coin,true);playCoin(coin);};walletEl.appendChild(c);});}
+    draw(c,coin.slots,-1,0);c.onclick=()=>{setCoin(coin,true);playCoin(coin);};walletEl.appendChild(c);});
+  updateLevel();}
+
+// ── Levels & the medley: unlock at 10 songs, sequence + loop your library ───
+// Level = floor(count / 10). Level ≥ 1 unlocks a medley that sequences your
+// most recent (level × 10) songs and loops. Each 10 mints = a new level.
+const LEVEL_STEP=10, MEDLEY_STEP=0.42, MEDLEY_GAP=0.14;
+let loopOn=false, medleyPlaying=false, medleyToken=0, medleyTimer=null;
+function levelOf(count){return Math.floor(count/LEVEL_STEP);}
+function medleySongs(){const w=loadWallet();const lvl=levelOf(w.length);if(lvl<1)return[];return w.slice(-(lvl*LEVEL_STEP));}
+function updateLevel(){
+  const w=loadWallet(),count=w.length,lvl=levelOf(count),into=count%LEVEL_STEP;
+  const fill=document.getElementById('levelbar-fill'),note=document.getElementById('levelbar-note'),
+    panel=document.getElementById('medleyPanel'),badge=document.getElementById('levelbadge'),lnote=document.getElementById('levelnote');
+  if(fill) fill.style.width=(into/LEVEL_STEP*100)+'%';
+  if(note) note.innerHTML = lvl>=1
+    ? `<b>Level ${lvl}</b> · ${into}/10 minted toward Level ${lvl+1}`
+    : `${into}/10 songs to <b>Level 1</b> — unlock your looping medley`;
+  if(panel){
+    panel.hidden = lvl<1;
+    if(lvl>=1){
+      if(badge) badge.textContent=`· Level ${lvl}`;
+      if(lnote) lnote.textContent=`Sequencing your last ${lvl*LEVEL_STEP} songs${loopOn?', looping':''}. Reach Level ${lvl+1} at ${(lvl+1)*LEVEL_STEP} songs.`;
+    } else if(medleyPlaying){ stopMedley(); }
+  }
+}
+function playSongAt(coin,when){coin.slots.forEach((s,ni)=>voiceNote(freqOf(s),when+ni*MEDLEY_STEP,0.5,0.10+0.06*s.v));}
+function runMedley(){
+  const songs=medleySongs(); if(!songs.length) return;
+  const token=++medleyToken; medleyPlaying=true; updateMedleyUI();
+  const songDur=SLOTS*MEDLEY_STEP+MEDLEY_GAP;
+  let i=0;
+  const tick=()=>{
+    if(token!==medleyToken) return;
+    if(i>=songs.length){ if(loopOn){ i=0; } else { medleyPlaying=false; updateMedleyUI(); return; } }
+    const coin=songs[i]; playSongAt(coin, ac().currentTime+0.06); setCoin(coin,false); i++;
+    medleyTimer=setTimeout(tick, songDur*1000);
+  };
+  tick();
+}
+function stopMedley(){ medleyToken++; if(medleyTimer) clearTimeout(medleyTimer); medleyPlaying=false; updateMedleyUI(); }
+function updateMedleyUI(){
+  const p=document.getElementById('medleyPlay'),l=document.getElementById('medleyLoop');
+  if(p) p.textContent = medleyPlaying ? '■ Stop' : '▶ Play medley';
+  if(l){ l.textContent='⟳ Loop: '+(loopOn?'on':'off'); l.classList.toggle('on',loopOn); }
+}
+document.getElementById('medleyPlay').onclick=()=>{ ac(); medleyPlaying ? stopMedley() : runMedley(); };
+document.getElementById('medleyLoop').onclick=()=>{ loopOn=!loopOn; updateMedleyUI(); updateLevel(); };
 
 // ── The 4-colour piano ──────────────────────────────────────────────────────
 const keyEls=[];
@@ -644,7 +714,7 @@ async function enroll(name,number){
   const wl=loadWallet();setCoin(wl[wl.length-1],true);
   playCoin({slots:sig});
 }
-function signOut(){ profile=null; localStorage.removeItem('kulla_profile'); renderIdentity(); bootWallet(true); }
+function signOut(){ stopMedley(); profile=null; localStorage.removeItem('kulla_profile'); renderIdentity(); bootWallet(true); }
 
 function renderIdentity(msg){
   if(!idbarEl) return;

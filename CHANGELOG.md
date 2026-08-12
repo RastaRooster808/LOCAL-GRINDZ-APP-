@@ -32,6 +32,14 @@ All notable changes to Local Grindz are documented here.
   nothing is transmitted (the embed makes no network calls; the QR is a data URI).
   Displayed number is masked to the last four digits.
 
+### Added — levels & the medley (sequence + loop your songs)
+- **Level = floor(songs / 10).** A progress bar in the wallet shows how close you
+  are to the next level; each 10 mints levels you up.
+- **At Level 1 (10 songs) a Medley panel unlocks:** it sequences your most recent
+  `level × 10` songs into one continuous piece and can **loop**. The medley grows
+  as you level — Level 2 sequences 20, Level 3 sequences 30, and so on — and it
+  plays through whichever Hawaiian sound world is selected.
+
 ---
 
 ## [Unreleased] — Vendor chat/inbox restored (2026-07-25)
