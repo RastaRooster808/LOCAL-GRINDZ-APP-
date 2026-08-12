@@ -4,6 +4,26 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — KullaCoin wired into the app at `/kullacoin` (2026-08-12)
+
+### Added — the coin-as-song mini-app is now a route
+- **New `/kullacoin` route** (`src/pages/KullaCoin.tsx`, lazy-loaded). It frames
+  the self-contained KullaCoin experience — Canvas art + Web Audio + Proof-of-
+  Melody minting (play the 4-note song to mint), Hawaiian sound worlds
+  (ʻukulele + ʻiliʻili, ʻohe flute + ipu heke, pū conch), a SHA-256-chained
+  wallet, and a scan-to-hear QR baked into every saved wallpaper.
+- **Isolated by design:** the game ships as one tested HTML file
+  (`src/pages/kullacoin.embed.html`) embedded in a sandboxed `<iframe srcDoc>`
+  via Vite's `?raw` import. Its generic class names (`.card`/`.panel`/`.key`…)
+  can't collide with the marketplace's global CSS, and the game stays a single
+  source of truth — editing the file updates the route.
+- **Discoverable:** added a **KullaCoin** entry to the marketplace nav.
+- **Guardrail preserved:** art-only, no real money. KULLA is earned, never sold
+  for cash, never cashed out — a closed-loop rewards concept, not a currency.
+- Verified: `npm run build` clean (KullaCoin is its own ~15 KB gzip chunk).
+
+---
+
 ## [Unreleased] — Vendor chat/inbox restored (2026-07-25)
 
 ### Fixed — messaging was dead (no table existed)

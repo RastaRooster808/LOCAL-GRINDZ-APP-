@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { label: 'Markets', to: '/vendors?cat=markets' },
   { label: 'Featured', to: '/vendors?cat=featured' },
   { label: 'Events', to: '/events' },
+  { label: 'KullaCoin', to: '/kullacoin' },
   { label: 'Profile', to: '/account' },
 ];
 
