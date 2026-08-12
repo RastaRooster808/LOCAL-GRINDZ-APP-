@@ -22,6 +22,16 @@ All notable changes to Local Grindz are documented here.
   for cash, never cashed out — a closed-loop rewards concept, not a currency.
 - Verified: `npm run build` clean (KullaCoin is its own ~15 KB gzip chunk).
 
+### Added — personal identity: your own signature song
+- **Enroll with name + phone number** and KullaCoin derives a unique,
+  deterministic 4-note **signature song** (via SHA-256 of name+number) that only
+  you own — an independent sound per person. It becomes your wallet's Block #0.
+- **Per-person wallet:** the ledger is namespaced by a hash of the number, so
+  each enrolled person has an independent wallet; "switch person" swaps identity.
+- **Privacy:** name and number are stored **only in the device's localStorage** —
+  nothing is transmitted (the embed makes no network calls; the QR is a data URI).
+  Displayed number is masked to the last four digits.
+
 ---
 
 ## [Unreleased] — Vendor chat/inbox restored (2026-07-25)

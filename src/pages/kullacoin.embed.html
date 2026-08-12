@@ -28,6 +28,28 @@ header{text-align:center}
 .tagline{margin-top:.5rem;color:var(--muted);font-style:italic;font-size:1.02rem}
 .kicker{margin-top:.35rem;color:var(--faint);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase}
 
+/* personal identity — enroll with name + number → your signature song */
+.idbar{width:100%}
+.enroll{background:var(--surface);border:1px solid var(--line);border-radius:.9rem;padding:.9rem 1rem;display:flex;flex-direction:column;gap:.6rem}
+.enroll h3{font-family:Georgia,serif;font-size:1rem;text-align:center;font-weight:600}
+.enroll .esub{font-size:.76rem;color:var(--muted);text-align:center;margin-top:-.35rem}
+.enroll .erow{display:flex;gap:.5rem;flex-wrap:wrap}
+.enroll input{flex:1 1 8rem;min-width:0;background:var(--vault);border:1px solid var(--line);border-radius:.6rem;color:var(--ink);padding:.6rem .7rem;font:inherit}
+.enroll input::placeholder{color:var(--faint)}
+.enroll input:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.enroll .privacy{font-size:.68rem;color:var(--faint);text-align:center}
+.enroll .privacy b{color:var(--green)}
+.greet{display:flex;align-items:center;justify-content:center;gap:.5rem .7rem;flex-wrap:wrap;text-align:center;
+  background:var(--surface);border:1px solid var(--line);border-radius:.9rem;padding:.6rem .9rem}
+.greet .hi{font-family:Georgia,serif;font-size:1.02rem}
+.greet .who{color:var(--gold)}
+.greet .last4{color:var(--faint);font-size:.72rem;font-family:ui-monospace,monospace}
+.greet .sigbtn{font:inherit;font-weight:650;font-size:.8rem;padding:.42rem .85rem;border-radius:999px;border:0;cursor:pointer;
+  background:linear-gradient(100deg,var(--gold),var(--red));color:#1a0f08}
+.greet .sigbtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font:inherit;font-size:.74rem}
+.linkbtn:hover{color:var(--ink)}
+
 .stage{position:relative;width:min(76vw,300px);aspect-ratio:1}
 #coin{width:100%;height:100%;display:block;cursor:pointer;border-radius:50%;
   transition:transform .5s cubic-bezier(.2,.9,.3,1.2);filter:drop-shadow(0 18px 40px rgba(0,0,0,.6))}
@@ -146,6 +168,8 @@ footer{color:var(--faint);font-size:.72rem;text-align:center;max-width:40ch;line
     <p class="tagline">every coin is a song.</p>
     <p class="kicker">Proof of Melody — you play it to mint it</p>
   </header>
+
+  <div class="idbar" id="idbar"></div>
 
   <div class="stage" id="stage">
     <canvas id="coin" width="720" height="720" role="button" tabindex="0"
@@ -385,8 +409,10 @@ function setCoin(coin,animate){current=coin;renderReadout(coin);
   draw(coinEl,coin.slots,-1,(performance.now()-idleStart)/1000);drawWallet();}
 
 // ── Wallet ──────────────────────────────────────────────────────────────────
-function loadWallet(){try{return JSON.parse(localStorage.getItem('kulla_wallet_v2')||'[]')}catch{return[]}}
-function saveWallet(w){localStorage.setItem('kulla_wallet_v2',JSON.stringify(w.slice(-48)))}
+// wallet is namespaced per enrolled person so each has an independent ledger
+function walletKey(){return profile?('kulla_wallet_v2_'+profile.id):'kulla_wallet_v2';}
+function loadWallet(){try{return JSON.parse(localStorage.getItem(walletKey())||'[]')}catch{return[]}}
+function saveWallet(w){localStorage.setItem(walletKey(),JSON.stringify(w.slice(-48)))}
 function drawWallet(){const w=loadWallet();
   songcountEl.textContent=w.length?`· ${w.length} song${w.length>1?'s':''} you own`:'';
   walletEl.innerHTML='';
@@ -584,14 +610,84 @@ $('qrimg').src=KULLA_QR;
 
 function idle(now){if(!reduce&&!idleFrozen&&current)draw(coinEl,current.slots,-1,(now-idleStart)/1000);requestAnimationFrame(idle);}
 
-// ── Boot: Genesis Block #0 = KTA Puaʻināko rainbow (Blue-Gold-Red-Green) ─────
-(async function boot(){
+// ── Personal identity: enroll with name + number → your own signature song ──
+function loadProfile(){try{return JSON.parse(localStorage.getItem('kulla_profile')||'null')}catch{return null}}
+let profile=loadProfile();
+const idbarEl=document.getElementById('idbar');
+const onlyDigits=s=>(s||'').replace(/\D/g,'');
+function escapeHtml(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+// name + number → a deterministic 4-note song only this person owns
+async function deriveSignature(name,number){
+  const h=await sha256('KULLA-ID|'+name.trim().toLowerCase()+'|'+onlyDigits(number));
+  const byte=i=>parseInt(h.substr((i%30)*2,2),16);
+  const slots=[];
+  for(let i=0;i<SLOTS;i++) slots.push({c:byte(i)%4,o:byte(i+4)%3,v:byte(i+8)%4});
+  return slots;
+}
+// wallet id keyed off the number, so the same person keeps one independent ledger
+async function personId(number){return (await sha256('KULLA-NUM|'+onlyDigits(number))).slice(0,16);}
+
+async function enroll(name,number){
+  const clean=onlyDigits(number);
+  if(!name.trim()||clean.length<4){renderIdentity('Enter your name and a phone number.');return;}
+  const sig=await deriveSignature(name,number);
+  const id=await personId(number);
+  profile={name:name.trim(), last4:clean.slice(-4), id, sig};
+  localStorage.setItem('kulla_profile',JSON.stringify(profile));
+  let w=loadWallet();                       // seed their Block #0 as the signature coin
+  if(!w.length){
+    const hash=await sha256(slotsCode(sig)+'|'+GENESIS_PREV+'|0');
+    w=[{slots:sig,hash,prev:GENESIS_PREV,block:0}];saveWallet(w);
+  }
+  renderIdentity();
+  const wl=loadWallet();setCoin(wl[wl.length-1],true);
+  playCoin({slots:sig});
+}
+function signOut(){ profile=null; localStorage.removeItem('kulla_profile'); renderIdentity(); bootWallet(true); }
+
+function renderIdentity(msg){
+  if(!idbarEl) return;
+  idbarEl.innerHTML='';
+  if(profile){
+    const g=document.createElement('div'); g.className='greet';
+    g.innerHTML=`<span class="hi">Aloha, <span class="who">${escapeHtml(profile.name)}</span></span>`+
+      `<span class="last4">•••• ${escapeHtml(profile.last4)}</span>`;
+    const play=document.createElement('button'); play.className='sigbtn'; play.textContent='▶ My signature';
+    play.onclick=()=>{ ac(); playCoin({slots:profile.sig}); };
+    const out=document.createElement('button'); out.className='linkbtn'; out.textContent='switch person';
+    out.onclick=signOut;
+    g.append(play,out); idbarEl.appendChild(g);
+  }else{
+    const e=document.createElement('div'); e.className='enroll';
+    e.innerHTML=`<h3>Get your signature song</h3>`+
+      `<p class="esub">${msg?escapeHtml(msg):'Enroll once — your name + number compose a song only you own.'}</p>`;
+    const row=document.createElement('div'); row.className='erow';
+    const nm=document.createElement('input'); nm.type='text'; nm.placeholder='Your name'; nm.autocomplete='name'; nm.maxLength=40;
+    const ph=document.createElement('input'); ph.type='tel'; ph.placeholder='Phone number'; ph.autocomplete='tel'; ph.inputMode='tel'; ph.maxLength=20;
+    row.append(nm,ph);
+    const btn=document.createElement('button'); btn.className='btn btn-mint'; btn.textContent='✦ Create my sound';
+    btn.onclick=()=>enroll(nm.value,ph.value);
+    ph.addEventListener('keydown',ev=>{ if(ev.key==='Enter') enroll(nm.value,ph.value); });
+    const pv=document.createElement('p'); pv.className='privacy';
+    pv.innerHTML='Your name and number <b>stay on this device</b> — nothing is sent anywhere.';
+    e.append(row,btn,pv); idbarEl.appendChild(e);
+  }
+}
+
+// ── Boot: enrolled → signature genesis; guest → KTA Puaʻināko rainbow ────────
+async function bootWallet(animate){
   let w=loadWallet();
   if(!w.length){
-    const g=[{c:0,o:1,v:2},{c:1,o:1,v:2},{c:2,o:1,v:2},{c:3,o:1,v:2}];
+    const g = profile ? profile.sig : [{c:0,o:1,v:2},{c:1,o:1,v:2},{c:2,o:1,v:2},{c:3,o:1,v:2}];
     const hash=await sha256(slotsCode(g)+'|'+GENESIS_PREV+'|0');
     w=[{slots:g,hash,prev:GENESIS_PREV,block:0}];saveWallet(w);
   }
-  setCoin(w[w.length-1],true);requestAnimationFrame(idle);
+  setCoin(w[w.length-1],animate);
+}
+(async function boot(){
+  renderIdentity();
+  await bootWallet(true);
+  requestAnimationFrame(idle);
 })();
 </script>
