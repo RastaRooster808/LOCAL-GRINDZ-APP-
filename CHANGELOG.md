@@ -4,6 +4,26 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — KullaCoin Phase B: cloud save (accounts) (2026-08-12)
+
+### Added — your KullaCoin follows you across devices (when logged in)
+- New **`kulla_state`** table (`docs/migrations/phase-b-1-kulla-state.sql`): a
+  per-user JSONB snapshot of the KullaCoin localStorage (wallet, progress, loops,
+  best times), **RLS-scoped to `auth.uid()`** (owner-only read/insert/update;
+  `anon` has no access). Logged-out play stays entirely on-device.
+- **`KullaCoin.tsx`** now cloud-syncs when a Supabase session exists: it hydrates
+  from `kulla_state` **before** booting the game, then saves on change. Because
+  the srcDoc iframe shares this origin's `localStorage` and dispatches `storage`
+  events up to the app, sync needs **no changes to the game code**. A header
+  chip shows **☁ Synced** / **☁ offline**, or **Log in to save ☁** when signed out.
+- Graceful by design: table-missing or offline → the game keeps working locally.
+- App shell repainted to the bright theme; build verified clean.
+- **Deploy note:** the `kulla_state` migration still needs applying to the live
+  project — the Supabase management endpoint was timing out at push time; the SQL
+  is idempotent and ready in `docs/migrations/`.
+
+---
+
 ## [Unreleased] — KullaCoin: multi-track loop overdub (2026-08-12)
 
 ### Changed — the loop recorder is now multi-track
