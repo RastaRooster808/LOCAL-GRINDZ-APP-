@@ -2,22 +2,35 @@
 <title>KullaCoin</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-/* Committed single dark "vault" world — coins glow like jewels. Painted explicitly. */
+/* Bright Big-Island world — sky, grass, fruit & musubi. Coins are jewels on a sunny field. */
 :root{
-  --ground:#0c0b10; --vault:#141220; --surface:#1b1826; --line:#2a2636;
-  --ink:#f1ece0; --muted:#9a92a8; --faint:#6d6680;
-  --blue:#2a6fd0; --gold:#e7a928; --red:#db3b2c; --green:#3fa06a;
-  --ok:#3fa06a; --fail:#db3b2c;
+  --ground:#eaf7d8; --vault:#ffffff; --surface:#fffdf5; --line:#d8e6c2;
+  --ink:#213021; --muted:#566a4f; --faint:#83977a;
+  --blue:#2a6fd0; --gold:#d98a04; --gold-bright:#f2b21b; --red:#e0432f; --green:#2f9e52;
+  --ok:#2f9e52; --fail:#e0432f;
+  --shadow:0 2px 6px rgba(33,48,33,.07), 0 12px 26px rgba(33,48,33,.10);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0}
 html,body{height:100%}
 body{
-  background:radial-gradient(120% 80% at 50% -10%, #1a1730 0%, var(--ground) 55%),var(--ground);
+  background:
+    radial-gradient(120% 55% at 50% 0%, #bfe9ff 0%, rgba(191,233,255,0) 42%),
+    linear-gradient(180deg, #d6f2ff 0%, #eaf7d8 46%, #c2e8a6 100%) fixed;
+  background-color:#eaf7d8;
   color:var(--ink);
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   line-height:1.55;-webkit-font-smoothing:antialiased;
   display:flex;flex-direction:column;align-items:center;padding:2rem 1.1rem 3.5rem;
 }
+/* playful background: floating fruit & musubi over a grassy field */
+.bg-deco{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.bg-deco .fruit{position:absolute;font-size:2.4rem;opacity:.22;filter:saturate(1.2);animation:bob 7s ease-in-out infinite}
+.bg-deco .f1{left:6%;top:12%} .bg-deco .f2{right:8%;top:20%;animation-delay:.8s;font-size:2.9rem}
+.bg-deco .f3{left:12%;top:46%;animation-delay:1.6s} .bg-deco .f4{right:10%;top:54%;animation-delay:2.2s;font-size:2.6rem}
+.bg-deco .f5{left:4%;bottom:20%;animation-delay:1.1s;font-size:3rem} .bg-deco .f6{right:6%;bottom:16%;animation-delay:.4s}
+.bg-deco .grass{position:absolute;left:0;right:0;bottom:0;width:100%;height:min(22vh,180px);display:block}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-14px) rotate(4deg)}}
+@media (prefers-reduced-motion:reduce){.bg-deco .fruit{animation:none}}
 .mono{font-family:ui-monospace,"SF Mono","Courier New",monospace}
 .wrap{width:100%;max-width:480px;display:flex;flex-direction:column;align-items:center;gap:1.25rem}
 
@@ -93,7 +106,7 @@ header{text-align:center}
 .tslot.preview{transform:scale(1.18)}
 
 /* countdown */
-.timer{height:6px;border-radius:999px;background:#0e0c16;overflow:hidden;border:1px solid var(--line)}
+.timer{height:6px;border-radius:999px;background:#e6efd6;overflow:hidden;border:1px solid var(--line)}
 .timer i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--gold),var(--red));
   transform-origin:left;transition:transform .06s linear}
 .timer.hidden{visibility:hidden}
@@ -137,7 +150,7 @@ button.btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
 /* level progress + medley */
 .levelbar{margin-top:.7rem;display:flex;flex-direction:column;gap:.35rem}
-.levelbar-track{height:7px;border-radius:999px;background:#0e0c16;border:1px solid var(--line);overflow:hidden}
+.levelbar-track{height:7px;border-radius:999px;background:#e6efd6;border:1px solid var(--line);overflow:hidden}
 .levelbar-track i{display:block;height:100%;width:0;border-radius:999px;
   background:linear-gradient(90deg,var(--blue),var(--gold) 45%,var(--red) 70%,var(--green));transition:width .5s ease}
 .levelbar-note{font-size:.72rem;color:var(--muted);text-align:center}
@@ -157,19 +170,19 @@ button.btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
 /* The Trial (rhythm runner) */
 .trial-launch{margin-top:.35rem}
-.trial-overlay{position:fixed;inset:0;z-index:50;background:#07060b;display:flex;flex-direction:column}
+.trial-overlay{position:fixed;inset:0;z-index:50;background:linear-gradient(180deg,#cdeffd,#bfe9ff 55%,#a9dd7f);display:flex;flex-direction:column}
 .trial-overlay[hidden],.trial-msg[hidden]{display:none}
 .trial-top{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem}
-.trial-progress{flex:1;height:8px;border-radius:999px;background:#15121e;border:1px solid var(--line);overflow:hidden}
+.trial-progress{flex:1;height:8px;border-radius:999px;background:rgba(255,255,255,.55);border:1px solid var(--line);overflow:hidden}
 .trial-progress i{display:block;height:100%;width:0;border-radius:999px;
   background:linear-gradient(90deg,var(--blue),var(--gold) 45%,var(--red) 70%,var(--green));transition:width .08s linear}
 .trial-cp{font:inherit;font-size:.74rem;font-weight:650;padding:.35rem .7rem;border-radius:999px;border:1px solid var(--line);
   background:var(--vault);color:var(--gold);cursor:pointer}
-#trialCanvas{flex:1;width:100%;display:block;touch-action:none;background:#07060b}
+#trialCanvas{flex:1;width:100%;display:block;touch-action:none;background:#bfe9ff}
 .trial-hint{position:absolute;left:0;right:0;bottom:1.5rem;text-align:center;color:var(--muted);font-size:.82rem;
   pointer-events:none;letter-spacing:.04em}
 .trial-msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;
-  background:rgba(7,6,11,.85);text-align:center;padding:1.5rem}
+  background:rgba(255,253,245,.9);text-align:center;padding:1.5rem}
 .trial-msg h3{font-family:Georgia,serif;font-size:1.9rem;color:var(--gold)}
 .trial-msg p{color:var(--muted);font-size:.95rem;max-width:30ch}
 .trial-msg .row{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center}
@@ -200,6 +213,20 @@ button.btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 footer{color:var(--faint);font-size:.72rem;text-align:center;max-width:40ch;line-height:1.5}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
+
+<div class="bg-deco" aria-hidden="true">
+  <span class="fruit f1">🍍</span><span class="fruit f2">🥭</span><span class="fruit f3">🍙</span>
+  <span class="fruit f4">🍌</span><span class="fruit f5">🍈</span><span class="fruit f6">🌺</span>
+  <svg class="grass" viewBox="0 0 1200 180" preserveAspectRatio="none">
+    <path d="M0,180 L0,96 Q150,58 300,86 T600,84 T900,82 T1200,90 L1200,180 Z" fill="#9ad866"/>
+    <path d="M0,180 L0,126 Q200,96 400,120 T800,116 T1200,124 L1200,180 Z" fill="#63b83f"/>
+    <g fill="#4f9e30" opacity=".9">
+      <path d="M120,128 l6,-30 l6,30 z"/><path d="M330,124 l6,-34 l6,34 z"/>
+      <path d="M560,126 l6,-28 l6,28 z"/><path d="M820,122 l6,-32 l6,32 z"/>
+      <path d="M1040,128 l6,-26 l6,26 z"/>
+    </g>
+  </svg>
+</div>
 
 <div class="wrap">
   <header>
@@ -811,6 +838,7 @@ const trialCpBtn=document.getElementById('trialCp');
 const trialPracticeChk=document.getElementById('trialPractice');
 let T=null, trialRAF=null, trialLast=0, trialAudioTimer=null, trialAudioTok=0;
 const T_BEAT=150, T_SPEED=356, T_GRAV=2600, T_JUMP=880, T_CUBE=30, T_GROUND=54, T_SPIKE=34;
+const T_DT=1/120; // fixed simulation step — makes a run deterministic & server-replayable (Phase A)
 
 function trialBuild(coin){
   const rnd=mulberry32(fnv('trial'+slotsCode(coin.slots)));
@@ -832,7 +860,8 @@ function trialStart(coin){
   if(!coin) return;
   const lvl=trialBuild(coin);
   T={coin, obs:lvl.obs, endX:lvl.endX, worldX:0, y:0, vy:0, onGround:true,
-     checkpoint:0, attempts:1, practice:trialPracticeChk.checked, cleared:false};
+     checkpoint:0, cpStep:0, attempts:1, practice:trialPracticeChk.checked, cleared:false,
+     acc:0, stepN:0, inputs:[], jumpQueued:false, verified:true}; // Phase A: deterministic run state
   trialOverlay.hidden=false; trialMsgEl.hidden=true; trialHintEl.style.opacity='1';
   trialCpBtn.hidden=!T.practice;
   resizeTrial(); startTrialAudio(coin);
@@ -848,46 +877,82 @@ function startTrialAudio(coin){
   loop();
 }
 function stopTrialAudio(){ trialAudioTok++; clearTimeout(trialAudioTimer); }
-function trialJump(){ if(T&&!T.cleared&&T.onGround){ T.vy=T_JUMP; T.onGround=false; trialHintEl.style.opacity='0'; } }
-function trialReset(toCp){ T.worldX=toCp?T.checkpoint:0; T.y=0; T.vy=0; T.onGround=true; T.attempts++; }
+// input just marks intent; the fixed-step sim decides & records the exact step it lands on
+function trialJump(){ if(T&&!T.cleared){ T.jumpQueued=true; if(T.onGround) trialHintEl.style.opacity='0'; } }
+function trialReset(toCp){
+  if(toCp){ T.worldX=T.checkpoint; T.stepN=T.cpStep; T.verified=false; } // practice run: not server-verifiable
+  else { T.worldX=0; T.stepN=0; T.inputs=[]; }                         // clean attempt: fresh replay
+  T.y=0; T.vy=0; T.onGround=true; T.jumpQueued=false; T.attempts++;
+}
+// one deterministic tick — identical on client and (future) server given the same inputs
+function trialStep(){
+  if(T.jumpQueued){ if(T.onGround){ T.vy=T_JUMP; T.onGround=false; T.inputs.push(T.stepN); } T.jumpQueued=false; }
+  T.worldX+=T_SPEED*T_DT;
+  if(!T.onGround){ T.y+=T.vy*T_DT; T.vy-=T_GRAV*T_DT; if(T.y<=0){T.y=0;T.vy=0;T.onGround=true;} }
+  for(const o of T.obs){ const dx=o.x-T.worldX, half=o.dbl?46:26; if(dx>-half&&dx<half&&T.y<T_SPIKE-4){ trialReset(T.practice); return; } }
+  if(T.worldX>=T.endX){ T.cleared=true; trialClear(); }
+  T.stepN++;
+}
 function trialLoop(now){
   if(!T) return;
-  let dt=(now-trialLast)/1000; trialLast=now; if(dt>0.05)dt=0.05;
-  if(!T.cleared){
-    T.worldX+=T_SPEED*dt;
-    if(!T.onGround){ T.y+=T.vy*dt; T.vy-=T_GRAV*dt; if(T.y<=0){T.y=0;T.vy=0;T.onGround=true;} }
-    for(const o of T.obs){
-      const dx=o.x-T.worldX, half=o.dbl?46:26;
-      if(dx>-half && dx<half && T.y<T_SPIKE-4){ trialReset(T.practice); break; }
-    }
-    if(T.worldX>=T.endX){ T.cleared=true; trialClear(); }
-  }
+  let frame=(now-trialLast)/1000; trialLast=now; if(frame>0.25) frame=0.25;
+  T.acc+=frame;
+  let budget=600; // safety against spiral-of-death
+  while(!T.cleared && T.acc>=T_DT && budget-->0){ trialStep(); T.acc-=T_DT; }
   trialProg.style.width=Math.min(100,(T.worldX/T.endX)*100)+'%';
   trialRender();
   trialRAF=requestAnimationFrame(trialLoop);
 }
+// headless re-simulation — the core the server runs to verify a submitted replay
+function trialSimulate(coin, inputs){
+  const lvl=trialBuild(coin); const inSet=new Set(inputs);
+  let worldX=0,y=0,vy=0,onGround=true,step=0,guard=0;
+  while(guard++<300000){
+    if(inSet.has(step) && onGround){ vy=T_JUMP; onGround=false; }
+    worldX+=T_SPEED*T_DT;
+    if(!onGround){ y+=vy*T_DT; vy-=T_GRAV*T_DT; if(y<=0){y=0;vy=0;onGround=true;} }
+    for(const o of lvl.obs){ const dx=o.x-worldX, half=o.dbl?46:26; if(dx>-half&&dx<half&&y<T_SPIKE-4) return {cleared:false, step}; }
+    if(worldX>=lvl.endX) return {cleared:true, steps:step};
+    step++;
+  }
+  return {cleared:false, step};
+}
+window.trialSimulate=trialSimulate;
+
 function drawSpike(ctx,x,groundY,color,dbl){
   const w=26,h=T_SPIKE;
   const one=cx=>{ctx.beginPath();ctx.moveTo(cx-w/2,groundY);ctx.lineTo(cx,groundY-h);ctx.lineTo(cx+w/2,groundY);ctx.closePath();
-    ctx.fillStyle=color;ctx.fill();ctx.strokeStyle='rgba(255,255,255,.28)';ctx.lineWidth=1;ctx.stroke();};
+    ctx.fillStyle=color;ctx.fill();ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=1.5;ctx.stroke();};
   if(dbl){one(x-12);one(x+12);}else one(x);
 }
 function trialRender(){
   const ctx=trialCtx, W=trialCanvas.clientWidth||innerWidth, H=trialCanvas.clientHeight||innerHeight;
   const groundY=H-T_GROUND, camX=120;
-  ctx.clearRect(0,0,W,H); ctx.fillStyle='#07060b'; ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle='rgba(255,255,255,.045)'; ctx.lineWidth=1;
-  for(let x=-(T.worldX%80)+camX%80;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,groundY);ctx.stroke();}
-  ctx.fillStyle='#141020'; ctx.fillRect(0,groundY,W,T_GROUND);
-  ctx.globalAlpha=.55; ctx.strokeStyle=COLORS[T.coin.slots[0].c].color; ctx.lineWidth=2;
-  ctx.beginPath();ctx.moveTo(0,groundY);ctx.lineTo(W,groundY);ctx.stroke(); ctx.globalAlpha=1;
+  ctx.clearRect(0,0,W,H);
+  // sky
+  const sky=ctx.createLinearGradient(0,0,0,groundY); sky.addColorStop(0,'#bfe9ff'); sky.addColorStop(1,'#eaf9ff');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,W,groundY);
+  // sun
+  ctx.fillStyle='rgba(255,224,120,.9)'; ctx.beginPath(); ctx.arc(W-52,52,26,0,7); ctx.fill();
+  // drifting clouds
+  ctx.fillStyle='rgba(255,255,255,.85)';
+  for(let k=0;k<3;k++){ const cxp=((k*430 - T.worldX*0.25)%(W+240)+W+240)%(W+240)-120, cyp=50+k*34;
+    ctx.beginPath(); ctx.arc(cxp,cyp,16,0,7); ctx.arc(cxp+20,cyp+4,20,0,7); ctx.arc(cxp+44,cyp,15,0,7); ctx.fill(); }
+  // grassy ground + scrolling blades
+  ctx.fillStyle='#6cbf4a'; ctx.fillRect(0,groundY,W,T_GROUND);
+  ctx.strokeStyle='#3f8f2f'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(0,groundY); ctx.lineTo(W,groundY); ctx.stroke();
+  ctx.strokeStyle='#4f9e30'; ctx.lineWidth=2;
+  for(let x=-((T.worldX)%26); x<W; x+=26){ ctx.beginPath(); ctx.moveTo(x,groundY); ctx.lineTo(x+3,groundY-9); ctx.stroke(); }
+  // obstacles
   T.obs.forEach(o=>{ const sx=camX+(o.x-T.worldX); if(sx<-60||sx>W+60)return; drawSpike(ctx,sx,groundY,COLORS[o.c].color,o.dbl); });
+  // cube
   const cy=groundY-T_CUBE-T.y;
   ctx.save(); ctx.translate(camX+T_CUBE/2, cy+T_CUBE/2); ctx.rotate(T.onGround?0:(-T.worldX/T_CUBE));
+  ctx.shadowColor='rgba(0,0,0,.2)'; ctx.shadowBlur=8; ctx.shadowOffsetY=4;
   const g=ctx.createLinearGradient(-T_CUBE/2,-T_CUBE/2,T_CUBE/2,T_CUBE/2);
   g.addColorStop(0,COLORS[T.coin.slots[0].c].color); g.addColorStop(1,COLORS[T.coin.slots[2].c].color);
-  ctx.fillStyle=g; ctx.fillRect(-T_CUBE/2,-T_CUBE/2,T_CUBE,T_CUBE);
-  ctx.fillStyle='rgba(255,255,255,.85)'; ctx.fillRect(-T_CUBE/2+6,-T_CUBE/2+6,7,7); ctx.restore();
+  ctx.fillStyle=g; ctx.beginPath(); ctx.roundRect(-T_CUBE/2,-T_CUBE/2,T_CUBE,T_CUBE,6); ctx.fill();
+  ctx.shadowColor='transparent'; ctx.fillStyle='rgba(255,255,255,.9)'; ctx.fillRect(-T_CUBE/2+6,-T_CUBE/2+6,7,7); ctx.restore();
 }
 function trialBest(h){try{return (JSON.parse(localStorage.getItem('kulla_trial_best')||'{}')[h]) ?? null}catch{return null}}
 function trialSetBest(h,v){try{const m=JSON.parse(localStorage.getItem('kulla_trial_best')||'{}');m[h]=v;localStorage.setItem('kulla_trial_best',JSON.stringify(m));}catch{}}
@@ -904,7 +969,7 @@ function trialClear(){
 function trialClose(){ stopTrialAudio(); cancelAnimationFrame(trialRAF); T=null; trialOverlay.hidden=true; }
 trialCanvas.addEventListener('pointerdown',e=>{ if(!trialOverlay.hidden){ e.preventDefault(); trialJump(); } });
 addEventListener('keydown',e=>{ if(!trialOverlay.hidden && (e.key===' '||e.key==='ArrowUp'||e.key==='Enter')){ e.preventDefault(); trialJump(); } });
-trialCpBtn.onclick=()=>{ if(T) T.checkpoint=T.worldX; };
+trialCpBtn.onclick=()=>{ if(T){ T.checkpoint=T.worldX; T.cpStep=T.stepN; } };
 trialPracticeChk.onchange=()=>{ if(T){ T.practice=trialPracticeChk.checked; trialCpBtn.hidden=!T.practice; if(!T.practice)T.checkpoint=0; } };
 document.getElementById('trialExit').onclick=trialClose;
 document.getElementById('trialLaunch').onclick=()=>{ ac(); trialStart(current); };

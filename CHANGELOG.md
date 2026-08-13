@@ -4,6 +4,30 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — KullaCoin: bright tropical repaint + deterministic Trial engine (2026-08-12)
+
+### Changed — goodbye all-black, hello Big Island
+- Repainted KullaCoin from the dark "vault" world to a **bright sky-and-grass**
+  theme: sky→grass page gradient, floating fruit &amp; musubi (🍍🥭🍙🍌🍈🌺), a
+  grassy footer, and cream cards with soft depth. Coins still read as jewels, now
+  on a sunny field. Text flipped to dark-on-light for contrast.
+- The **Trial** is now a sunny scene — blue sky, sun, drifting clouds, a green
+  grass field with blades, and a rounded shadowed cube.
+
+### Added — Phase A: deterministic, server-replayable Trial engine
+- The Trial physics now run on a **fixed timestep** (`T_DT = 1/120`) with an
+  accumulator loop, so a run is deterministic regardless of frame rate. Jumps are
+  recorded as the exact simulation steps they land on (`T.inputs`).
+- Added `trialSimulate(coin, inputs)` — a headless re-simulation that reproduces a
+  run from its seed (coin) + input steps. **This is the exact core a server Edge
+  Function will run to verify a submitted replay** (server-phase §03). Practice
+  checkpoints mark a run non-verifiable.
+- Verified in a headless Chromium smoke test: bright theme applied, inputs
+  recorded during play, verifier deterministic across runs — zero console errors;
+  build clean.
+
+---
+
 ## [Unreleased] — KullaCoin: pick-your-sequence medley (2026-08-12)
 
 ### Changed — the medley is now a chooser, capped by level
