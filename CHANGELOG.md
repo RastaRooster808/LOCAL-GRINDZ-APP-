@@ -4,6 +4,19 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — KullaCoin: multi-track loop overdub (2026-08-12)
+
+### Changed — the loop recorder is now multi-track
+- The first recording sets the **bar length**; each further **● Add layer** records
+  a new layer **aligned to the loop**, so you can stack a bassline under a melody.
+  **▶ Loop (N)** plays all layers together; **Clear** wipes them.
+- Overdub records against the running loop clock so layers line up on the beat.
+- Verified in a headless Chromium smoke test: layer 1 → 1 track playing; overdub
+  → 2 tracks playing with "● Add layer" / "■ Stop (2)"; Clear resets — zero
+  console errors; build clean.
+
+---
+
 ## [Unreleased] — KullaCoin: 108 songs, riddle scenes, and a loop recorder (2026-08-12)
 
 ### Added — a much bigger Trial

@@ -992,7 +992,7 @@ function loadScene(i){
 }
 function playPad(ci){
   if(!scene) return; ac(); padTone(ci); flashPad(ci);
-  if(loop.recording) loop.events.push({ci, t:performance.now()-loop.t0}); // capture for the looper
+  if(loop.recording && loop.recBuf) loop.recBuf.push({ci, t:loopCaptureT()}); // capture for the looper
   if(scene.solved) return;
   const L=LEVELS[scene.idx];
   if(ci===L.seq[scene.progress]){
@@ -1018,32 +1018,52 @@ function showSolved(L){
   row.append(next,close); sceneMsgEl.hidden=false;
 }
 
-// -- the looper: record your pad taps and loop them -------------------------
-let loop={events:[], recording:false, playing:false, t0:0, len:0, timers:[]};
+// -- the looper: multi-track overdub. First layer sets the bar length; each
+//    further "Rec" lays a new layer aligned to the loop, so you can stack a
+//    bassline under a melody. Play/Stop plays all layers; Clear wipes them.
+function freshLoop(){ return {tracks:[], recBuf:null, recording:false, playing:false, len:0, recStart0:0, loopStart:0, timers:[]}; }
+let loop=freshLoop();
 function loopStopPlay(){ loop.timers.forEach(clearTimeout); loop.timers=[]; loop.playing=false; updateLoopUI(); }
+function loopCaptureT(){
+  return loop.tracks.length===0
+    ? performance.now()-loop.recStart0
+    : (((performance.now()-loop.loopStart)%loop.len)+loop.len)%loop.len; // align overdub to the bar
+}
 function loopRecordToggle(){
   ac();
-  if(loop.recording){ loop.len=performance.now()-loop.t0; loop.recording=false; updateLoopUI(); if(loop.events.length) loopPlay(); }
-  else { loopStopPlay(); loop.events=[]; loop.t0=performance.now(); loop.recording=true; updateLoopUI(); }
+  if(loop.recording){                                   // stop this layer
+    if(loop.tracks.length===0) loop.len=Math.max(600, performance.now()-loop.recStart0);
+    if(loop.recBuf && loop.recBuf.length) loop.tracks.push(loop.recBuf);
+    loop.recBuf=null; loop.recording=false;
+    if(loop.tracks.length && !loop.playing) loopPlay(); else updateLoopUI();
+  } else {                                              // start a new layer
+    if(loop.tracks.length>0 && !loop.playing) loopPlay(); // need the clock running to align overdub
+    loop.recBuf=[]; loop.recording=true;
+    if(loop.tracks.length===0) loop.recStart0=performance.now();
+    updateLoopUI();
+  }
 }
 function loopPlay(){
-  if(loop.recording || !loop.events.length) return;
-  loopStopPlay(); loop.playing=true; updateLoopUI();
-  const len=Math.max(loop.len, (loop.events[loop.events.length-1].t)+300);
+  if(!loop.tracks.length) return;
+  loop.timers.forEach(clearTimeout); loop.timers=[]; loop.playing=true;
+  const len=loop.len>0?loop.len:1200;
   const fire=()=>{ if(!loop.playing) return;
-    loop.events.forEach(ev=>{ const id=setTimeout(()=>{ if(!loop.playing)return; voiceNote(padFreq(ev.ci),ac().currentTime+0.005,0.5,0.16); flashPad(ev.ci); }, ev.t); loop.timers.push(id); });
+    loop.loopStart=performance.now();
+    loop.tracks.forEach(track=>track.forEach(ev=>{ const id=setTimeout(()=>{ if(!loop.playing)return;
+      voiceNote(padFreq(ev.ci),ac().currentTime+0.005,0.5,0.16); flashPad(ev.ci); }, ev.t); loop.timers.push(id); }));
     const idl=setTimeout(fire, len); loop.timers.push(idl);
   };
-  fire();
+  fire(); updateLoopUI();
 }
-function loopClear(){ loopStopPlay(); loop.events=[]; loop.recording=false; updateLoopUI(); }
+function loopClear(){ loopStopPlay(); loop=freshLoop(); updateLoopUI(); }
 function updateLoopUI(){
   const rec=document.getElementById('loopRec'), play=document.getElementById('loopPlay');
-  rec.textContent=loop.recording?'■ Stop rec':'● Rec loop'; rec.classList.toggle('on',loop.recording);
-  play.textContent=loop.playing?'■ Stop':'▶ Loop'; play.classList.toggle('playing',loop.playing);
+  const n=loop.tracks.length;
+  rec.textContent=loop.recording?'■ Stop rec':(n?'● Add layer':'● Rec loop'); rec.classList.toggle('on',loop.recording);
+  play.textContent=(loop.playing?'■ Stop':'▶ Loop')+(n?` (${n})`:''); play.classList.toggle('playing',loop.playing);
 }
 
-function openTrial(){ trialOverlay.hidden=false; buildPads(); loop={events:[],recording:false,playing:false,t0:0,len:0,timers:[]}; updateLoopUI(); loadScene(0); }
+function openTrial(){ trialOverlay.hidden=false; buildPads(); loop=freshLoop(); updateLoopUI(); loadScene(0); }
 function trialClose(){ loopStopPlay(); trialOverlay.hidden=true; scene=null; }
 document.getElementById('trialExit').onclick=trialClose;
 document.getElementById('trialLaunch').onclick=()=>{ ac(); openTrial(); };
