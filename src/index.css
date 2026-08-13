@@ -2126,11 +2126,18 @@
 @media (prefers-reduced-motion: reduce) { .raffle-draw-name--spin { animation: none; } }
 
 /* ── KullaCoin route: app shell framing the isolated mini-app iframe ──── */
-.kc-shell { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; background: #0c0b10; }
+.kc-shell { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; background: #d6f2ff; }
 .kc-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-  padding: 0.7rem 1.1rem; background: #0c0b10; border-bottom: 1px solid #221f2e; }
-.kc-back { color: #e7a928; text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+  padding: 0.7rem 1.1rem; background: #d6f2ff; border-bottom: 1px solid #bfe0c4; }
+.kc-back { color: #1f7a44; text-decoration: none; font-size: 0.9rem; font-weight: 600; }
 .kc-back:hover { text-decoration: underline; }
-.kc-bar-title { font-family: Georgia, 'Times New Roman', serif; color: #f1ece0; font-size: 1.05rem; letter-spacing: 0.02em; }
-.kc-bar-spacer { width: 6.5rem; } /* balances the back link so the title sits centered */
-.kc-frame { flex: 1 1 auto; width: 100%; border: 0; display: block; min-height: 0; background: #0c0b10; }
+.kc-bar-title { font-family: Georgia, 'Times New Roman', serif; color: #213021; font-size: 1.05rem; letter-spacing: 0.02em; }
+.kc-sync { min-width: 6.5rem; text-align: right; font-size: 0.78rem; } /* balances the back link */
+.kc-sync-link { color: #2a6fd0; text-decoration: none; font-weight: 600; }
+.kc-sync-link:hover { text-decoration: underline; }
+.kc-sync-ok { color: #2f9e52; font-weight: 600; }
+.kc-sync-muted { color: #83977a; }
+.kc-frame { flex: 1 1 auto; width: 100%; border: 0; display: block; min-height: 0; background: #eaf7d8; }
+.kc-loading { display: flex; align-items: center; justify-content: center; color: #566a4f;
+  font-family: Georgia, 'Times New Roman', serif; font-size: 1.1rem;
+  background: linear-gradient(180deg, #d6f2ff, #eaf7d8 60%, #c2e8a6); }
