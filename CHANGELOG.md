@@ -4,6 +4,20 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — KullaCoin: pick-your-sequence medley (2026-08-12)
+
+### Changed — the medley is now a chooser, capped by level
+- At **Level 1 (10 songs)** you can select **up to 2** of your songs to play in
+  sequence; **Level 2 (20)** → 3; **Level N → N+1**. You tap songs to add them to
+  the sequence (with order badges), and picking beyond the cap drops the oldest.
+- The sequence plays in your chosen order and can loop, through the selected
+  Hawaiian sound world. Play with nothing selected defaults to your most-recent
+  `cap` songs.
+- Verified in a headless Chromium smoke test (seed 12 coins → Level 1, cap 2,
+  selection + cap-enforcement + playback), zero console errors; build clean.
+
+---
+
 ## [Unreleased] — KullaCoin wired into the app at `/kullacoin` (2026-08-12)
 
 ### Added — the coin-as-song mini-app is now a route

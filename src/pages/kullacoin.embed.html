@@ -142,6 +142,16 @@ button.btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
   background:linear-gradient(90deg,var(--blue),var(--gold) 45%,var(--red) 70%,var(--green));transition:width .5s ease}
 .levelbar-note{font-size:.72rem;color:var(--muted);text-align:center}
 .levelbar-note b{color:var(--gold)}
+.seqhint{font-size:.76rem;color:var(--muted);text-align:center;margin-bottom:.6rem}
+.seqhint b{color:var(--gold)}
+.seqpick{display:flex;gap:.55rem;overflow-x:auto;padding:.1rem .1rem .6rem;scrollbar-width:thin;justify-content:flex-start}
+.seqpick:empty::after{content:"Mint more songs to fill your sequence";color:var(--faint);font-size:.8rem;margin:auto;font-style:italic}
+.seqcoin{position:relative;flex:0 0 auto;width:60px;height:60px;border-radius:50%;cursor:pointer;border:1px solid var(--line);
+  background:var(--vault);transition:transform .15s,box-shadow .15s;padding:0}
+.seqcoin:hover{transform:translateY(-3px)}
+.seqcoin.sel{box-shadow:0 0 0 2px var(--gold);transform:translateY(-3px)}
+.seqcoin .ord{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--gold);color:#1a0f08;
+  font:700 .72rem/20px ui-monospace,monospace;text-align:center}
 .medley-controls{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center}
 .btn-ghost.on{border-color:var(--gold);color:var(--gold)}
 
@@ -254,8 +264,10 @@ footer{color:var(--faint);font-size:.72rem;text-align:center;max-width:40ch;line
 
   <div class="panel" id="medleyPanel" hidden>
     <h2>Your medley <span class="songcount" id="levelbadge"></span></h2>
+    <p class="seqhint" id="seqhint"></p>
+    <div class="seqpick" id="seqpick"></div>
     <div class="medley-controls">
-      <button class="btn btn-mint" id="medleyPlay">▶ Play medley</button>
+      <button class="btn btn-mint" id="medleyPlay">▶ Play sequence</button>
       <button class="btn btn-ghost" id="medleyLoop">⟳ Loop: off</button>
     </div>
     <p class="mintnote" id="levelnote"></p>
@@ -522,13 +534,38 @@ function drawWallet(){const w=loadWallet();
     draw(c,coin.slots,-1,0);c.onclick=()=>{setCoin(coin,true);playCoin(coin);};walletEl.appendChild(c);});
   updateLevel();}
 
-// ── Levels & the medley: unlock at 10 songs, sequence + loop your library ───
-// Level = floor(count / 10). Level ≥ 1 unlocks a medley that sequences your
-// most recent (level × 10) songs and loops. Each 10 mints = a new level.
+// ── Levels & the medley: at 10 songs (Level 1) pick up to 2 melodies to play
+// in sequence; Level 2 (20 songs) → 3; Level N → N+1. You choose which songs
+// and in what order; the sequence can loop. Each 10 mints = a new level.
 const LEVEL_STEP=10, MEDLEY_STEP=0.42, MEDLEY_GAP=0.14;
 let loopOn=false, medleyPlaying=false, medleyToken=0, medleyTimer=null;
+let seqSel=[]; // selected coin hashes, in play order
 function levelOf(count){return Math.floor(count/LEVEL_STEP);}
-function medleySongs(){const w=loadWallet();const lvl=levelOf(w.length);if(lvl<1)return[];return w.slice(-(lvl*LEVEL_STEP));}
+function seqCap(){return levelOf(loadWallet().length)+1;} // Lvl1→2, Lvl2→3, …
+function medleySongs(){ const w=loadWallet(); return seqSel.map(h=>w.find(c=>c.hash===h)).filter(Boolean); }
+function renderSeqPick(){
+  const w=loadWallet(), pick=document.getElementById('seqpick'), hint=document.getElementById('seqhint');
+  const cap=seqCap();
+  seqSel=seqSel.filter(h=>w.some(c=>c.hash===h)).slice(0,cap); // prune stale / over-cap
+  if(hint) hint.innerHTML=`Tap songs to build a sequence — up to <b>${cap}</b> at Level ${levelOf(w.length)}. Selected play in order${loopOn?', looping':''}.`;
+  if(!pick) return;
+  pick.innerHTML='';
+  w.slice().reverse().forEach(coin=>{
+    const b=document.createElement('button'); const ord=seqSel.indexOf(coin.hash);
+    b.className='seqcoin'+(ord>=0?' sel':''); b.title=serialOf(coin.slots);
+    const cv=document.createElement('canvas'); cv.width=120; cv.height=120; draw(cv,coin.slots,-1,0);
+    cv.style.width='100%'; cv.style.height='100%'; cv.style.borderRadius='50%'; b.appendChild(cv);
+    if(ord>=0){ const o=document.createElement('span'); o.className='ord'; o.textContent=String(ord+1); b.appendChild(o); }
+    b.onclick=()=>toggleSeq(coin.hash);
+    pick.appendChild(b);
+  });
+}
+function toggleSeq(hash){
+  const i=seqSel.indexOf(hash);
+  if(i>=0) seqSel.splice(i,1);
+  else { if(seqSel.length>=seqCap()) seqSel.shift(); seqSel.push(hash); } // cap: drop oldest
+  renderSeqPick();
+}
 function updateLevel(){
   const w=loadWallet(),count=w.length,lvl=levelOf(count),into=count%LEVEL_STEP;
   const fill=document.getElementById('levelbar-fill'),note=document.getElementById('levelbar-note'),
@@ -536,18 +573,21 @@ function updateLevel(){
   if(fill) fill.style.width=(into/LEVEL_STEP*100)+'%';
   if(note) note.innerHTML = lvl>=1
     ? `<b>Level ${lvl}</b> · ${into}/10 minted toward Level ${lvl+1}`
-    : `${into}/10 songs to <b>Level 1</b> — unlock your looping medley`;
+    : `${into}/10 songs to <b>Level 1</b> — unlock sequencing`;
   if(panel){
     panel.hidden = lvl<1;
     if(lvl>=1){
       if(badge) badge.textContent=`· Level ${lvl}`;
-      if(lnote) lnote.textContent=`Sequencing your last ${lvl*LEVEL_STEP} songs${loopOn?', looping':''}. Reach Level ${lvl+1} at ${(lvl+1)*LEVEL_STEP} songs.`;
+      if(lnote) lnote.textContent=`Level ${lvl} lets you sequence up to ${lvl+1} songs. Reach Level ${lvl+1} at ${(lvl+1)*LEVEL_STEP} songs for one more.`;
+      renderSeqPick();
     } else if(medleyPlaying){ stopMedley(); }
   }
 }
 function playSongAt(coin,when){coin.slots.forEach((s,ni)=>voiceNote(freqOf(s),when+ni*MEDLEY_STEP,0.5,0.10+0.06*s.v));}
 function runMedley(){
-  const songs=medleySongs(); if(!songs.length) return;
+  let songs=medleySongs();
+  if(!songs.length){ const w=loadWallet(); seqSel=w.slice(-seqCap()).map(c=>c.hash); renderSeqPick(); songs=medleySongs(); } // default: most recent
+  if(!songs.length) return;
   const token=++medleyToken; medleyPlaying=true; updateMedleyUI();
   const songDur=SLOTS*MEDLEY_STEP+MEDLEY_GAP;
   let i=0;
@@ -562,7 +602,7 @@ function runMedley(){
 function stopMedley(){ medleyToken++; if(medleyTimer) clearTimeout(medleyTimer); medleyPlaying=false; updateMedleyUI(); }
 function updateMedleyUI(){
   const p=document.getElementById('medleyPlay'),l=document.getElementById('medleyLoop');
-  if(p) p.textContent = medleyPlaying ? '■ Stop' : '▶ Play medley';
+  if(p) p.textContent = medleyPlaying ? '■ Stop' : '▶ Play sequence';
   if(l){ l.textContent='⟳ Loop: '+(loopOn?'on':'off'); l.classList.toggle('on',loopOn); }
 }
 document.getElementById('medleyPlay').onclick=()=>{ ac(); medleyPlaying ? stopMedley() : runMedley(); };
