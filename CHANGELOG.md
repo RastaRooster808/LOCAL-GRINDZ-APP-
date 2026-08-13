@@ -4,6 +4,31 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — KullaCoin: bright tropical repaint + play-to-reveal Trial (2026-08-12)
+
+### Changed — goodbye all-black, hello Big Island
+- Repainted KullaCoin from the dark "vault" world to a **bright sky-and-grass**
+  theme: sky→grass page gradient, floating fruit &amp; musubi (🍍🥭🍙🍌🍈🌺), a
+  grassy footer, and cream cards with soft depth. Coins still read as jewels, now
+  on a sunny field. Text flipped to dark-on-light for contrast.
+
+### Changed — The Trial is now play-to-reveal, not a runner
+- Replaced the Geometry-Dash-style runner (too punishing — obstacle spacing made
+  it near-impossible) with a **musical puzzle**: each level shows a colourful
+  cartoon scene + a clue; play the colour-code melody in order on four big pads
+  and the hidden layer is **revealed with a funny animated payoff** (sunrise,
+  a devoured musubi, a lehua blooming). A **wrong note does nothing** — instant
+  retry, zero penalty. Uses more space, focuses on musical timing, stays light.
+- Ships with three scenes (Sunrise / Musubi / Bloom) and a Next-scene flow.
+- Verified in a headless Chromium smoke test: pads + targets render, a wrong note
+  keeps progress at 0 with no reveal, the correct sequence reveals the payoff —
+  zero console errors; build clean.
+- Note: this supersedes the earlier deterministic-physics "Phase A" runner work.
+  Server verification for a melody puzzle is simpler still — the submitted input
+  is just the note sequence, checked against the level's target (server-phase §03).
+
+---
+
 ## [Unreleased] — KullaCoin: pick-your-sequence medley (2026-08-12)
 
 ### Changed — the medley is now a chooser, capped by level
