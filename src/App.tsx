@@ -16,6 +16,7 @@ import { ToastContainer } from './components/ui/Toast';
 const VendorDashboard = lazy(() => import('./pages/VendorDashboard').then(m => ({ default: m.VendorDashboard })));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
 const Map = lazy(() => import('./pages/Map').then(m => ({ default: m.Map })));
+const KullaCoin = lazy(() => import('./pages/KullaCoin').then(m => ({ default: m.KullaCoin })));
 
 function PageLoader() {
   return <div style={{ padding: '2rem', textAlign: 'center', color: '#aaa' }}>Loading…</div>;
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="/protea" element={<Protea />} />
         <Route path="/blissings" element={<Blissings />} />
         <Route path="/raffle" element={<Raffle />} />
+        <Route path="/kullacoin" element={<Suspense fallback={<PageLoader />}><KullaCoin /></Suspense>} />
         <Route path="/vendor" element={<Suspense fallback={<PageLoader />}><VendorDashboard /></Suspense>} />
         <Route path="/admin" element={<Suspense fallback={<PageLoader />}><AdminDashboard /></Suspense>} />
         <Route path="/map" element={<Suspense fallback={<PageLoader />}><Map /></Suspense>} />

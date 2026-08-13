@@ -4,6 +4,74 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — KullaCoin wired into the app at `/kullacoin` (2026-08-12)
+
+### Added — the coin-as-song mini-app is now a route
+- **New `/kullacoin` route** (`src/pages/KullaCoin.tsx`, lazy-loaded). It frames
+  the self-contained KullaCoin experience — Canvas art + Web Audio + Proof-of-
+  Melody minting (play the 4-note song to mint), Hawaiian sound worlds
+  (ʻukulele + ʻiliʻili, ʻohe flute + ipu heke, pū conch), a SHA-256-chained
+  wallet, and a scan-to-hear QR baked into every saved wallpaper.
+- **Isolated by design:** the game ships as one tested HTML file
+  (`src/pages/kullacoin.embed.html`) embedded in a sandboxed `<iframe srcDoc>`
+  via Vite's `?raw` import. Its generic class names (`.card`/`.panel`/`.key`…)
+  can't collide with the marketplace's global CSS, and the game stays a single
+  source of truth — editing the file updates the route.
+- **Discoverable:** added a **KullaCoin** entry to the marketplace nav.
+- **Guardrail preserved:** art-only, no real money. KULLA is earned, never sold
+  for cash, never cashed out — a closed-loop rewards concept, not a currency.
+- Verified: `npm run build` clean (KullaCoin is its own ~15 KB gzip chunk).
+
+### Added — personal identity: your own signature song
+- **Enroll with name + phone number** and KullaCoin derives a unique,
+  deterministic 4-note **signature song** (via SHA-256 of name+number) that only
+  you own — an independent sound per person. It becomes your wallet's Block #0.
+- **Per-person wallet:** the ledger is namespaced by a hash of the number, so
+  each enrolled person has an independent wallet; "switch person" swaps identity.
+- **Privacy:** name and number are stored **only in the device's localStorage** —
+  nothing is transmitted (the embed makes no network calls; the QR is a data URI).
+  Displayed number is masked to the last four digits.
+
+### Added — per-coin deep-link QR (scan to hear that exact song)
+- Every coin now generates its **own** QR at runtime, encoding the song in a
+  deep link: `…/#/kullacoin?s=<12-digit code>`. Scanning it opens KullaCoin and
+  plays **that** coin — so a friend who sees your lock screen hears your exact
+  song, not a generic demo.
+- The QR is produced by the `qrcode` library bundled to a ~24 KB self-contained
+  IIFE (via esbuild) and inlined — no external requests, CSP-safe. The old
+  static QR data-URI is gone.
+- **Deep-link read:** opening `?s=<code>` (or, on the app route, the code passed
+  through by `KullaCoin.tsx` via `postMessage`, since HashRouter hides the query
+  from the iframe) shows a "🎁 A song was shared with you" banner and plays it.
+- **Robustness:** `sha256` gained a non-crypto fallback (see below), and the
+  share code is validated (`[0-3]{12}`, octave/velocity range-checked) before use.
+- Verified in a headless Chromium smoke test: QR generation, share URL, `?s=`
+  deep link, and the postMessage path — zero console errors.
+
+### Added — The Trial (a rhythm run built from your coin)
+- **`⛰ Run this coin's Trial`** launches a Geometry-Dash-style runner generated
+  deterministically from the current coin: a cube auto-scrolls and you tap /
+  space / click to jump spikes timed to the coin's looping song, difficulty
+  ramping across the run.
+- **Binary collision, zero-death-penalty friction:** a miss resets instantly
+  (no death animation, no loading). **Practice mode** drops a checkpoint so you
+  can grind a hard section. Clearing records your fewest-tries best per coin.
+- Self-contained Canvas + Web Audio; verified end-to-end in a headless Chromium
+  smoke test (enroll → launch → run → clear), zero console errors.
+- **Robustness:** `sha256` now falls back to a non-crypto hash when
+  `crypto.subtle` is unavailable (file://, plain http), so the toy never
+  hard-fails outside a secure context.
+
+### Added — levels & the medley (sequence + loop your songs)
+- **Level = floor(songs / 10).** A progress bar in the wallet shows how close you
+  are to the next level; each 10 mints levels you up.
+- **At Level 1 (10 songs) a Medley panel unlocks:** it sequences your most recent
+  `level × 10` songs into one continuous piece and can **loop**. The medley grows
+  as you level — Level 2 sequences 20, Level 3 sequences 30, and so on — and it
+  plays through whichever Hawaiian sound world is selected.
+
+---
+
 ## [Unreleased] — Vendor chat/inbox restored (2026-07-25)
 
 ### Fixed — messaging was dead (no table existed)
