@@ -4,6 +4,26 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — KullaCoin: 108 songs, riddle scenes, and a loop recorder (2026-08-12)
+
+### Added — a much bigger Trial
+- **108 unique songs / levels** (was 3): 3 authored showcase scenes, 6 **riddle
+  levels**, and a generated library of unique 4-note songs, each with its own
+  cartoon reveal. Level nav (◀ ▶ 🎲) and a live `n / 108` counter.
+- **Riddle levels** hide the target dots and give a decodable clue
+  (e.g. "Sea, sand, sea, palm.") with a colour-key legend
+  (blue=sea/sky · gold=sun/sand · red=lava/sunset · green=leaf/honu). The
+  spoiler "Hear it" button is suppressed on riddles. Wrong note still does
+  nothing — zero penalty.
+- **▶ Hear it** previews a (non-riddle) scene's song so you can learn/play it back.
+- **Loop recorder:** ● Rec loop captures your pad taps with timing and loops them
+  (▶ Loop / Clear) — record a groove and let it ride while you keep playing.
+- Verified in a headless Chromium smoke test: 108 unique songs, riddle targets
+  hidden, looper records + loops, a normal scene still reveals — zero console
+  errors; build clean.
+
+---
+
 ## [Unreleased] — KullaCoin: bright tropical repaint + play-to-reveal Trial (2026-08-12)
 
 ### Changed — goodbye all-black, hello Big Island

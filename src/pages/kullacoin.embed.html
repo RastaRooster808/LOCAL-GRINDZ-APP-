@@ -175,7 +175,17 @@ button.btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .trial-overlay[hidden]{display:none}
 .trial-top{display:flex;align-items:center;justify-content:space-between;gap:.7rem;padding:.7rem 1rem}
 .scene-title{font-family:Georgia,serif;font-size:1.05rem;color:var(--ink)}
-.scene-count{font-size:.74rem;color:var(--muted);font-family:ui-monospace,monospace}
+.scene-nav{display:flex;align-items:center;gap:.4rem}
+.scene-count{font-size:.72rem;color:var(--muted);font-family:ui-monospace,monospace;min-width:5.5rem;text-align:center}
+.navbtn{border:1px solid var(--line);background:rgba(255,255,255,.6);border-radius:.5rem;cursor:pointer;
+  font:inherit;font-size:.8rem;padding:.15rem .45rem;color:var(--ink)}
+.navbtn:hover{background:#fff}
+.scene-tools{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center}
+.scene-tool{border:1px solid var(--line);background:rgba(255,255,255,.7);border-radius:999px;cursor:pointer;
+  font:inherit;font-weight:650;font-size:.76rem;padding:.35rem .75rem;color:var(--ink)}
+.scene-tool:hover{background:#fff}
+.scene-tool.on{background:var(--red);border-color:var(--red);color:#fff}
+.scene-tool.playing{background:var(--green);border-color:var(--green);color:#fff}
 .scene{flex:1;display:flex;flex-direction:column;align-items:center;gap:1rem;padding:.5rem 1.1rem 2rem;
   max-width:520px;width:100%;margin:0 auto;position:relative}
 .scene-stage{width:100%;max-width:360px;aspect-ratio:1;border-radius:1.3rem;overflow:hidden;position:relative;
@@ -377,13 +387,24 @@ footer{color:var(--faint);font-size:.72rem;text-align:center;max-width:40ch;line
   <div class="trial-top">
     <button class="linkbtn" id="trialExit">✕ close</button>
     <div class="scene-title" id="sceneTitle">The Trial</div>
-    <div class="scene-count" id="sceneCount"></div>
+    <div class="scene-nav">
+      <button class="navbtn" id="scenePrev" aria-label="previous scene">◀</button>
+      <span class="scene-count" id="sceneCount"></span>
+      <button class="navbtn" id="sceneNext" aria-label="next scene">▶</button>
+      <button class="navbtn" id="sceneRandom" aria-label="random scene">🎲</button>
+    </div>
   </div>
   <div class="scene">
     <div class="scene-stage" id="sceneArt"></div>
     <p class="scene-clue" id="sceneClue"></p>
     <div class="scene-target" id="sceneTarget"></div>
     <div class="scene-pads" id="scenePads"></div>
+    <div class="scene-tools">
+      <button class="scene-tool" id="sceneHear">▶ Hear it</button>
+      <button class="scene-tool" id="loopRec">● Rec loop</button>
+      <button class="scene-tool" id="loopPlay">▶ Loop</button>
+      <button class="scene-tool" id="loopClear">Clear</button>
+    </div>
     <p class="scene-hint" id="sceneHint">Play the colours in order. Wrong note? Nothing happens — just try again.</p>
     <div class="scene-msg" id="sceneMsg" hidden></div>
   </div>
@@ -853,10 +874,10 @@ $('save').onclick=async()=>{if(!current)return;
 
 function idle(now){if(!reduce&&!idleFrozen&&current)draw(coinEl,current.slots,-1,(now-idleStart)/1000);requestAnimationFrame(idle);}
 
-// ── The Trial: play the scene's melody to reveal a hidden, funny payoff ──────
-// Framework: a colourful cartoon scene + a clue. Play the colour-code in order
-// and the hidden layer is exposed with a brief animated resolution. A wrong
-// note does nothing — instant retry, zero penalty. Lighthearted by design.
+// ── The Trial: play a scene's melody to reveal a hidden, funny payoff ────────
+// A colourful cartoon scene + a clue. Play the colour-code in order and the
+// hidden layer is exposed with an animated resolution. Wrong note = nothing,
+// instant retry, zero penalty. 100+ unique songs; riddle levels hide the target.
 const trialOverlay=document.getElementById('trialOverlay');
 const sceneArt=document.getElementById('sceneArt');
 const sceneClueEl=document.getElementById('sceneClue');
@@ -869,46 +890,82 @@ const sceneCountEl=document.getElementById('sceneCount');
 const sceneEl=document.querySelector('.scene');
 let scene=null;
 
-const LEVELS=[
+// -- authored showcase scenes (bespoke art) ----------------------------------
+const AUTHORED=[
   { title:'Sunrise', clue:'Wake the sun over Mauna Kea.', seq:[0,1,2,3],
     payoff:{emoji:'☀️', title:'Sunrise!', text:'You woke the sun over Mauna Kea. Aloha kakahiaka!'},
     stage:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
       <rect width="100" height="100" fill="#bfe9ff"/>
-      <g class="reveal-layer"><circle cx="50" cy="44" r="15" fill="#ffd23f"/>
-        <circle cx="50" cy="44" r="21" fill="#ffd23f" opacity=".3"/></g>
+      <g class="reveal-layer"><circle cx="50" cy="44" r="15" fill="#ffd23f"/><circle cx="50" cy="44" r="21" fill="#ffd23f" opacity=".3"/></g>
       <g class="cover"><rect width="100" height="100" fill="#1a2340"/></g>
-      <path d="M0,100 L0,74 L30,52 L55,76 L78,56 L100,76 L100,100 Z" fill="#3f8f2f"/>
-    </svg>` },
+      <path d="M0,100 L0,74 L30,52 L55,76 L78,56 L100,76 L100,100 Z" fill="#3f8f2f"/></svg>` },
   { title:'Musubi', clue:'Somebody is hungry… unwrap the musubi.', seq:[3,3,1,2],
     payoff:{emoji:'🍙', title:'Ono!', text:'You unwrapped the musubi — and it did not last long.'},
-    stage:()=>`<svg viewBox="0 0 100 100">
-      <rect width="100" height="100" fill="#eaf7d8"/>
+    stage:()=>`<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#eaf7d8"/>
       <g class="reveal-layer"><text x="50" y="66" font-size="48" text-anchor="middle">😋</text></g>
-      <g class="cover">
-        <rect x="30" y="34" width="40" height="46" rx="6" fill="#f8f3e7"/>
-        <rect x="34" y="29" width="32" height="10" rx="3" fill="#e0432f"/>
-        <rect x="30" y="54" width="40" height="18" rx="2" fill="#25341f"/>
-      </g>
-    </svg>` },
+      <g class="cover"><rect x="30" y="34" width="40" height="46" rx="6" fill="#f8f3e7"/>
+        <rect x="34" y="29" width="32" height="10" rx="3" fill="#e0432f"/><rect x="30" y="54" width="40" height="18" rx="2" fill="#25341f"/></g></svg>` },
   { title:'Bloom', clue:'Coax the lehua from the lava.', seq:[2,3,2,3],
     payoff:{emoji:'🌺', title:'It bloomed!', text:'Your song coaxed a lehua into bloom. Nature approves.'},
-    stage:()=>`<svg viewBox="0 0 100 100">
-      <rect width="100" height="100" fill="#dff3c8"/>
-      <rect y="72" width="100" height="28" fill="#6b4a2f"/>
-      <g class="reveal-layer">
-        <rect x="48" y="40" width="4" height="34" fill="#3f8f2f"/>
-        <g transform="translate(50,38)">
-          <circle cx="0" cy="-11" r="5" fill="#e0432f"/><circle cx="10" cy="-4" r="5" fill="#e0432f"/>
+    stage:()=>`<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#dff3c8"/><rect y="72" width="100" height="28" fill="#6b4a2f"/>
+      <g class="reveal-layer"><rect x="48" y="40" width="4" height="34" fill="#3f8f2f"/>
+        <g transform="translate(50,38)"><circle cx="0" cy="-11" r="5" fill="#e0432f"/><circle cx="10" cy="-4" r="5" fill="#e0432f"/>
           <circle cx="7" cy="9" r="5" fill="#e0432f"/><circle cx="-7" cy="9" r="5" fill="#e0432f"/><circle cx="-10" cy="-4" r="5" fill="#e0432f"/>
-          <circle r="6" fill="#db3b2c"/><circle r="3" fill="#f2b21b"/>
-        </g>
-      </g>
-      <g class="cover"><ellipse cx="50" cy="72" rx="8" ry="5" fill="#7a5230"/>
-        <path d="M50,71 q-2,-7 3,-9" stroke="#3f8f2f" stroke-width="2" fill="none"/></g>
-    </svg>` },
+          <circle r="6" fill="#db3b2c"/><circle r="3" fill="#f2b21b"/></g></g>
+      <g class="cover"><ellipse cx="50" cy="72" rx="8" ry="5" fill="#7a5230"/><path d="M50,71 q-2,-7 3,-9" stroke="#3f8f2f" stroke-width="2" fill="none"/></g></svg>` },
 ];
 
-function padTone(ci){ voiceNote(COLORS[ci].base*Math.pow(2,OCTAVES[1]-4), ac().currentTime+0.005, 0.5, 0.16); }
+// -- riddle levels: target hidden, the clue decodes to the colour sequence ----
+// colour key — blue: sea/sky · gold: sun/sand/banana · red: lava/sunset/chili · green: leaf/lime/honu
+const RIDDLES=[
+  { title:'Riddle · Shoreline', clue:'Sea, sand, sea, palm.', seq:[0,1,0,3] },
+  { title:'Riddle · Eruption', clue:'Lava, lava, lava, leaf.', seq:[2,2,2,3] },
+  { title:'Riddle · Two Suns', clue:'Sunrise, sunset, sunrise, midnight sea.', seq:[1,2,1,0] },
+  { title:'Riddle · Orchard', clue:'Banana, lime, banana, lime.', seq:[1,3,1,3] },
+  { title:'Riddle · Fruit Stand', clue:'Blueberry, blueberry, mango, chili.', seq:[0,0,1,2] },
+  { title:'Riddle · Honu', clue:'Honu, sea, reef, sunset.', seq:[3,0,3,2] },
+].map(r=>({ ...r, riddle:true,
+  payoff:{emoji:'🧩', title:'Solved!', text:'Nice ear — you read the riddle and played it true.'},
+  stage:()=>`<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#eef6ff"/>
+    <g class="reveal-layer"><text x="50" y="64" font-size="46" text-anchor="middle">🎉</text></g>
+    <g class="cover"><rect x="18" y="18" width="64" height="64" rx="10" fill="#cfe0f0"/>
+      <text x="50" y="63" font-size="40" text-anchor="middle" fill="#7d94ab">?</text></g></svg>` }));
+
+// -- generic template scenes for the generated song library ------------------
+const PAYOFFS=[
+  {e:'🌊',t:'Splash!',x:'A wave rolls in on cue.'},{e:'🌋',t:'Boom!',x:'Pele says howzit.'},
+  {e:'🌈',t:'Rainbow!',x:'Every color, right on pitch.'},{e:'🐢',t:'Honu!',x:'A turtle glides by, unbothered.'},
+  {e:'🥥',t:'Coconut!',x:'It drops — mind your head.'},{e:'⭐',t:'Shine!',x:'A star pops out to listen.'},
+  {e:'🐠',t:'Reef!',x:'The fish start dancing.'},{e:'🌴',t:'Palm!',x:'The trade winds pick up.'},
+  {e:'🍧',t:'Shave ice!',x:'Rainbow, of course.'},{e:'🦀',t:'Crab!',x:'It shuffles sideways to your beat.'},
+  {e:'🌺',t:'Bloom!',x:'Petals everywhere.'},{e:'🍍',t:'Sweet!',x:'A pineapple ripens on the spot.'},
+];
+function genScene(idx){
+  const p=PAYOFFS[idx%PAYOFFS.length];
+  return `<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#eaf7d8"/>
+    <g class="reveal-layer"><text x="50" y="66" font-size="52" text-anchor="middle">${p.e}</text></g>
+    <g class="cover"><rect x="20" y="20" width="60" height="60" rx="12" fill="#bfe0a8"/>
+      <path d="M20,50 H80 M50,20 V80" stroke="#a6d18a" stroke-width="3"/>
+      <text x="50" y="62" font-size="34" text-anchor="middle" fill="#5f8f45">♪</text></g></svg>`;
+}
+// build the full library: authored + riddles + generated unique songs (>96 total)
+function buildLevels(){
+  const out=[...AUTHORED, ...RIDDLES];
+  const used=new Set(out.map(l=>l.seq.join('')));
+  const TARGET=108;
+  for(let code=0; out.length<TARGET && code<256; code++){
+    const seq=[(code>>6)&3,(code>>4)&3,(code>>2)&3,code&3];
+    const key=seq.join(''); if(used.has(key)) continue; used.add(key);
+    const i=out.length, p=PAYOFFS[i%PAYOFFS.length];
+    out.push({ title:`Song #${i+1}`, clue:`Play the tune to reveal a surprise.`, seq,
+      payoff:{emoji:p.e, title:p.t, text:p.x}, stage:()=>genScene(i) });
+  }
+  return out;
+}
+const LEVELS=buildLevels();
+
+function padFreq(ci){ return COLORS[ci].base*Math.pow(2,OCTAVES[1]-4); }
+function padTone(ci){ voiceNote(padFreq(ci), ac().currentTime+0.005, 0.5, 0.16); }
 function buildPads(){
   scenePadsEl.innerHTML='';
   COLORS.forEach((n,ci)=>{ const b=document.createElement('button'); b.className='pad'; b.style.background=n.color;
@@ -917,47 +974,86 @@ function buildPads(){
 function flashPad(ci){ const b=scenePadsEl.children[ci]; if(b){ b.classList.add('hit'); setTimeout(()=>b.classList.remove('hit'),140); } }
 function renderTargets(){
   const L=LEVELS[scene.idx]; sceneTargetEl.innerHTML='';
-  L.seq.forEach((c,k)=>{ const d=document.createElement('span'); d.className='d'+(k<scene.progress?' hit':' pending');
-    d.style.background=COLORS[c].color; sceneTargetEl.appendChild(d); });
+  L.seq.forEach((c,k)=>{ const d=document.createElement('span'); d.className='d';
+    if(L.riddle && k>=scene.progress){ d.style.background='transparent'; d.style.boxShadow='0 0 0 2px var(--line) inset'; }
+    else { d.classList.add(k<scene.progress?'hit':'pending'); d.style.background=COLORS[c].color; }
+    sceneTargetEl.appendChild(d); });
 }
 function loadScene(i){
+  i=(i+LEVELS.length)%LEVELS.length;
   const L=LEVELS[i]; scene={idx:i, progress:0, solved:false};
-  sceneTitleEl.textContent=L.title; sceneCountEl.textContent=`Level ${i+1} / ${LEVELS.length}`;
+  sceneTitleEl.textContent=L.title; sceneCountEl.textContent=`${i+1} / ${LEVELS.length}`;
   sceneClueEl.textContent=L.clue; sceneArt.className='scene-stage'; sceneArt.innerHTML=L.stage();
+  sceneHintEl.textContent=L.riddle
+    ? 'Riddle: blue=sea/sky · gold=sun/sand · red=lava/sunset · green=leaf/honu. Wrong note does nothing.'
+    : 'Play the colours in order. Wrong note? Nothing happens — just try again.';
   sceneHintEl.style.visibility='visible'; sceneMsgEl.hidden=true; renderTargets();
+  document.getElementById('sceneHear').style.display=L.riddle?'none':''; // don't spoil riddles
 }
 function playPad(ci){
   if(!scene) return; ac(); padTone(ci); flashPad(ci);
+  if(loop.recording) loop.events.push({ci, t:performance.now()-loop.t0}); // capture for the looper
   if(scene.solved) return;
   const L=LEVELS[scene.idx];
   if(ci===L.seq[scene.progress]){
     scene.progress++; renderTargets();
     if(scene.progress>=L.seq.length) solveScene();
-  } else { // wrong → zero penalty, gentle nudge, reset the phrase
-    scene.progress=0; renderTargets();
-    sceneEl.classList.remove('shake'); void sceneEl.offsetWidth; sceneEl.classList.add('shake');
-  }
+  } else { scene.progress=0; renderTargets();
+    sceneEl.classList.remove('shake'); void sceneEl.offsetWidth; sceneEl.classList.add('shake'); }
 }
+function hearSong(){ if(!scene) return; ac(); const L=LEVELS[scene.idx], t0=ac().currentTime+0.05, step=0.36;
+  L.seq.forEach((c,k)=>{ voiceNote(padFreq(c),t0+k*step,0.5,0.16); setTimeout(()=>flashPad(c),(t0-ac().currentTime)*1000+k*step*1000); }); }
 function solveScene(){
   scene.solved=true; const L=LEVELS[scene.idx];
   const t0=ac().currentTime+0.05, step=0.34;
-  L.seq.forEach((c,k)=>voiceNote(COLORS[c].base*Math.pow(2,OCTAVES[1]-4), t0+k*step, 0.5, 0.16));
+  L.seq.forEach((c,k)=>voiceNote(padFreq(c), t0+k*step, 0.5, 0.16));
   sceneArt.classList.add('revealed'); sceneHintEl.style.visibility='hidden';
   setTimeout(()=>showSolved(L), 950);
 }
 function showSolved(L){
-  const last=scene.idx>=LEVELS.length-1;
   sceneMsgEl.innerHTML=`<div class="em">${L.payoff.emoji}</div><div class="big">${escapeHtml(L.payoff.title)}</div><p>${escapeHtml(L.payoff.text)}</p><div class="row"></div>`;
   const row=sceneMsgEl.querySelector('.row');
-  const next=document.createElement('button'); next.className='btn btn-mint'; next.textContent=last?'✓ Finish':'Next scene →';
-  next.onclick=()=> last ? trialClose() : loadScene(scene.idx+1);
+  const next=document.createElement('button'); next.className='btn btn-mint'; next.textContent='Next scene →'; next.onclick=()=>loadScene(scene.idx+1);
   const close=document.createElement('button'); close.className='btn btn-ghost'; close.textContent='Close'; close.onclick=trialClose;
   row.append(next,close); sceneMsgEl.hidden=false;
 }
-function openTrial(){ trialOverlay.hidden=false; buildPads(); loadScene(0); }
-function trialClose(){ trialOverlay.hidden=true; scene=null; }
+
+// -- the looper: record your pad taps and loop them -------------------------
+let loop={events:[], recording:false, playing:false, t0:0, len:0, timers:[]};
+function loopStopPlay(){ loop.timers.forEach(clearTimeout); loop.timers=[]; loop.playing=false; updateLoopUI(); }
+function loopRecordToggle(){
+  ac();
+  if(loop.recording){ loop.len=performance.now()-loop.t0; loop.recording=false; updateLoopUI(); if(loop.events.length) loopPlay(); }
+  else { loopStopPlay(); loop.events=[]; loop.t0=performance.now(); loop.recording=true; updateLoopUI(); }
+}
+function loopPlay(){
+  if(loop.recording || !loop.events.length) return;
+  loopStopPlay(); loop.playing=true; updateLoopUI();
+  const len=Math.max(loop.len, (loop.events[loop.events.length-1].t)+300);
+  const fire=()=>{ if(!loop.playing) return;
+    loop.events.forEach(ev=>{ const id=setTimeout(()=>{ if(!loop.playing)return; voiceNote(padFreq(ev.ci),ac().currentTime+0.005,0.5,0.16); flashPad(ev.ci); }, ev.t); loop.timers.push(id); });
+    const idl=setTimeout(fire, len); loop.timers.push(idl);
+  };
+  fire();
+}
+function loopClear(){ loopStopPlay(); loop.events=[]; loop.recording=false; updateLoopUI(); }
+function updateLoopUI(){
+  const rec=document.getElementById('loopRec'), play=document.getElementById('loopPlay');
+  rec.textContent=loop.recording?'■ Stop rec':'● Rec loop'; rec.classList.toggle('on',loop.recording);
+  play.textContent=loop.playing?'■ Stop':'▶ Loop'; play.classList.toggle('playing',loop.playing);
+}
+
+function openTrial(){ trialOverlay.hidden=false; buildPads(); loop={events:[],recording:false,playing:false,t0:0,len:0,timers:[]}; updateLoopUI(); loadScene(0); }
+function trialClose(){ loopStopPlay(); trialOverlay.hidden=true; scene=null; }
 document.getElementById('trialExit').onclick=trialClose;
 document.getElementById('trialLaunch').onclick=()=>{ ac(); openTrial(); };
+document.getElementById('scenePrev').onclick=()=>loadScene(scene.idx-1);
+document.getElementById('sceneNext').onclick=()=>loadScene(scene.idx+1);
+document.getElementById('sceneRandom').onclick=()=>loadScene(Math.floor(Math.random()*LEVELS.length));
+document.getElementById('sceneHear').onclick=hearSong;
+document.getElementById('loopRec').onclick=loopRecordToggle;
+document.getElementById('loopPlay').onclick=()=>loop.playing?loopStopPlay():loopPlay();
+document.getElementById('loopClear').onclick=loopClear;
 addEventListener('keydown',e=>{ if(!trialOverlay.hidden){ const i=['1','2','3','4'].indexOf(e.key); if(i>=0){ e.preventDefault(); playPad(i); } } });
 
 // ── Personal identity: enroll with name + number → your own signature song ──
