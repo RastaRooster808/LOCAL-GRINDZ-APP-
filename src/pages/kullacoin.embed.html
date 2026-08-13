@@ -1008,6 +1008,7 @@ function solveScene(){
   const t0=ac().currentTime+0.05, step=0.34;
   L.seq.forEach((c,k)=>voiceNote(padFreq(c), t0+k*step, 0.5, 0.16));
   sceneArt.classList.add('revealed'); sceneHintEl.style.visibility='hidden';
+  try{ if(window.parent && window.parent!==window) window.parent.postMessage({type:'kulla-solved', level:scene.idx}, '*'); }catch{} // → app records the solve
   setTimeout(()=>showSolved(L), 950);
 }
 function showSolved(L){
