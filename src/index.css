@@ -2141,3 +2141,32 @@
 .kc-loading { display: flex; align-items: center; justify-content: center; color: #566a4f;
   font-family: Georgia, 'Times New Roman', serif; font-size: 1.1rem;
   background: linear-gradient(180deg, #d6f2ff, #eaf7d8 60%, #c2e8a6); }
+.kc-bar-tools { display: inline-flex; align-items: center; gap: 0.5rem; min-width: 6.5rem; justify-content: flex-end; }
+.kc-board-btn { border: 1px solid #bfe0c4; background: #ffffff; border-radius: 0.55rem; cursor: pointer; font-size: 1rem; line-height: 1; padding: 0.2rem 0.4rem; }
+.kc-board-btn:hover { background: #f2fbe8; }
+
+/* leaderboard overlay */
+.kc-board-overlay { position: fixed; inset: 0; z-index: 60; background: rgba(20,32,20,0.45);
+  display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.kc-board { width: 100%; max-width: 420px; max-height: 86vh; overflow-y: auto; background: #fffdf5;
+  border: 1px solid #d8e6c2; border-radius: 1rem; box-shadow: 0 20px 50px rgba(20,32,20,0.3); padding: 1.1rem 1.15rem; }
+.kc-board-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+.kc-board-head h2 { font-family: Georgia, serif; font-size: 1.3rem; color: #213021; }
+.kc-board-close { border: 0; background: none; font-size: 1.1rem; cursor: pointer; color: #566a4f; }
+.kc-prize { background: linear-gradient(100deg, rgba(242,178,27,0.16), rgba(224,67,47,0.12)); border: 1px solid #ecd9a6;
+  border-radius: 0.7rem; padding: 0.7rem 0.8rem; font-size: 0.9rem; color: #213021; }
+.kc-prize b { color: #b3790d; }
+.kc-prize-fine { display: block; margin-top: 0.35rem; font-size: 0.72rem; color: #7a8a70; }
+.kc-you-win { margin-top: 0.5rem; background: #eaf7d8; border: 1px solid #bfe0a8; border-radius: 0.6rem; padding: 0.55rem 0.7rem; font-size: 0.86rem; color: #2f7d4f; }
+.kc-you { margin: 0.7rem 0 0.3rem; font-size: 0.86rem; color: #566a4f; }
+.kc-you b { color: #213021; }
+.kc-title { color: #2f9e52; font-weight: 600; }
+.kc-rows { list-style: none; margin: 0.5rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.kc-row { display: grid; grid-template-columns: 2rem 1fr auto; align-items: center; gap: 0.6rem;
+  background: #ffffff; border: 1px solid #e6efd6; border-radius: 0.55rem; padding: 0.45rem 0.7rem; font-size: 0.92rem; }
+.kc-row.win { border-color: #f2b21b; background: linear-gradient(100deg, #fffaf0, #fff); }
+.kc-rank { text-align: center; color: #83977a; font-family: ui-monospace, monospace; font-weight: 700; }
+.kc-name { color: #213021; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kc-songs { color: #2f9e52; font-weight: 700; font-variant-numeric: tabular-nums; }
+.kc-empty { color: #83977a; font-style: italic; font-size: 0.86rem; padding: 0.5rem; }
+.kc-board-note { margin-top: 0.7rem; font-size: 0.72rem; color: #83977a; text-align: center; }

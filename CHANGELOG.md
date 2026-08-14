@@ -4,6 +4,32 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — KullaCoin Phase C: leaderboard, achievements & the winner's coupon (2026-08-12)
+
+### Added — a real, cross-device leaderboard
+- New **`kulla_solves`** + **`kulla_players`** tables (RLS owner-only) and a public
+  **`kulla_leaderboard()`** security-definer RPC that ranks players by **songs
+  mastered** (name is player-chosen, no PII). Verified live: seeded ranking
+  returns correct ranks/names; empty board is graceful.
+- The game reports each solved scene to the app (`postMessage`); `KullaCoin.tsx`
+  records it to `kulla_solves` (logged-in only) and refreshes the board.
+- **🏆 Leaderboard overlay** in the app: top players, your songs + rank, and a
+  playful **achievement title** (Malihini → Hoa Mele → Mele Maker → Kanaka Mele
+  → Kumu Mele → Kupuna Mele at all 108). In-game only, non-cashable.
+
+### Added — the winner's free-food coupon (honest framing)
+- The board's **#1 wins a free-food coupon**, spotlighted with a 👑. It's
+  presented as a **contest prize honored by a participating vendor (e.g. KTA),
+  valid once a vendor signs on** — not a fabricated redeemable voucher. When the
+  logged-in player leads, they see a "coupon pending a vendor" notice.
+
+### Honest scope
+- Because the play-to-reveal answer is shown, this ranks **collection, not skill**
+  — the board says so. The cheat-resistant **daily hidden-song challenge** and
+  real-value reward economy remain the future stakes tier (server-spec).
+
+---
+
 ## [Unreleased] — KullaCoin Phase B: cloud save (accounts) (2026-08-12)
 
 ### Added — your KullaCoin follows you across devices (when logged in)
