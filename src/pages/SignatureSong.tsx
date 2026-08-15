@@ -80,14 +80,29 @@ interface Spectrum {
 }
 
 // Build the `user_spectrum.json` the Unreal "Powers of Ten" LevelSequence script
-// consumes (tools/unreal/generate_zoom_sequence.py). Everyone shares the same
-// planet-scale macro view; the signature places one UNIQUE ground point (micro),
-// so the camera zooms planet → atmosphere → this individual. Units are Unreal cm.
+// consumes (tools/unreal/generate_zoom_sequence.py). The zoom is anchored on
+// HAWAIʻI (HST): everyone shares the same planet-scale macro view over the Big
+// Island; the signature places one UNIQUE point on the island (micro), so the
+// camera flies planet → atmosphere → this individual, somewhere on Hawaiʻi.
+//
+// Frame: Big Island local ENU — +X = East, +Y = North, +Z = Up, origin = island
+// centre, meters × 100 = Unreal cm. (Place Hawaiʻi at the Unreal world origin, or
+// apply your own offset in the level.) Footprint ≈ 150 km E-W × 130 km N-S;
+// elevation runs sea level → Mauna Kea summit (≈4207 m).
+const HI = {
+  EW_CM: 15000000,   // 150 km E-W span (cm)
+  NS_CM: 13000000,   // 130 km N-S span (cm)
+  SUMMIT_CM: 420700, // Mauna Kea ≈ 4207 m, in cm
+  EYE_CM: 170,       // standing eye height 1.7 m
+  MACRO_Z: 200000000,   // 2000 km straight up — the whole archipelago/planet framing
+  MESO_Z: 1200000,      // ≈12 km cruising altitude on descent
+};
 function buildSpectrum(word: string, seq: number[]): Spectrum {
   const key = `${word}:${seq.join('')}`;
-  const h = fnv32(key), h2 = fnv32('salt:' + key);
-  const gx = (h % 2000000) - 1000000;   // ±10 km on the ground (cm)
-  const gy = (h2 % 2000000) - 1000000;
+  const h = fnv32(key), h2 = fnv32('salt:' + key), h3 = fnv32('elev:' + key);
+  const east  = (h  % HI.EW_CM) - HI.EW_CM / 2;   // ±75 km across the island
+  const north = (h2 % HI.NS_CM) - HI.NS_CM / 2;   // ±65 km across the island
+  const elev  = h3 % HI.SUMMIT_CM;                 // sea level → summit (cm)
   const avgIdx = seq.reduce((a, b) => a + b, 0) / Math.max(1, seq.length);
   const yaw = Math.round((avgIdx / (LETTERS.length - 1)) * 360); // cumulative hue → heading
   const safeId = (word.replace(/[^A-Za-z0-9]/g, '').toUpperCase() || 'PLAYER') + '_' + h.toString(16);
@@ -98,9 +113,12 @@ function buildSpectrum(word: string, seq: number[]): Spectrum {
     spectrum: seq.map(i => ({ letter: LETTERS[i].ch, color: LETTERS[i].color, freq: LETTERS[i].freq })),
     sequence_settings: { duration_seconds: 8 + seq.length, fps: 30 },
     coordinates: {
-      macro_space:      { x: 0,          y: 0,          z: 20000000, pitch: -90, yaw: h % 360 },
-      meso_atmosphere:  { x: Math.round(gx * 0.3), y: Math.round(gy * 0.3), z: 1000000, pitch: -70, yaw },
-      micro_ground:     { x: gx,         y: gy,         z: 170,      pitch: -8,  yaw },
+      // Straight down over the island centre — the planet/archipelago view.
+      macro_space:     { x: 0, y: 0, z: HI.MACRO_Z, pitch: -90, yaw: h % 360 },
+      // Descending toward the person's quadrant, banking to their heading.
+      meso_atmosphere: { x: Math.round(east * 0.4), y: Math.round(north * 0.4), z: HI.MESO_Z, pitch: -60, yaw },
+      // The individual, standing on Hawaiʻi at their unique spot + elevation.
+      micro_ground:    { x: east, y: north, z: elev + HI.EYE_CM, pitch: -8, yaw },
     },
   };
 }

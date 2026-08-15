@@ -42,6 +42,12 @@ All notable changes to Local Grindz are documented here.
   `docs/KULA_MELE_COLOR_MAP.md`. Verified the export satisfies every key the
   script reads (dry-ran the importer's accesses; asset-safe `user_id`); browser
   download smoke-tested. **All three priority-1 threads now landed.**
+- **Anchored the zoom on Hawaiʻi (HST):** coordinates now use a Big Island local
+  ENU frame (E/N/Up, meters × 100 = cm, origin = island centre). Unique points
+  spread across the real footprint (≈150 km × 130 km) with elevation from sea
+  level → Mauna Kea (≈4207 m), so the flight lands everyone somewhere on the
+  island. Tunable via the `HI` constants in `buildSpectrum()`. Re-validated:
+  six sample signatures all land on-island; importer contract unchanged.
 
 ---
 

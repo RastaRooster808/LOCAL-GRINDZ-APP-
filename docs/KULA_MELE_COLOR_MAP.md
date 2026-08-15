@@ -53,9 +53,20 @@ lighting in). Front door of color and light; real lock behind it.
 
 The signature page exports a **`user_spectrum.json`** ("Download my spectrum",
 shown once a signature exists) that drives the Unreal LevelSequence "Powers of
-Ten" zoom — **planet → atmosphere → the individual**. Everyone shares the same
-macro planet view; the signature deterministically fixes one **unique ground
-point** (via an FNV-1a hash of `word:seq`), so the camera flies down to *you*.
+Ten" zoom — **planet → atmosphere → the individual**. The whole flight is
+**anchored on Hawaiʻi (HST)**: everyone shares the same macro planet view over
+the Big Island; the signature deterministically fixes one **unique point on the
+island** (via an FNV-1a hash of `word:seq`), so the camera flies down to *you*,
+somewhere on Hawaiʻi.
+
+**Coordinate frame — Big Island local ENU:** `+X` = East, `+Y` = North, `+Z` =
+Up, origin = island centre, **meters × 100 = Unreal cm**. Place Hawaiʻi at the
+Unreal world origin (or apply your own offset in the level). Footprint ≈ **150 km
+E-W × 130 km N-S**; `micro_ground` elevation runs **sea level → Mauna Kea summit
+(≈4207 m)**, so different signatures stand anywhere from the beach to the summit.
+`macro_space` sits ~2000 km straight up (the archipelago/planet framing);
+`meso_atmosphere` ~12 km on descent. Tunable constants live in the `HI` object in
+`buildSpectrum()`.
 
 Importer: `tools/unreal/generate_zoom_sequence.py` (run in the Unreal Editor
 Python console; set `json_file_path` to the downloaded file).
@@ -69,10 +80,10 @@ Schema emitted by `buildSpectrum()` in `SignatureSong.tsx` (Unreal units = cm):
   "generated_at": "…ISO…",
   "spectrum": [ { "letter": "A", "color": "#ff3b6b", "freq": 261.63 }, … ],
   "sequence_settings": { "duration_seconds": 13, "fps": 30 },
-  "coordinates": {
-    "macro_space":     { "x": 0, "y": 0, "z": 20000000, "pitch": -90, "yaw": … },
-    "meso_atmosphere": { "x": …, "y": …, "z": 1000000,  "pitch": -70, "yaw": … },
-    "micro_ground":    { "x": …, "y": …, "z": 170,      "pitch": -8,  "yaw": … }
+  "coordinates": {                                  // Big Island local ENU, cm
+    "macro_space":     { "x": 0, "y": 0, "z": 200000000, "pitch": -90, "yaw": … },
+    "meso_atmosphere": { "x": …, "y": …, "z": 1200000,   "pitch": -60, "yaw": … },
+    "micro_ground":    { "x": …, "y": …, "z": …,         "pitch": -8,  "yaw": … }
   }
 }
 ```
