@@ -27,7 +27,8 @@ export type EventName =
   | 'review_submitted'
   | 'protea_tier_reserve'
   | 'protea_print_buy'
-  | 'field_report_join';
+  | 'field_report_join'
+  | 'signature_unlock';
 
 export interface EventPayload {
   label?: string;

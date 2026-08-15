@@ -4,6 +4,41 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Kula Mele: the color piano & signature sign-in (2026-08-15)
+
+### Added — "a piano made of colour" (11 Hawaiian letters)
+- New **`/signature`** route (**Kula Mele**), an additive module that leaves the
+  4-colour KullaCoin economy untouched. Eleven Hawaiian letters — 5 warm vowels
+  (A E I O U) + 6 cool consonants (H K L M N P) — each a **colour + pitch** on a
+  luminous keyboard. Colours flow as a spectrum; pitches are a rising C-major run
+  so any Hawaiian word sounds musical. Mapping documented in
+  `docs/KULA_MELE_COLOR_MAP.md` (W and the ʻokina reserved for a later 12th/13th
+  key). Nav link added.
+
+### Added — the signature song as an accessible sign-in
+- Spell a Hawaiian word → it becomes your **signature song** of colour and light.
+  Play it back (tap the keys **or sing it**) to "light in": a cascade of colour
+  confirms the match; wrong notes reset gently with **zero penalty**.
+- **Voice accessibility via real DSP:** mic audio runs through a **YIN** pitch
+  detector (squared-difference → CMNDF → absolute threshold → parabolic
+  interpolation), mapped to the nearest key within ±130 cents. Validated
+  offline to resolve all 11 colour-keys through harmonics + noise (an earlier
+  autocorrelation attempt octave-erred and was replaced).
+- **Honest security boundary:** the song is an **accessible local unlock** that
+  opens your profile on the device — *not* an account password. Right after
+  lighting in, a **Supabase magic-link** hand-off secures the real account across
+  devices (reuses the Account page's `signInWithOtp` flow). Signature persists
+  under a `kulla_`-prefixed key so it rides the existing KullaCoin cloud sync.
+- **Image-as-source:** upload your colour-code poster to show it as a palette
+  reference (automatic grid-reading from a photo is a documented future upgrade).
+
+### Still open (per "all three are priority 1")
+- **Powers of Ten (Unreal):** emit `user_spectrum.json` from a signature and
+  drive a LevelSequence planet→individual zoom — blocked on re-sharing the exact
+  Python script + expected JSON schema so the export matches the importer.
+
+---
+
 ## [Unreleased] — KullaCoin Phase C.2: the daily hidden-song challenge (2026-08-15)
 
 ### Added — a cheat-resistant "Heardle for melodies"
