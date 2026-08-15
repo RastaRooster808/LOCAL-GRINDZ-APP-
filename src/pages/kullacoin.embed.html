@@ -456,7 +456,15 @@ async function showSharedCoin(code){
     play.onclick=()=>{ ac(); playCoin(coin); }; b.appendChild(play); bar.prepend(b); }
 }
 function parseSharedCode(){ try{ const m=(location.search||'').match(/[?&]s=([0-3]{12})/); return m?m[1]:null; }catch{ return null; } }
-addEventListener('message',e=>{ if(e&&e.data&&e.data.type==='kulla-play'&&/^[0-3]{12}$/.test(e.data.code)) showSharedCoin(e.data.code); });
+addEventListener('message',e=>{
+  if(!e||!e.data) return;
+  if(e.data.type==='kulla-play'&&/^[0-3]{12}$/.test(e.data.code)){ showSharedCoin(e.data.code); return; }
+  // Daily-challenge preview: play a 4-colour guess through the synth (colours at octave 4).
+  if(e.data.type==='kulla-note-preview'&&/^[0-3]{4}$/.test(e.data.code)){
+    const t0=ac().currentTime+0.03, step=0.42;
+    e.data.code.split('').forEach((ch,i)=>{ const f=COLORS[+ch].base; voiceNote(f,t0+i*step,0.5,0.16); });
+  }
+});
 const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
 
 function fnv(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}

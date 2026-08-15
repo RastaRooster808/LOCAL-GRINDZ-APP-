@@ -4,6 +4,40 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — KullaCoin Phase C.2: the daily hidden-song challenge (2026-08-15)
+
+### Added — a cheat-resistant "Heardle for melodies"
+- One hidden **4-note song per day**, shared by everyone. The target is
+  **generated and stored server-side** in new **`kulla_daily`** — a table with
+  **RLS enabled and no policies**, so no client (anon or signed-in) can ever read
+  the answer. Only the security-definer guess RPC (which bypasses RLS) sees it.
+- **`kulla_daily_guess(text)`** validates a `[0-3]{4}` guess, lazily seeds the
+  day's random target, and returns **Wordle-style colour feedback** (green = right
+  colour & spot, gold = in the song wrong spot, grey = not in the song) — **never
+  the target**. Max **6 guesses**; solved on 4 greens. `EXECUTE` revoked from
+  `public`/`anon` (Postgres' default PUBLIC grant), so only signed-in players
+  guess. Verified live end-to-end with a seeded target, then test data cleaned.
+- **`kulla_daily_results`** (RLS: read-your-own; writes only via the definer RPC),
+  plus **`kulla_daily_state()`** (restore your progress) and public read-only
+  **`kulla_daily_board()`** (today's solvers ranked by fewest guesses, then
+  earliest).
+
+### Added — the 🎯 Daily overlay in the app
+- New toolbar button opens a Daily Song panel: a 6×4 feedback grid, four colour
+  pads (Blue/Gold/Red/Green) to compose a guess, **▶ Hear** to preview the guess
+  through the game's synth (new `kulla-note-preview` message the embed answers),
+  ⌫ back, and Guess. Today's board + player count shown below.
+- Per-device guess history persists to a `kulla_daily_hist_<UTC-date>` key (rides
+  the existing cloud sync); only colour hints are ever stored, never the answer.
+  Logged-out players see a log-in prompt.
+
+### Honest scope
+- Unlike the play-to-reveal leaderboard (which ranks *collection* since the answer
+  is shown), the Daily is a genuine **skill** test: the answer never reaches the
+  client, so it can't be peeked. No real-money value — in-game bragging rights.
+
+---
+
 ## [Unreleased] — KullaCoin Phase C: leaderboard, achievements & the winner's coupon (2026-08-12)
 
 ### Added — a real, cross-device leaderboard
