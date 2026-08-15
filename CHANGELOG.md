@@ -32,10 +32,16 @@ All notable changes to Local Grindz are documented here.
 - **Image-as-source:** upload your colour-code poster to show it as a palette
   reference (automatic grid-reading from a photo is a documented future upgrade).
 
-### Still open (per "all three are priority 1")
-- **Powers of Ten (Unreal):** emit `user_spectrum.json` from a signature and
-  drive a LevelSequence planet→individual zoom — blocked on re-sharing the exact
-  Python script + expected JSON schema so the export matches the importer.
+### Added — Powers of Ten export (Unreal bridge)
+- Once a signature exists, a **"Download my spectrum"** button exports
+  **`user_spectrum.json`** — deterministically derived from the signature (FNV-1a
+  of `word:seq`) so everyone shares the macro planet view but each person gets a
+  **unique ground point** (planet → atmosphere → individual).
+- Committed the importer **`tools/unreal/generate_zoom_sequence.py`** (the
+  provided LevelSequence script) and documented the exact schema in
+  `docs/KULA_MELE_COLOR_MAP.md`. Verified the export satisfies every key the
+  script reads (dry-ran the importer's accesses; asset-safe `user_id`); browser
+  download smoke-tested. **All three priority-1 threads now landed.**
 
 ---
 

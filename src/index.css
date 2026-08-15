@@ -2289,6 +2289,9 @@
 .sig-small { font-size: 0.76rem; }
 .sig-security { font-size: 0.8rem; color: #6b7a62; line-height: 1.5; background: #f6faf0; border: 1px dashed #d5e2c4; border-radius: 0.7rem; padding: 0.7rem 0.85rem; }
 .sig-security b { color: #3a4a34; }
+.sig-h3 { font-family: Georgia, serif; color: #213021; margin: 0 0 0.4rem; font-size: 1.05rem; }
+.sig-note-left { margin-left: 0; margin-right: 0; text-align: left; max-width: none; }
+.sig-powers code, .sig-security code { background: #eef4e4; border: 1px solid #dbe7cb; border-radius: 0.3rem; padding: 0.05rem 0.3rem; font-size: 0.85em; }
 
 @media (prefers-reduced-motion: reduce) {
   .sig-key, .sig-btn.listening, .sig-burst i { transition: none; animation: none; }

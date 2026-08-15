@@ -49,9 +49,35 @@ never be presented as protecting the account from someone else. Real account
 security stays with Supabase email magic-link (offered immediately after
 lighting in). Front door of color and light; real lock behind it.
 
-## Open thread — "Powers of Ten" (Unreal)
+## Powers of Ten (Unreal)
 
-Planned: emit a `user_spectrum.json` from a player's signature and drive an
-Unreal Engine LevelSequence "Powers of Ten" zoom (planet → individual). Blocked
-on re-sharing the exact Level Sequence Python script + the expected
-`user_spectrum.json` schema so the app's export matches the importer's contract.
+The signature page exports a **`user_spectrum.json`** ("Download my spectrum",
+shown once a signature exists) that drives the Unreal LevelSequence "Powers of
+Ten" zoom — **planet → atmosphere → the individual**. Everyone shares the same
+macro planet view; the signature deterministically fixes one **unique ground
+point** (via an FNV-1a hash of `word:seq`), so the camera flies down to *you*.
+
+Importer: `tools/unreal/generate_zoom_sequence.py` (run in the Unreal Editor
+Python console; set `json_file_path` to the downloaded file).
+
+Schema emitted by `buildSpectrum()` in `SignatureSong.tsx` (Unreal units = cm):
+
+```json
+{
+  "user_id": "ALOHA_fad07aaf",          // asset-safe → Seq_Zoom_<user_id>
+  "signature_word": "ALOHA",
+  "generated_at": "…ISO…",
+  "spectrum": [ { "letter": "A", "color": "#ff3b6b", "freq": 261.63 }, … ],
+  "sequence_settings": { "duration_seconds": 13, "fps": 30 },
+  "coordinates": {
+    "macro_space":     { "x": 0, "y": 0, "z": 20000000, "pitch": -90, "yaw": … },
+    "meso_atmosphere": { "x": …, "y": …, "z": 1000000,  "pitch": -70, "yaw": … },
+    "micro_ground":    { "x": …, "y": …, "z": 170,      "pitch": -8,  "yaw": … }
+  }
+}
+```
+
+The importer reads `user_id`, `sequence_settings.{duration_seconds,fps}`, and
+`coordinates.{macro_space,meso_atmosphere,micro_ground}.{x,y,z,pitch,yaw}`; extra
+keys (`spectrum`, `signature_word`, `generated_at`) are ignored, so the contract
+can grow without breaking the script.

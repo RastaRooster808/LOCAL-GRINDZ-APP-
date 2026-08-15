@@ -61,6 +61,50 @@ function wordToSeq(word: string): number[] {
   return seq;
 }
 
+/** Deterministic 32-bit FNV-1a hash — stable, so a signature always maps to the
+ *  same point on the planet. */
+function fnv32(s: string): number {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  return h >>> 0;
+}
+
+interface Coord { x: number; y: number; z: number; pitch: number; yaw: number; }
+interface Spectrum {
+  user_id: string;
+  signature_word: string;
+  generated_at: string;
+  spectrum: { letter: string; color: string; freq: number }[];
+  sequence_settings: { duration_seconds: number; fps: number };
+  coordinates: { macro_space: Coord; meso_atmosphere: Coord; micro_ground: Coord };
+}
+
+// Build the `user_spectrum.json` the Unreal "Powers of Ten" LevelSequence script
+// consumes (tools/unreal/generate_zoom_sequence.py). Everyone shares the same
+// planet-scale macro view; the signature places one UNIQUE ground point (micro),
+// so the camera zooms planet → atmosphere → this individual. Units are Unreal cm.
+function buildSpectrum(word: string, seq: number[]): Spectrum {
+  const key = `${word}:${seq.join('')}`;
+  const h = fnv32(key), h2 = fnv32('salt:' + key);
+  const gx = (h % 2000000) - 1000000;   // ±10 km on the ground (cm)
+  const gy = (h2 % 2000000) - 1000000;
+  const avgIdx = seq.reduce((a, b) => a + b, 0) / Math.max(1, seq.length);
+  const yaw = Math.round((avgIdx / (LETTERS.length - 1)) * 360); // cumulative hue → heading
+  const safeId = (word.replace(/[^A-Za-z0-9]/g, '').toUpperCase() || 'PLAYER') + '_' + h.toString(16);
+  return {
+    user_id: safeId,
+    signature_word: word,
+    generated_at: new Date().toISOString(),
+    spectrum: seq.map(i => ({ letter: LETTERS[i].ch, color: LETTERS[i].color, freq: LETTERS[i].freq })),
+    sequence_settings: { duration_seconds: 8 + seq.length, fps: 30 },
+    coordinates: {
+      macro_space:      { x: 0,          y: 0,          z: 20000000, pitch: -90, yaw: h % 360 },
+      meso_atmosphere:  { x: Math.round(gx * 0.3), y: Math.round(gy * 0.3), z: 1000000, pitch: -70, yaw },
+      micro_ground:     { x: gx,         y: gy,         z: 170,      pitch: -8,  yaw },
+    },
+  };
+}
+
 // ── Web Audio (bell-like note, reused across the page) ───────────────────────
 let audioCtx: AudioContext | null = null;
 function ac(): AudioContext {
@@ -276,6 +320,18 @@ export function SignatureSong() {
     } catch { setStatus('Could not send the link — try again.'); setStatusKind('err'); }
   }, [linkEmail]);
 
+  const downloadSpectrum = useCallback(() => {
+    if (!sig) return;
+    const obj = buildSpectrum(sig.word, sig.seq);
+    const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'user_spectrum.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    trackEvent('signature_unlock', { by: 'spectrum_export' });
+  }, [sig]);
+
   const onPoster = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
     if (posterUrl) URL.revokeObjectURL(posterUrl);
@@ -398,6 +454,16 @@ export function SignatureSong() {
             </div>
           )}
           <p className="sig-change"><button className="sig-linkbtn" onClick={() => setMode('enroll')}>Change my signature</button></p>
+        </section>
+      )}
+
+      {/* Powers of Ten — export the signature as user_spectrum.json for Unreal */}
+      {sig && (
+        <section className="sig-panel sig-powers">
+          <h3 className="sig-h3">Powers of Ten</h3>
+          <p className="sig-note sig-note-left">Your signature <b>{sig.word}</b> fixes one unique point on the planet. Export it as <code>user_spectrum.json</code> to drive the Unreal “Powers of Ten” zoom — planet → atmosphere → you.</p>
+          <button className="sig-btn primary" onClick={downloadSpectrum}>⬇ Download my spectrum</button>
+          <p className="sig-muted sig-small">Feed it to <code>tools/unreal/generate_zoom_sequence.py</code> in the Unreal editor.</p>
         </section>
       )}
 
