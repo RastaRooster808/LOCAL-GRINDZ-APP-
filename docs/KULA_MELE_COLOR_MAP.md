@@ -39,6 +39,20 @@ A chosen Hawaiian word becomes a sequence of color-notes — the player's
 **signature song**. Reproducing it (by tapping the keys, or singing into the mic)
 lights them in.
 
+### The tuner's face — the Flower
+
+The tuner's centrepiece is the sacred geometry itself. The **Fruit of Life is
+exactly thirteen circles** — one centre, a ring of six, an outer ring of six —
+which is a one-to-one seat for each Hawaiian key (slot 0 = centre, 1–6 = inner
+ring, 7–12 = outer ring), drawn over a faint **Flower of Life** lattice (circles
+of radius r on a triangular lattice of spacing r, interlacing into petals). It is
+the same lattice the Powers of Ten export lands you on.
+
+Sing, and your note's circle **blooms** in its own hue, with an arc reporting the
+**cents offset** — green within ±8 cents, gold when sharp or flat, sweeping right
+for sharp and left for flat. A ~400 ms hold keeps the bloom from flickering
+between breaths. The glow pulse is suppressed under `prefers-reduced-motion`.
+
 **Voice path:** mic audio → **YIN** pitch detector (`detectPitch`: squared
 difference function → CMNDF → absolute threshold → parabolic interpolation) →
 nearest key within ±130 cents → same match logic as a tap. Validated to resolve
@@ -50,6 +64,47 @@ on the device and lights the screen. It is **not** an account password and must
 never be presented as protecting the account from someone else. Real account
 security stays with Supabase email magic-link (offered immediately after
 lighting in). Front door of color and light; real lock behind it.
+
+## Image as source — the poster parser
+
+`src/lib/posterParse.ts` reads a printed colour-code grid (e.g. the "TAS CODE"
+poster) off a photo and turns it into notes. It is **pure** — raw RGBA + width and
+height in, cells out — so the same code runs in the browser (from a `<canvas>`)
+and in headless tests. Decoding and downscaling (max 900 px) happen in the page;
+**the image never leaves the device.**
+
+**How detection works.** Printed posters put saturated swatches on white paper, so
+the parser builds an "ink" mask (saturation ≥ 0.25, mid lightness) and projects it
+onto each axis. Runs above a relative threshold are the swatch **columns** and
+**rows** (`inkProfile` → `findBands` → `detectBands`). This is O(w·h), scales to
+hundreds of cells, and tolerates uneven spacing — where brute-force grid fitting
+would not. `autoGrid` (within-cell variance + an elbow rule) remains the fallback
+for gapless grids, and explicit `rows`/`cols` always override.
+
+**Colour → note.** Each cell is sampled on an inset sub-lattice (grid lines and
+borders excluded), averaged, and converted to HSL. Then:
+
+- **Hue → key** (nearest of the 13 key hues).
+- **Lightness → octave** (`colorToOctave`): `l < 0.38` sings an octave **down**,
+  `l > 0.62` an octave **up**, otherwise centre. This is what keeps a deep maroon
+  distinct from a bright red — same key, different octave — and it mirrors the
+  KullaCoin coin model, where a Kulla is colour + octave + velocity.
+- Low-saturation or near-black/near-white cells become **rests**, so white paper
+  and pencil handwriting are skipped, not sung.
+
+`PosterRead` therefore carries both `seq` (keys only) and `notes`
+(`{slot, octave}` — what the poster actually sounds like). **Signatures stay
+octave-less on purpose:** the 13 keys are what a player taps back, and the
+keyboard has no octave control, so a poster-derived signature uses `seq`.
+
+**Verified:** twelve inks spanning three lightness bands mapped to **12 distinct
+sounding notes** (previously 8 inks collapsed to 7 keys). Three shades of red
+became three octaves of A — 130.8 / 261.6 / 523.3 Hz.
+
+**Verified:** on a synthetic 20 × 26 poster with uneven lighting and sensor noise,
+band detection recovered the grid exactly and cell→key accuracy was **518/520
+(99.6%)**; white paper and pencil grey both read as rests. End-to-end in-browser:
+upload → read → 520 cells → play a row → adopt a row as a signature.
 
 ## Powers of Ten (Unreal)
 

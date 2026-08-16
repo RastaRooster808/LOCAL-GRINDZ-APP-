@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { trackEvent } from '../lib/analytics';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
+import { parsePoster, type PosterRead, type Note as PosterNote } from '../lib/posterParse';
 
 /*
  * Kula Mele — the Color Piano & Signature Sign-In
@@ -182,12 +183,13 @@ function ac(): AudioContext {
   if (audioCtx.state === 'suspended') void audioCtx.resume();
   return audioCtx;
 }
-function playNote(slot: number, when = 0, dur = 0.5, gain = 0.16) {
+function playNote(slot: number, when = 0, dur = 0.5, gain = 0.16, octave = 0) {
   const l = LETTERS[slot]; if (!l) return;
   const a = ac(); const t = a.currentTime + when;
+  const base = l.freq * Math.pow(2, octave);
   for (const [mult, g, type] of [[1, gain, 'triangle'], [2, gain * 0.3, 'sine']] as const) {
     const o = a.createOscillator(), amp = a.createGain();
-    o.type = type; o.frequency.value = l.freq * mult;
+    o.type = type; o.frequency.value = base * mult;
     amp.gain.setValueAtTime(0, t);
     amp.gain.linearRampToValueAtTime(g, t + 0.012);
     amp.gain.exponentialRampToValueAtTime(0.0001, t + dur);
@@ -252,6 +254,84 @@ function freqToSlot(freq: number, tolCents = 130): number {
   return bestCents <= tolCents ? best : -1;
 }
 
+// ── The Flower — centrepiece of the tuner ────────────────────────────────────
+// The Fruit of Life is exactly THIRTEEN circles: one centre, a ring of six, and
+// an outer ring of six. That is a one-to-one seat for each Hawaiian key, so the
+// tuner's face IS the sacred geometry — the same lattice the Powers of Ten export
+// lands you on. Sing, and your note's circle blooms; the ring reports the cents.
+interface TunerState { slot: number; cents: number; level: number; }
+
+/** 13 circle centres in units of the circle radius r (centre, 6 inner, 6 outer). */
+const FLOWER_POS: { x: number; y: number }[] = (() => {
+  const p = [{ x: 0, y: 0 }];
+  for (let i = 0; i < 6; i++) { const a = (i * 60) * Math.PI / 180; p.push({ x: 2 * Math.cos(a), y: 2 * Math.sin(a) }); }
+  const d = 2 * Math.sqrt(3);
+  for (let i = 0; i < 6; i++) { const a = (30 + i * 60) * Math.PI / 180; p.push({ x: d * Math.cos(a), y: d * Math.sin(a) }); }
+  return p;
+})();
+
+/** #rrggbb + alpha → rgba(). */
+function hexA(hex: string, a: number): string {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+}
+
+function drawFlower(ctx: CanvasRenderingContext2D, size: number, st: TunerState, glowPhase: number) {
+  const cx = size / 2, cy = size / 2, r = (size / 2) / 4.7;
+  ctx.clearRect(0, 0, size, size);
+
+  // The Flower of Life itself: circles of radius r on a triangular lattice of
+  // spacing r, so they interlace into petals. Drawn very faintly — this is the
+  // ground the thirteen seats rest on.
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,0.055)';
+  ctx.lineWidth = 1;
+  const reach = 3.6;
+  for (let j = -8; j <= 8; j++) {
+    for (let i = -8; i <= 8; i++) {
+      const px = (i + j / 2) * r, py = j * (Math.sqrt(3) / 2) * r;
+      if (Math.hypot(px, py) > reach * r) continue;
+      ctx.beginPath();
+      ctx.arc(cx + px, cy + py, r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+
+  // The thirteen seats — one circle per key.
+  for (let i = 0; i < FLOWER_POS.length; i++) {
+    const P = FLOWER_POS[i], L = LETTERS[i];
+    const x = cx + P.x * r, y = cy + P.y * r;
+    const active = i === st.slot;
+    ctx.save();
+    if (active) { ctx.shadowColor = L.color; ctx.shadowBlur = 18 + 10 * glowPhase; }
+    ctx.beginPath();
+    ctx.arc(x, y, active ? r * (1 + 0.05 * glowPhase) : r, 0, Math.PI * 2);
+    ctx.fillStyle = active ? hexA(L.color, 0.82) : hexA(L.color, 0.11);
+    ctx.fill();
+    ctx.lineWidth = active ? 2.5 : 1;
+    ctx.strokeStyle = active ? 'rgba(255,255,255,0.95)' : hexA(L.color, 0.4);
+    ctx.stroke();
+    ctx.restore();
+
+    if (active) {
+      // Cents arc: sweeps right when sharp, left when flat; green when in tune.
+      const inTune = Math.abs(st.cents) <= 8;
+      const sweep = Math.max(-1, Math.min(1, st.cents / 50)) * Math.PI * 0.8;
+      ctx.beginPath();
+      ctx.arc(x, y, r * 1.45, -Math.PI / 2, -Math.PI / 2 + (sweep || 0.001), sweep < 0);
+      ctx.lineWidth = 4; ctx.lineCap = 'round';
+      ctx.strokeStyle = inTune ? '#39d98a' : '#ffd166';
+      ctx.stroke();
+
+      ctx.fillStyle = '#fff';
+      ctx.font = `700 ${Math.round(r * 0.95)}px system-ui, sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(L.ch, x, y + r * 0.04);
+    }
+  }
+}
+
 type Mode = 'play' | 'enroll' | 'signin';
 
 export function SignatureSong() {
@@ -268,8 +348,13 @@ export function SignatureSong() {
   const [heard, setHeard] = useState<string>('');                 // live voice announce
   const [posterUrl, setPosterUrl] = useState<string | null>(null);
   const [linkEmail, setLinkEmail] = useState('');
+  const [poster, setPoster] = useState<PosterRead | null>(null);
+  const [posterBusy, setPosterBusy] = useState(false);
+  const [posterRow, setPosterRow] = useState(0);
 
   const litTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flowerRef = useRef<HTMLCanvasElement>(null);
+  const tunerRef = useRef<TunerState & { seen: number }>({ slot: -1, cents: 0, level: 0, seen: 0 });
   const micRef = useRef<{ stream: MediaStream; ctx: AudioContext; raf: number } | null>(null);
   const voiceState = useRef<{ lastSlot: number; stable: number; frames: number }>({ lastSlot: -1, stable: 0, frames: 0 });
 
@@ -294,6 +379,15 @@ export function SignatureSong() {
     seq.forEach((s, i) => {
       playNote(s, i * 0.42);
       setTimeout(() => flash(s), i * 420);
+    });
+  }, [flash]);
+
+  /** Play colour-notes with their octaves — how the poster actually sounds. */
+  const playNotes = useCallback((notes: PosterNote[]) => {
+    ac();
+    notes.forEach((n, i) => {
+      playNote(n.slot, i * 0.42, 0.5, 0.16, n.octave);
+      setTimeout(() => flash(n.slot), i * 420);
     });
   }, [flash]);
 
@@ -347,6 +441,16 @@ export function SignatureSong() {
         analyser.getFloatTimeDomainData(buf);
         const f = detectPitch(buf, ctx.sampleRate);
         const slot = freqToSlot(f);
+
+        // Feed the flower: exact cents off the key, with a short hold so the
+        // bloom doesn't flicker between breaths.
+        const now = performance.now();
+        if (slot >= 0) {
+          tunerRef.current = { slot, cents: 1200 * Math.log2(f / LETTERS[slot].freq), level: 1, seen: now };
+        } else if (now - tunerRef.current.seen > 400) {
+          tunerRef.current = { slot: -1, cents: 0, level: 0, seen: tunerRef.current.seen };
+        }
+
         const vs = voiceState.current;
         if (slot >= 0 && slot === vs.lastSlot) vs.stable++;
         else { vs.lastSlot = slot; vs.stable = slot >= 0 ? 1 : 0; }
@@ -366,6 +470,31 @@ export function SignatureSong() {
   }, [stopMic]);
 
   useEffect(() => () => { if (litTimer.current) clearTimeout(litTimer.current); stopMic(); }, [stopMic]);
+
+  // Paint the flower. Runs while the tuner is on screen; the glow pulses only
+  // when a note is actually being held (and never under reduced-motion).
+  useEffect(() => {
+    if (mode !== 'signin') return;
+    const cv = flowerRef.current; if (!cv) return;
+    const ctx = cv.getContext('2d'); if (!ctx) return;
+    const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let raf = 0;
+    const paint = () => {
+      const css = cv.clientWidth || 260;
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const px = Math.round(css * dpr);
+      // Check BOTH axes: a <canvas> defaults to 300×150, so guarding on width
+      // alone silently leaves the height at 150 and squashes the drawing.
+      if (cv.width !== px || cv.height !== px) { cv.width = px; cv.height = px; }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const st = tunerRef.current;
+      const phase = (!calm && st.slot >= 0) ? (Math.sin(performance.now() / 260) + 1) / 2 : 0;
+      drawFlower(ctx, css, st, phase);
+      raf = requestAnimationFrame(paint);
+    };
+    raf = requestAnimationFrame(paint);
+    return () => cancelAnimationFrame(raf);
+  }, [mode]);
 
   const saveSignature = useCallback(() => {
     const seq = wordToSeq(enrollWord);
@@ -405,7 +534,45 @@ export function SignatureSong() {
     const file = e.target.files?.[0]; if (!file) return;
     if (posterUrl) URL.revokeObjectURL(posterUrl);
     setPosterUrl(URL.createObjectURL(file));
+    setPoster(null); setPosterRow(0);
   }, [posterUrl]);
+
+  // Decode the uploaded poster into a colour grid, then into notes.
+  const readPoster = useCallback(async () => {
+    if (!posterUrl) return;
+    setPosterBusy(true); setStatus(''); setStatusKind('');
+    try {
+      const img = new Image();
+      img.src = posterUrl;
+      await img.decode();
+      // Downscale for speed — plenty of resolution for ~20×26 swatches.
+      const maxDim = 900;
+      const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.max(1, Math.round(img.naturalWidth * scale));
+      const h = Math.max(1, Math.round(img.naturalHeight * scale));
+      const cv = document.createElement('canvas');
+      cv.width = w; cv.height = h;
+      const ctx = cv.getContext('2d', { willReadFrequently: true });
+      if (!ctx) throw new Error('no canvas');
+      ctx.drawImage(img, 0, 0, w, h);
+      const { data } = ctx.getImageData(0, 0, w, h);
+      const read = parsePoster(data, w, h, LETTERS.map(l => l.hue));
+      setPoster(read); setPosterRow(0);
+      if (!read.seq.length) { setStatus('No colour swatches found — try a straighter, brighter photo.'); setStatusKind('err'); }
+      else { setStatus(`Read ${read.rows} × ${read.cols} — ${read.seq.length} notes.`); setStatusKind('ok'); }
+    } catch {
+      setStatus('Could not read that image.'); setStatusKind('err');
+    } finally { setPosterBusy(false); }
+  }, [posterUrl]);
+
+  /** Notes in one row of the poster (rests dropped), capped to a playable phrase. */
+  const rowNotes = useCallback((rowIdx: number, cap = 24): PosterNote[] => {
+    if (!poster) return [];
+    return poster.cells
+      .filter(c => c.row === rowIdx && c.slot >= 0)
+      .map(c => ({ slot: c.slot, octave: c.octave }))
+      .slice(0, cap);
+  }, [poster]);
   useEffect(() => () => { if (posterUrl) URL.revokeObjectURL(posterUrl); }, [posterUrl]);
 
   const enrollSeq = wordToSeq(enrollWord);
@@ -487,6 +654,16 @@ export function SignatureSong() {
           {!unlocked ? (
             <>
               <p className="sig-lead">Play your signature — <b>{sig.word}</b> — by tapping the colours or singing it.</p>
+
+              {/* The tuner: the Fruit of Life, thirteen circles for thirteen keys. */}
+              <div className="sig-tuner">
+                <canvas ref={flowerRef} className="sig-flower" role="img"
+                  aria-label="Flower tuner — thirteen circles, one per key; your sung note blooms on its circle" />
+                <p className="sig-heard" aria-live="polite">
+                  {listening ? (heard ? `Heard: ${heard}` : 'Sing a note…') : 'Tap 🎤 Sing it, and your note blooms.'}
+                </p>
+              </div>
+
               <div className="sig-progress" aria-label="Progress">
                 {sig.seq.map((s, i) => (
                   <span key={i} className={'sig-pip' + (i < attempt.length ? ' done' : '')}
@@ -500,7 +677,6 @@ export function SignatureSong() {
                 <button className="sig-btn" onClick={() => playSeq(sig.seq)}>▶ Remind me</button>
                 <button className="sig-btn" onClick={resetSignin}>↺ Restart</button>
               </div>
-              {listening && <p className="sig-heard" aria-live="polite">{heard ? `Heard: ${heard}` : 'Sing a note…'}</p>}
             </>
           ) : (
             <div className={'sig-unlocked' + (posterUrl ? ' has-realm' : '')}
@@ -541,10 +717,56 @@ export function SignatureSong() {
 
       {/* Poster / colour-code reference upload */}
       <section className="sig-panel sig-poster-panel">
-        <label className="sig-label" htmlFor="sig-poster">Load your image — the realm your song lands you in</label>
+        <label className="sig-label" htmlFor="sig-poster">Load your colour-code poster — read it, and land in it</label>
         <input id="sig-poster" className="sig-file" type="file" accept="image/*" onChange={onPoster} />
         {posterUrl && <img className="sig-poster" src={posterUrl} alt="Your uploaded colour-code / realm image" />}
-        <p className="sig-muted sig-small">Shown as your palette reference, and as the world you enter when you light in. Automatic grid-reading from a photo is a planned upgrade.</p>
+
+        {posterUrl && (
+          <div className="sig-actions">
+            <button className="sig-btn primary" onClick={readPoster} disabled={posterBusy}>
+              {posterBusy ? 'Reading…' : '🔍 Read the colours'}
+            </button>
+          </div>
+        )}
+
+        {poster && poster.cells.length > 0 && (
+          <div className="sig-read">
+            <p className="sig-note sig-note-left">
+              Found a <b>{poster.rows} × {poster.cols}</b> grid — <b>{poster.seq.length}</b> colour-notes.
+              Each row is a phrase; white paper and pencil read as rests.
+            </p>
+            <div className="sig-grid" style={{ gridTemplateColumns: `repeat(${poster.cols}, 1fr)` }} aria-hidden="true">
+              {poster.cells.map((c, i) => (
+                <span key={i}
+                  className={'sig-gcell' + (c.row === posterRow ? ' on' : '') + (c.slot < 0 ? ' rest' : '')
+                    + (c.slot >= 0 && c.octave < 0 ? ' oct-down' : '') + (c.slot >= 0 && c.octave > 0 ? ' oct-up' : '')}
+                  style={{ background: c.slot >= 0 ? LETTERS[c.slot].color : 'transparent' }}
+                  title={c.slot >= 0 ? `${LETTERS[c.slot].ch}${c.octave < 0 ? ' ▾' : c.octave > 0 ? ' ▴' : ''}` : 'rest'} />
+              ))}
+            </div>
+            <div className="sig-actions">
+              <button className="sig-btn" onClick={() => setPosterRow(r => Math.max(0, r - 1))} disabled={posterRow <= 0}>◀</button>
+              <span className="sig-rowlab">Row {posterRow + 1} / {poster.rows}</span>
+              <button className="sig-btn" onClick={() => setPosterRow(r => Math.min(poster.rows - 1, r + 1))} disabled={posterRow >= poster.rows - 1}>▶</button>
+              <button className="sig-btn primary" onClick={() => playNotes(rowNotes(posterRow))} disabled={!rowNotes(posterRow).length}>▶ Play this row</button>
+              <button className="sig-btn" onClick={() => {
+                const notes = rowNotes(posterRow, 6);
+                if (notes.length < 2) return;
+                // Signatures stay octave-less: the 13 keys are what you tap back.
+                const rec = { word: `POSTER R${posterRow + 1}`, seq: notes.map(n => n.slot) };
+                try { localStorage.setItem(SIG_KEY, JSON.stringify(rec)); } catch { /* quota */ }
+                setSig(rec); setMode('signin'); setAttempt([]); setUnlocked(false);
+                setStatus('Signature taken from the poster. Play it back to light in.'); setStatusKind('ok');
+                playSeq(rec.seq);
+              }} disabled={rowNotes(posterRow, 6).length < 2}>Use as my signature</button>
+            </div>
+            <p className="sig-muted sig-small">
+              Hue picks the key; <b>lightness picks the octave</b> — a deep ink sings an octave down (▾), a pastel an octave up (▴) — so a maroon and a bright red stay distinct. Straight-on, evenly lit photos read best.
+            </p>
+          </div>
+        )}
+
+        <p className="sig-muted sig-small">Your image is also the world you enter when you light in. It never leaves your device — reading happens right here in the browser.</p>
       </section>
 
       <p className="sig-security">
