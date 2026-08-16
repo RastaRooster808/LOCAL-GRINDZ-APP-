@@ -336,12 +336,14 @@ function drawFlower(ctx: CanvasRenderingContext2D, size: number, st: TunerState,
       ctx.lineWidth = 4; ctx.lineCap = 'round';
       ctx.strokeStyle = inTune ? '#39d98a' : '#ffd166';
       ctx.stroke();
-
-      ctx.fillStyle = '#fff';
-      ctx.font = `700 ${Math.round(r * 0.95)}px system-ui, sans-serif`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(L.ch, x, y + r * 0.04);
     }
+
+    // Every seat is named, so the flower doubles as the key map — the sounding
+    // one bright, the rest legible but quiet.
+    ctx.fillStyle = active ? '#ffffff' : hexA(L.color, 0.72);
+    ctx.font = `${active ? 700 : 600} ${Math.round(r * (active ? 0.95 : 0.6))}px system-ui, sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(L.ch, x, y + r * 0.04);
   }
 }
 
