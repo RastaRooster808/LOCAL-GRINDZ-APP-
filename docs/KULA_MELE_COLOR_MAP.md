@@ -81,15 +81,25 @@ hundreds of cells, and tolerates uneven spacing — where brute-force grid fitti
 would not. `autoGrid` (within-cell variance + an elbow rule) remains the fallback
 for gapless grids, and explicit `rows`/`cols` always override.
 
-**Colour → key.** Each cell is sampled on an inset sub-lattice (grid lines and
-borders excluded), averaged, converted to HSL, and matched to the **nearest key
-hue**. Low-saturation or near-black/near-white cells become **rests** — so white
-paper and pencil handwriting are correctly skipped, not sung.
+**Colour → note.** Each cell is sampled on an inset sub-lattice (grid lines and
+borders excluded), averaged, and converted to HSL. Then:
 
-**Known limitation (by design):** matching is by hue alone, so two inks in the
-same colour family — a bright red and a deep maroon — land on the **same key**.
-Encoding lightness as an octave (as the KullaCoin coin model does) is the natural
-upgrade.
+- **Hue → key** (nearest of the 13 key hues).
+- **Lightness → octave** (`colorToOctave`): `l < 0.38` sings an octave **down**,
+  `l > 0.62` an octave **up**, otherwise centre. This is what keeps a deep maroon
+  distinct from a bright red — same key, different octave — and it mirrors the
+  KullaCoin coin model, where a Kulla is colour + octave + velocity.
+- Low-saturation or near-black/near-white cells become **rests**, so white paper
+  and pencil handwriting are skipped, not sung.
+
+`PosterRead` therefore carries both `seq` (keys only) and `notes`
+(`{slot, octave}` — what the poster actually sounds like). **Signatures stay
+octave-less on purpose:** the 13 keys are what a player taps back, and the
+keyboard has no octave control, so a poster-derived signature uses `seq`.
+
+**Verified:** twelve inks spanning three lightness bands mapped to **12 distinct
+sounding notes** (previously 8 inks collapsed to 7 keys). Three shades of red
+became three octaves of A — 130.8 / 261.6 / 523.3 Hz.
 
 **Verified:** on a synthetic 20 × 26 poster with uneven lighting and sensor noise,
 band detection recovered the grid exactly and cell→key accuracy was **518/520

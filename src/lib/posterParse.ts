@@ -11,6 +11,8 @@
 // The browser side is responsible only for decoding + downscaling the image.
 
 export interface Hsl { h: number; s: number; l: number; }
+/** A colour-note: which key (hue) and which octave (lightness). */
+export interface Note { slot: number; octave: number; }
 export interface Cell {
   row: number; col: number;
   r: number; g: number; b: number;
@@ -18,12 +20,16 @@ export interface Cell {
   hsl: Hsl;
   /** Index into the palette, or -1 for a "rest" (grey/white/black/blank cell). */
   slot: number;
+  /** -1 / 0 / +1 — a deep ink sings low, a pastel sings high. */
+  octave: number;
 }
 export interface PosterRead {
   rows: number; cols: number;
   cells: Cell[];
-  /** Row-major reading order, rests dropped — the melody. */
+  /** Row-major reading order, rests dropped — the melody (keys only). */
   seq: number[];
+  /** The same melody with octaves — what the poster actually sounds like. */
+  notes: Note[];
   /** Mean within-cell colour variance; low = the grid lines up well. */
   fit: number;
 }
@@ -59,6 +65,19 @@ export function toHex(r: number, g: number, b: number): string {
 export function hueDist(a: number, b: number): number {
   const d = Math.abs(((a - b) % 360 + 360) % 360);
   return d > 180 ? 360 - d : d;
+}
+
+/**
+ * Lightness → octave. Hue alone can't separate a bright red from a deep maroon:
+ * they're the same key. Reading the ink's lightness as the octave restores the
+ * distinction — deep inks sing an octave down, pastels an octave up — and matches
+ * the coin model, where a Kulla is colour + octave + velocity.
+ */
+const OCT_DARK = 0.38, OCT_LIGHT = 0.62;
+export function colorToOctave(hsl: Hsl): number {
+  if (hsl.l < OCT_DARK) return -1;
+  if (hsl.l > OCT_LIGHT) return 1;
+  return 0;
 }
 
 /** Map one colour to a palette slot; -1 when it reads as a rest. */
@@ -223,11 +242,18 @@ export function parsePoster(
         hex: toHex(s.r, s.g, s.b),
         hsl,
         slot: colorToSlot(hsl, hues),
+        octave: colorToOctave(hsl),
       });
     }
   }
   const n = Math.max(1, rows * cols);
-  return { rows, cols, cells, seq: cells.map(c => c.slot).filter(s => s >= 0), fit: fitTotal / n };
+  const voiced = cells.filter(c => c.slot >= 0);
+  return {
+    rows, cols, cells,
+    seq: voiced.map(c => c.slot),
+    notes: voiced.map(c => ({ slot: c.slot, octave: c.octave })),
+    fit: fitTotal / n,
+  };
 }
 
 function uniformBands(size: number, count: number): Band[] {

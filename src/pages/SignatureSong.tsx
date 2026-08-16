@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { trackEvent } from '../lib/analytics';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
-import { parsePoster, type PosterRead } from '../lib/posterParse';
+import { parsePoster, type PosterRead, type Note as PosterNote } from '../lib/posterParse';
 
 /*
  * Kula Mele — the Color Piano & Signature Sign-In
@@ -183,12 +183,13 @@ function ac(): AudioContext {
   if (audioCtx.state === 'suspended') void audioCtx.resume();
   return audioCtx;
 }
-function playNote(slot: number, when = 0, dur = 0.5, gain = 0.16) {
+function playNote(slot: number, when = 0, dur = 0.5, gain = 0.16, octave = 0) {
   const l = LETTERS[slot]; if (!l) return;
   const a = ac(); const t = a.currentTime + when;
+  const base = l.freq * Math.pow(2, octave);
   for (const [mult, g, type] of [[1, gain, 'triangle'], [2, gain * 0.3, 'sine']] as const) {
     const o = a.createOscillator(), amp = a.createGain();
-    o.type = type; o.frequency.value = l.freq * mult;
+    o.type = type; o.frequency.value = base * mult;
     amp.gain.setValueAtTime(0, t);
     amp.gain.linearRampToValueAtTime(g, t + 0.012);
     amp.gain.exponentialRampToValueAtTime(0.0001, t + dur);
@@ -381,6 +382,15 @@ export function SignatureSong() {
     });
   }, [flash]);
 
+  /** Play colour-notes with their octaves — how the poster actually sounds. */
+  const playNotes = useCallback((notes: PosterNote[]) => {
+    ac();
+    notes.forEach((n, i) => {
+      playNote(n.slot, i * 0.42, 0.5, 0.16, n.octave);
+      setTimeout(() => flash(n.slot), i * 420);
+    });
+  }, [flash]);
+
   // Tap / recognise a single key, routing into whichever mode is active.
   const hitKey = useCallback((slot: number) => {
     playNote(slot); flash(slot);
@@ -556,9 +566,12 @@ export function SignatureSong() {
   }, [posterUrl]);
 
   /** Notes in one row of the poster (rests dropped), capped to a playable phrase. */
-  const rowNotes = useCallback((rowIdx: number, cap = 24): number[] => {
+  const rowNotes = useCallback((rowIdx: number, cap = 24): PosterNote[] => {
     if (!poster) return [];
-    return poster.cells.filter(c => c.row === rowIdx && c.slot >= 0).map(c => c.slot).slice(0, cap);
+    return poster.cells
+      .filter(c => c.row === rowIdx && c.slot >= 0)
+      .map(c => ({ slot: c.slot, octave: c.octave }))
+      .slice(0, cap);
   }, [poster]);
   useEffect(() => () => { if (posterUrl) URL.revokeObjectURL(posterUrl); }, [posterUrl]);
 
@@ -725,28 +738,30 @@ export function SignatureSong() {
             <div className="sig-grid" style={{ gridTemplateColumns: `repeat(${poster.cols}, 1fr)` }} aria-hidden="true">
               {poster.cells.map((c, i) => (
                 <span key={i}
-                  className={'sig-gcell' + (c.row === posterRow ? ' on' : '') + (c.slot < 0 ? ' rest' : '')}
+                  className={'sig-gcell' + (c.row === posterRow ? ' on' : '') + (c.slot < 0 ? ' rest' : '')
+                    + (c.slot >= 0 && c.octave < 0 ? ' oct-down' : '') + (c.slot >= 0 && c.octave > 0 ? ' oct-up' : '')}
                   style={{ background: c.slot >= 0 ? LETTERS[c.slot].color : 'transparent' }}
-                  title={c.slot >= 0 ? LETTERS[c.slot].ch : 'rest'} />
+                  title={c.slot >= 0 ? `${LETTERS[c.slot].ch}${c.octave < 0 ? ' ▾' : c.octave > 0 ? ' ▴' : ''}` : 'rest'} />
               ))}
             </div>
             <div className="sig-actions">
               <button className="sig-btn" onClick={() => setPosterRow(r => Math.max(0, r - 1))} disabled={posterRow <= 0}>◀</button>
               <span className="sig-rowlab">Row {posterRow + 1} / {poster.rows}</span>
               <button className="sig-btn" onClick={() => setPosterRow(r => Math.min(poster.rows - 1, r + 1))} disabled={posterRow >= poster.rows - 1}>▶</button>
-              <button className="sig-btn primary" onClick={() => playSeq(rowNotes(posterRow))} disabled={!rowNotes(posterRow).length}>▶ Play this row</button>
+              <button className="sig-btn primary" onClick={() => playNotes(rowNotes(posterRow))} disabled={!rowNotes(posterRow).length}>▶ Play this row</button>
               <button className="sig-btn" onClick={() => {
                 const notes = rowNotes(posterRow, 6);
                 if (notes.length < 2) return;
-                const rec = { word: `POSTER R${posterRow + 1}`, seq: notes };
+                // Signatures stay octave-less: the 13 keys are what you tap back.
+                const rec = { word: `POSTER R${posterRow + 1}`, seq: notes.map(n => n.slot) };
                 try { localStorage.setItem(SIG_KEY, JSON.stringify(rec)); } catch { /* quota */ }
                 setSig(rec); setMode('signin'); setAttempt([]); setUnlocked(false);
                 setStatus('Signature taken from the poster. Play it back to light in.'); setStatusKind('ok');
-                playSeq(notes);
+                playSeq(rec.seq);
               }} disabled={rowNotes(posterRow, 6).length < 2}>Use as my signature</button>
             </div>
             <p className="sig-muted sig-small">
-              Each swatch maps to its nearest key by hue, so two inks in the same colour family (a bright red and a deep maroon) land on the same note. Straight-on, evenly lit photos read best.
+              Hue picks the key; <b>lightness picks the octave</b> — a deep ink sings an octave down (▾), a pastel an octave up (▴) — so a maroon and a bright red stay distinct. Straight-on, evenly lit photos read best.
             </p>
           </div>
         )}

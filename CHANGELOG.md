@@ -4,6 +4,30 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Kula Mele: lightness → octave (2026-08-16)
+
+### Changed — the poster reader now hears shade, not just hue
+- **Hue picks the key, lightness picks the octave** (`colorToOctave`): `l < 0.38`
+  sings an octave **down**, `l > 0.62` an octave **up**. This resolves the
+  documented collapse where a bright red and a deep maroon landed on the same
+  note — they are now the same key an octave apart — and it mirrors the KullaCoin
+  coin model, where a Kulla is colour + octave + velocity.
+- `PosterRead` now carries **`notes`** (`{slot, octave}`) alongside `seq` (keys
+  only); `playNote` takes an octave and a new `playNotes` plays a row as printed.
+- The grid read-out marks octaves (▾ / ▴ plus an inset edge); the row you play
+  sounds the way the poster looks.
+- **Signatures stay octave-less by design** — the 13 keys are what a player taps
+  back, and the keyboard has no octave control.
+
+### Verified
+- Twelve inks across three lightness bands → **12 distinct sounding notes**
+  (previously 8 inks collapsed to 7 keys). Three shades of red became three
+  octaves of A: **130.8 / 261.6 / 523.3 Hz**.
+- Full poster parse unchanged at **518/520 (99.6%)**. In-browser: a 3-band poster
+  read as **"A ▾", "A", "A ▴"** (6 down, 6 centre, 6 up), playback clean, no errors.
+
+---
+
 ## [Unreleased] — Kula Mele: the Flower as the tuner's centrepiece (2026-08-16)
 
 ### Added — the tuner's face is the sacred geometry
