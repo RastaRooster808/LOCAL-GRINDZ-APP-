@@ -1,4 +1,6 @@
 # Powers of Ten — Unreal LevelSequence generator
+# © 2026 Local Grindz / RastaRooster (rastarooster.com). All rights reserved.
+# Proprietary and confidential — see NOTICE at the repository root.
 #
 # Reads a `user_spectrum.json` exported from the app's Kula Mele signature page
 # (the "Download my spectrum" button on /signature) and builds a Cine Camera

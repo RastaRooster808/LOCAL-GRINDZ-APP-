@@ -4,6 +4,40 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Kula Mele: full alphabet, continuous rainbow, flower-of-life, IP notice (2026-08-16)
+
+### Changed — the full 13-letter alphabet as one continuous rainbow
+- The color piano now spans the **complete Hawaiian alphabet**: 5 vowels + 7
+  consonants (H K L M N P **W**) + the **ʻokina** = **13 keys** (was 11). Pitches
+  extend to a C4→A5 run. Colors are now **generated as one continuous rainbow**
+  (`hue = i/13·360`, `hslHex`), and the keyboard renders as a single flowing
+  spectrum bar rather than discrete blocks.
+- Spelling now recognizes **W** and folds any apostrophe (`'‘’\``) to the
+  **ʻokina** key; kahakō (macron) still strips to the base vowel — so `ʻāina` →
+  `ʻAINA`, `wai` → `WAI`, `ʻawa` → `ʻAWA`. Table refreshed in
+  `docs/KULA_MELE_COLOR_MAP.md`.
+
+### Added — "land into the realm of your image"
+- Unlocking with an uploaded image now **lands you into that image**: it becomes
+  the animated backdrop of the lit-in state (`--realm` background + veil for
+  legible text). The upload is reframed as "the realm your song lands you in."
+
+### Changed — Powers of Ten offset = a Flower-of-Life lattice
+- `micro_ground` no longer scatters randomly: it **snaps to a Flower-of-Life
+  node** over Hawaiʻi, placed by the signature's own harmonics — average **pitch →
+  ring** (and ground elevation), average **hue → seat** around the ring, with a
+  small hash jitter to keep colliding words distinct. Re-validated: all sample
+  signatures land on-island; the Unreal importer's key contract is unchanged.
+
+### Added — IP protection ahead of vendor release
+- Repository **`NOTICE`**: proprietary/all-rights-reserved, with a limited,
+  revocable **vendor/partner license** clause and an explicit note that anti-cheat
+  controls (e.g. the server-held daily-challenge target) are load-bearing and must
+  not be weakened. Copyright headers added to the Kula Mele source + the Unreal
+  tool.
+
+---
+
 ## [Unreleased] — Kula Mele: the color piano & signature sign-in (2026-08-15)
 
 ### Added — "a piano made of colour" (11 Hawaiian letters)

@@ -4,11 +4,18 @@ import { trackEvent } from '../lib/analytics';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 
+/*
+ * Kula Mele — the Color Piano & Signature Sign-In
+ * © 2026 Local Grindz / RastaRooster (rastarooster.com). All rights reserved.
+ * Proprietary and confidential — see NOTICE. Original work; not for redistribution.
+ */
 // ── Kula Mele — the Color Piano & Signature Sign-In ──────────────────────────
-// Eleven Hawaiian letters, each a colour-key on "a piano made of colour": five
-// warm vowels + six cool consonants. Spell a Hawaiian word and it becomes a
-// melody of colour and light — your *signature song*. Play it back (by tapping,
-// or by singing into the mic) to light yourself in.
+// The full Hawaiian alphabet as "a piano made of colour": 5 vowels (A E I O U) +
+// 7 consonants (H K L M N P W) + the ʻokina = 13 keys, coloured as one CONTINUOUS
+// RAINBOW (hue flows 0→360 across the keys, so the board reads as a single world
+// of colour). Spell a Hawaiian word and it becomes a melody of colour and light —
+// your *signature song*. Play it back (by tapping, or by singing into the mic) to
+// light yourself in; unlocking lands you into the realm of your uploaded image.
 //
 // HONEST SECURITY BOUNDARY: a short melody is low-entropy, so the signature song
 // is an *accessible local unlock* — it selects/opens your profile on this device
@@ -17,24 +24,31 @@ import { useAuth } from '../hooks/useAuth';
 // Supabase's email magic-link (offered right after you light in). Front door of
 // colour and light; real lock behind it.
 
-interface Letter { ch: string; freq: number; color: string; }
+interface Letter { ch: string; freq: number; color: string; hue: number; }
 
-// 5 warm vowels (A E I O U) then 6 cool consonants (H K L M N P) = 11. Pitches
-// are a rising C-major run so any Hawaiian word sounds musical; colours flow as
-// a spectrum so the keyboard reads as light.
-const LETTERS: Letter[] = [
-  { ch: 'A', freq: 261.63, color: '#ff3b6b' },
-  { ch: 'E', freq: 293.66, color: '#ff7a1a' },
-  { ch: 'I', freq: 329.63, color: '#ffc400' },
-  { ch: 'O', freq: 349.23, color: '#7ed321' },
-  { ch: 'U', freq: 392.00, color: '#23c48e' },
-  { ch: 'H', freq: 440.00, color: '#22b8d6' },
-  { ch: 'K', freq: 493.88, color: '#2f80ed' },
-  { ch: 'L', freq: 523.25, color: '#5b6bff' },
-  { ch: 'M', freq: 587.33, color: '#8b5cf6' },
-  { ch: 'N', freq: 659.25, color: '#c04bd6' },
-  { ch: 'P', freq: 698.46, color: '#ff4fa3' },
+// HSL → #rrggbb (continuous-rainbow key colours are generated, never hand-picked).
+function hslHex(h: number, s: number, l: number): string {
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12;
+    const c = l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+    return Math.round(255 * c).toString(16).padStart(2, '0');
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+// The 13 Hawaiian letters + their pitches (a rising C-major run C4→A5 so any word
+// sounds musical). The ʻokina (glottal stop) is the 13th key — a bright top note.
+const ALPHABET: [string, number][] = [
+  ['A', 261.63], ['E', 293.66], ['I', 329.63], ['O', 349.23], ['U', 392.00],
+  ['H', 440.00], ['K', 493.88], ['L', 523.25], ['M', 587.33], ['N', 659.25],
+  ['P', 698.46], ['W', 783.99], ['ʻ', 880.00],
 ];
+// Colours flow as a continuous rainbow: hue = i / N · 360.
+const LETTERS: Letter[] = ALPHABET.map(([ch, freq], i) => {
+  const hue = (i / ALPHABET.length) * 360;
+  return { ch, freq, hue, color: hslHex(hue, 0.82, 0.56) };
+});
 const IDX: Record<string, number> = Object.fromEntries(LETTERS.map((l, i) => [l.ch, i]));
 
 // A few real Hawaiian words to spell as signatures (meanings kept modest/correct).
@@ -48,14 +62,19 @@ const WORDS: { w: string; mean: string }[] = [
   { w: 'LANI', mean: 'sky · heaven' },
   { w: 'KAI', mean: 'sea' },
   { w: 'NALU', mean: 'wave' },
-  { w: 'KULA', mean: 'field · school' },
+  { w: 'WAI', mean: 'fresh water' },
+  { w: 'ʻĀINA', mean: 'land' },
 ];
 
 const SIG_KEY = 'kulla_signature'; // kulla-prefixed → rides the KullaCoin cloud sync
 
-/** Strip diacritics/ʻokina, keep only the 11 supported letters → slot indices. */
+/** Map a word to key slots: strip kahakō (macron) to the base vowel, fold any
+ *  apostrophe form to the ʻokina key, keep the 13 supported letters. */
 function wordToSeq(word: string): number[] {
-  const clean = word.normalize('NFD').replace(/[̀-ͯʻ‘’']/g, '').toUpperCase();
+  const clean = word
+    .normalize('NFD').replace(/[̀-ͯ]/g, '') // drop combining kahakō
+    .replace(/[‘’'`]/g, 'ʻ')                          // any apostrophe → ʻokina
+    .toUpperCase();
   const seq: number[] = [];
   for (const ch of clean) if (ch in IDX) seq.push(IDX[ch]);
   return seq;
@@ -96,15 +115,47 @@ const HI = {
   EYE_CM: 170,       // standing eye height 1.7 m
   MACRO_Z: 200000000,   // 2000 km straight up — the whole archipelago/planet framing
   MESO_Z: 1200000,      // ≈12 km cruising altitude on descent
+  FOL_RINGS: 6,         // Flower-of-Life lattice: rings of overlapping circles
 };
+
+// Flower-of-Life lattice nodes (triangular grid) within FOL_RINGS rings — the
+// "sea of flower of life" the harmonic colour code lands you on. Built once.
+const FOL_NODES: { a: number; b: number; ring: number }[] = (() => {
+  const R = HI.FOL_RINGS, out: { a: number; b: number; ring: number }[] = [];
+  for (let a = -R; a <= R; a++) for (let b = -R; b <= R; b++) {
+    const ring = (Math.abs(a) + Math.abs(b) + Math.abs(a + b)) / 2;
+    if (ring <= R) out.push({ a, b, ring });
+  }
+  return out;
+})();
+
 function buildSpectrum(word: string, seq: number[]): Spectrum {
   const key = `${word}:${seq.join('')}`;
-  const h = fnv32(key), h2 = fnv32('salt:' + key), h3 = fnv32('elev:' + key);
-  const east  = (h  % HI.EW_CM) - HI.EW_CM / 2;   // ±75 km across the island
-  const north = (h2 % HI.NS_CM) - HI.NS_CM / 2;   // ±65 km across the island
-  const elev  = h3 % HI.SUMMIT_CM;                 // sea level → summit (cm)
+  const h = fnv32(key), h2 = fnv32('salt:' + key);
   const avgIdx = seq.reduce((a, b) => a + b, 0) / Math.max(1, seq.length);
   const yaw = Math.round((avgIdx / (LETTERS.length - 1)) * 360); // cumulative hue → heading
+
+  // ── Harmonic colour code → a Flower-of-Life node ──────────────────────────
+  // The signature's average PITCH picks the ring (higher notes → outer rings and
+  // higher ground); its average HUE picks the seat around that ring. A small
+  // hash jitter keeps colliding words distinct without leaving the node's cell.
+  const fMin = LETTERS[0].freq, fMax = LETTERS[LETTERS.length - 1].freq;
+  const avgFreq = seq.reduce((a, i) => a + LETTERS[i].freq, 0) / Math.max(1, seq.length);
+  const pitchFrac = Math.min(1, Math.max(0, (avgFreq - fMin) / (fMax - fMin)));
+  const ringTarget = Math.round(pitchFrac * HI.FOL_RINGS);
+  const ringNodes = FOL_NODES.filter(n => n.ring === ringTarget);
+  const hueFrac = avgIdx / (LETTERS.length - 1);
+  const node = ringNodes[Math.floor(hueFrac * ringNodes.length) % ringNodes.length] || FOL_NODES[0];
+
+  const spacingE = (HI.EW_CM / 2) / HI.FOL_RINGS;
+  const spacingN = (HI.NS_CM / 2) / HI.FOL_RINGS;
+  const jitterE = ((h % 1000) / 1000 - 0.5) * spacingE * 0.3;
+  const jitterN = ((h2 % 1000) / 1000 - 0.5) * spacingN * 0.3;
+  const clamp = (v: number, m: number) => Math.max(-m, Math.min(m, v));
+  const east  = Math.round(clamp((node.a + node.b * 0.5) * spacingE + jitterE, HI.EW_CM / 2));
+  const north = Math.round(clamp(node.b * (Math.sqrt(3) / 2) * spacingN + jitterN, HI.NS_CM / 2));
+  const elev  = Math.round(pitchFrac * HI.SUMMIT_CM); // harmonic altitude: sea level → summit
+
   const safeId = (word.replace(/[^A-Za-z0-9]/g, '').toUpperCase() || 'PLAYER') + '_' + h.toString(16);
   return {
     user_id: safeId,
@@ -369,18 +420,18 @@ export function SignatureSong() {
 
       <section className="sig-hero">
         <h1>A piano made of colour</h1>
-        <p>Eleven Hawaiian letters, each a colour and a note. Spell a word — it becomes your <b>signature song</b> of colour and light. Play it back to light yourself in.</p>
+        <p>The thirteen letters of the Hawaiian alphabet, each a colour and a note — one continuous rainbow. Spell a word and it becomes your <b>signature song</b> of colour and light. Play it back to light yourself in.</p>
       </section>
 
-      {/* The colour piano — 11 luminous keys */}
-      <div className="sig-piano" role="group" aria-label="Colour piano — eleven Hawaiian letters">
+      {/* The colour piano — 13 keys forming one continuous rainbow */}
+      <div className="sig-piano" role="group" aria-label="Colour piano — the Hawaiian alphabet as a continuous rainbow">
         {LETTERS.map((l, i) => (
           <button
             key={l.ch}
             className={'sig-key' + (active === i ? ' lit' : '')}
             style={{ '--key': l.color } as React.CSSProperties}
             onClick={() => hitKey(i)}
-            aria-label={`${l.ch}, ${l.color}`}
+            aria-label={`${l.ch === 'ʻ' ? 'ʻokina' : l.ch}, ${l.color}`}
           >
             <span className="sig-key-ch">{l.ch}</span>
           </button>
@@ -419,7 +470,7 @@ export function SignatureSong() {
           <div className="sig-preview" aria-label="Signature preview">
             {enrollSeq.length
               ? enrollSeq.map((s, i) => <span key={i} className="sig-dot" style={{ background: LETTERS[s].color }} title={LETTERS[s].ch}>{LETTERS[s].ch}</span>)
-              : <span className="sig-muted">Type letters from A E I O U H K L M N P</span>}
+              : <span className="sig-muted">Type Hawaiian letters — A E I O U · H K L M N P W · ʻokina (apostrophe)</span>}
           </div>
           <div className="sig-actions">
             <button className="sig-btn" onClick={() => playSeq(enrollSeq)} disabled={enrollSeq.length < 1}>▶ Hear it</button>
@@ -452,11 +503,14 @@ export function SignatureSong() {
               {listening && <p className="sig-heard" aria-live="polite">{heard ? `Heard: ${heard}` : 'Sing a note…'}</p>}
             </>
           ) : (
-            <div className="sig-unlocked">
+            <div className={'sig-unlocked' + (posterUrl ? ' has-realm' : '')}
+              style={posterUrl ? { ['--realm' as string]: `url(${posterUrl})` } as React.CSSProperties : undefined}>
+              <div className="sig-realm-veil" aria-hidden="true" />
               <div className="sig-burst" aria-hidden="true">
                 {LETTERS.map((l, i) => <i key={i} style={{ background: l.color, animationDelay: `${i * 40}ms` }} />)}
               </div>
               <h2>✨ Lit in — welcome{user?.email ? `, ${user.email.split('@')[0]}` : ''}!</h2>
+              {posterUrl && <p className="sig-note sig-realm-note">You landed in the realm of your image.</p>}
               {user ? (
                 <p className="sig-note">You're signed in and your progress is saving to the cloud.</p>
               ) : (
@@ -479,7 +533,7 @@ export function SignatureSong() {
       {sig && (
         <section className="sig-panel sig-powers">
           <h3 className="sig-h3">Powers of Ten</h3>
-          <p className="sig-note sig-note-left">Your signature <b>{sig.word}</b> fixes one unique point on the planet. Export it as <code>user_spectrum.json</code> to drive the Unreal “Powers of Ten” zoom — planet → atmosphere → you.</p>
+          <p className="sig-note sig-note-left">Your signature <b>{sig.word}</b> lands on one node of the flower-of-life lattice over Hawaiʻi — placed by its own harmonic colour code. Export it as <code>user_spectrum.json</code> to drive the Unreal “Powers of Ten” zoom — planet → atmosphere → you.</p>
           <button className="sig-btn primary" onClick={downloadSpectrum}>⬇ Download my spectrum</button>
           <p className="sig-muted sig-small">Feed it to <code>tools/unreal/generate_zoom_sequence.py</code> in the Unreal editor.</p>
         </section>
@@ -487,10 +541,10 @@ export function SignatureSong() {
 
       {/* Poster / colour-code reference upload */}
       <section className="sig-panel sig-poster-panel">
-        <label className="sig-label" htmlFor="sig-poster">Load your colour-code poster as a reference</label>
+        <label className="sig-label" htmlFor="sig-poster">Load your image — the realm your song lands you in</label>
         <input id="sig-poster" className="sig-file" type="file" accept="image/*" onChange={onPoster} />
-        {posterUrl && <img className="sig-poster" src={posterUrl} alt="Your uploaded colour-code reference" />}
-        <p className="sig-muted sig-small">The poster is shown as your palette reference. Automatic grid-reading from a photo is a planned upgrade.</p>
+        {posterUrl && <img className="sig-poster" src={posterUrl} alt="Your uploaded colour-code / realm image" />}
+        <p className="sig-muted sig-small">Shown as your palette reference, and as the world you enter when you light in. Automatic grid-reading from a photo is a planned upgrade.</p>
       </section>
 
       <p className="sig-security">

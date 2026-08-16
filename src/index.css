@@ -2216,17 +2216,21 @@
   background: linear-gradient(90deg,#ff3b6b,#ffc400,#7ed321,#22b8d6,#5b6bff,#c04bd6); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .sig-hero p { max-width: 46ch; margin: 0 auto; color: #4c5b46; font-size: 0.98rem; line-height: 1.5; }
 
-.sig-piano { display: grid; grid-template-columns: repeat(11, 1fr); gap: 0.35rem; margin: 0.4rem 0 1rem;
-  padding: 0.7rem; border-radius: 1rem; background: linear-gradient(180deg,#fbfff4,#eef6e2); border: 1px solid #dcebc9; }
-.sig-key { position: relative; aspect-ratio: 1 / 2.2; border: 0; border-radius: 0.5rem; cursor: pointer;
-  background: var(--key); box-shadow: inset 0 -6px 12px rgba(0,0,0,0.18), 0 2px 5px rgba(20,32,20,0.15);
-  transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease; filter: saturate(0.92) brightness(0.98); }
-.sig-key:hover { transform: translateY(-2px); }
-.sig-key:focus-visible { outline: 3px solid #21301f; outline-offset: 2px; }
-.sig-key.lit { filter: saturate(1.25) brightness(1.25); transform: translateY(-3px);
-  box-shadow: 0 0 0 3px #fff, 0 0 22px 6px var(--key), inset 0 -6px 12px rgba(255,255,255,0.35); }
-.sig-key-ch { position: absolute; bottom: 0.35rem; left: 0; right: 0; text-align: center;
-  font-weight: 800; font-size: 0.9rem; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+.sig-piano { display: grid; grid-template-columns: repeat(13, 1fr); gap: 2px; margin: 0.4rem 0 1rem;
+  padding: 5px; border-radius: 1rem; background: #0d140c;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 6px 24px rgba(20,32,20,0.18); overflow: hidden; }
+.sig-key { position: relative; aspect-ratio: 1 / 3; border: 0; cursor: pointer;
+  background: var(--key); box-shadow: inset 0 -10px 18px rgba(0,0,0,0.22), inset 0 6px 10px rgba(255,255,255,0.18);
+  transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease; filter: saturate(1) brightness(1); }
+/* Round only the outer ends so the 13 keys read as one continuous rainbow bar. */
+.sig-key:first-child { border-radius: 0.75rem 0 0 0.75rem; }
+.sig-key:last-child { border-radius: 0 0.75rem 0.75rem 0; }
+.sig-key:hover { transform: translateY(-2px); z-index: 1; filter: brightness(1.12); }
+.sig-key:focus-visible { outline: 3px solid #fff; outline-offset: -3px; z-index: 2; }
+.sig-key.lit { filter: saturate(1.3) brightness(1.4); transform: translateY(-4px); z-index: 3;
+  box-shadow: 0 0 0 2px #fff, 0 0 26px 8px var(--key), inset 0 6px 10px rgba(255,255,255,0.4); }
+.sig-key-ch { position: absolute; bottom: 0.4rem; left: 0; right: 0; text-align: center;
+  font-weight: 800; font-size: 0.8rem; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
 
 .sig-tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; margin-bottom: 0.6rem; }
 .sig-tabs button { border: 1px solid #cddcbb; background: #fff; color: #3a4a34; border-radius: 999px;
@@ -2273,7 +2277,23 @@
 .sig-heard { margin: 0.5rem 0 0; font-size: 0.86rem; color: #566a4f; }
 
 .sig-unlocked { text-align: center; position: relative; padding: 0.5rem 0; }
-.sig-unlocked h2 { font-family: Georgia, serif; color: #213021; margin: 0.3rem 0 0.5rem; }
+.sig-unlocked h2 { font-family: Georgia, serif; color: #213021; margin: 0.3rem 0 0.5rem; position: relative; }
+/* When an image is loaded, the unlock "lands" you into it as the realm backdrop. */
+.sig-unlocked.has-realm { padding: 1.4rem 1rem; border-radius: 0.9rem; overflow: hidden; color: #fff; }
+.sig-unlocked.has-realm h2 { color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.6); }
+.sig-unlocked.has-realm .sig-note { color: #f3f7ee; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
+.sig-unlocked.has-realm::before { content: ""; position: absolute; inset: 0; z-index: 0;
+  background-image: var(--realm); background-size: cover; background-position: center;
+  animation: sig-realm-in 1.1s ease both; }
+.sig-realm-veil { position: absolute; inset: 0; z-index: 1;
+  background: radial-gradient(circle at 50% 40%, rgba(0,0,0,0.15), rgba(0,0,0,0.55)); }
+.sig-unlocked.has-realm > .sig-burst,
+.sig-unlocked.has-realm > h2,
+.sig-unlocked.has-realm > .sig-note,
+.sig-unlocked.has-realm > .sig-handoff,
+.sig-unlocked.has-realm > .sig-btn { position: relative; z-index: 2; }
+.sig-realm-note { font-style: italic; }
+@keyframes sig-realm-in { 0% { opacity: 0; transform: scale(1.25); } 100% { opacity: 1; transform: scale(1); } }
 .sig-note { color: #4c5b46; font-size: 0.9rem; max-width: 42ch; margin: 0 auto 0.7rem; }
 .sig-handoff { margin: 0.5rem 0 0.8rem; }
 .sig-handoff .sig-actions { justify-content: center; }
