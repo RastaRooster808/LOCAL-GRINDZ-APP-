@@ -106,6 +106,18 @@ band detection recovered the grid exactly and cell→key accuracy was **518/520
 (99.6%)**; white paper and pencil grey both read as rests. End-to-end in-browser:
 upload → read → 520 cells → play a row → adopt a row as a signature.
 
+**Verified on the real poster.** A hand-held photo of the actual "TAS CODE" sheet
+— shot at an angle, paper curled at the top, uneven room light — read as
+**20 × 26 (520 swatches)**, matching the printed grid.
+
+This settles an open question. Band projection assumes the grid is roughly
+axis-aligned, so a de-skew pass (detect the sheet's corners, rectify, then
+project) was held as the likely next step. **It proved unnecessary:** the ink
+mask is robust to the skew present in an ordinary phone photo, because a modest
+lean shifts a column's pixels without merging it into its neighbour. De-skew
+stays unbuilt — revisit it only if a photo genuinely fails, and reach for a
+flatter, straight-on shot first.
+
 ## Powers of Ten (Unreal)
 
 The signature page exports a **`user_spectrum.json`** ("Download my spectrum",

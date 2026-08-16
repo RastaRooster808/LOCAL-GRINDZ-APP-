@@ -4,6 +4,20 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Poster parser confirmed on the real poster (2026-08-16)
+
+### Verified
+- A hand-held photo of the actual **"TAS CODE"** sheet — shot at an angle, paper
+  curled, uneven room light — read as **20 × 26 (520 swatches)**, matching the
+  printed grid. The parser works on the real artifact, not just synthetic tests.
+- **De-skew is therefore not needed and stays unbuilt.** It had been held as the
+  likely next step, since band projection assumes a roughly axis-aligned grid.
+  In practice the ink mask tolerates the skew of an ordinary phone photo: a
+  modest lean shifts a column's pixels without merging it into its neighbour.
+  Revisit only if a photo genuinely fails — try a flatter, straight-on shot first.
+
+---
+
 ## [Unreleased] — Kula Mele: lightness → octave (2026-08-16)
 
 ### Changed — the poster reader now hears shade, not just hue
