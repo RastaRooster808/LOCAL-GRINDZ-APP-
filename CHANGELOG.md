@@ -4,6 +4,35 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Kula Mele: the poster parser (image as source) (2026-08-16)
+
+### Added — read a printed colour-code poster into a melody
+- New **`src/lib/posterParse.ts`**: reads a printed swatch grid (e.g. the "TAS
+  CODE" poster) off a photo and turns it into notes on the 13-key colour piano.
+  Pure functions (raw RGBA in, cells out) so the same code runs in the browser
+  and in headless tests. **The image never leaves the device** — decode, downscale
+  (max 900 px) and parse all happen in the page.
+- **Band detection, not brute force:** printed posters put saturated swatches on
+  white paper, so the parser builds an "ink" mask and projects it onto each axis;
+  runs above threshold are the swatch columns/rows. O(w·h), scales to hundreds of
+  cells, tolerates uneven spacing. Variance-based `autoGrid` stays as the fallback
+  for gapless grids; explicit rows/cols always override.
+- Cells are sampled on an **inset sub-lattice** (grid lines excluded), averaged,
+  and matched to the **nearest key hue**. Low-saturation / near-white / near-black
+  cells become **rests**, so white paper and pencil handwriting are skipped rather
+  than sung.
+- **UI:** upload → **🔍 Read the colours** → a live read-out of the detected grid,
+  row-by-row navigation, **▶ Play this row** (each row is a phrase), and **Use as
+  my signature** (takes the row's first 6 notes).
+- **Known limitation (documented):** matching is by hue alone, so a bright red and
+  a deep maroon land on the same key; encoding lightness as an octave is the
+  natural next step.
+- **Verified:** synthetic 20 × 26 poster with uneven lighting + noise → grid
+  recovered exactly, **518/520 cells correct (99.6%)**, white/pencil → rests.
+  End-to-end in-browser: upload → read → 520 cells → play row → adopt signature.
+
+---
+
 ## [Unreleased] — Kula Mele: full alphabet, continuous rainbow, flower-of-life, IP notice (2026-08-16)
 
 ### Changed — the full 13-letter alphabet as one continuous rainbow

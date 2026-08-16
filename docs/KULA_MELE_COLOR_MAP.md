@@ -51,6 +51,37 @@ never be presented as protecting the account from someone else. Real account
 security stays with Supabase email magic-link (offered immediately after
 lighting in). Front door of color and light; real lock behind it.
 
+## Image as source — the poster parser
+
+`src/lib/posterParse.ts` reads a printed colour-code grid (e.g. the "TAS CODE"
+poster) off a photo and turns it into notes. It is **pure** — raw RGBA + width and
+height in, cells out — so the same code runs in the browser (from a `<canvas>`)
+and in headless tests. Decoding and downscaling (max 900 px) happen in the page;
+**the image never leaves the device.**
+
+**How detection works.** Printed posters put saturated swatches on white paper, so
+the parser builds an "ink" mask (saturation ≥ 0.25, mid lightness) and projects it
+onto each axis. Runs above a relative threshold are the swatch **columns** and
+**rows** (`inkProfile` → `findBands` → `detectBands`). This is O(w·h), scales to
+hundreds of cells, and tolerates uneven spacing — where brute-force grid fitting
+would not. `autoGrid` (within-cell variance + an elbow rule) remains the fallback
+for gapless grids, and explicit `rows`/`cols` always override.
+
+**Colour → key.** Each cell is sampled on an inset sub-lattice (grid lines and
+borders excluded), averaged, converted to HSL, and matched to the **nearest key
+hue**. Low-saturation or near-black/near-white cells become **rests** — so white
+paper and pencil handwriting are correctly skipped, not sung.
+
+**Known limitation (by design):** matching is by hue alone, so two inks in the
+same colour family — a bright red and a deep maroon — land on the **same key**.
+Encoding lightness as an octave (as the KullaCoin coin model does) is the natural
+upgrade.
+
+**Verified:** on a synthetic 20 × 26 poster with uneven lighting and sensor noise,
+band detection recovered the grid exactly and cell→key accuracy was **518/520
+(99.6%)**; white paper and pencil grey both read as rests. End-to-end in-browser:
+upload → read → 520 cells → play a row → adopt a row as a signature.
+
 ## Powers of Ten (Unreal)
 
 The signature page exports a **`user_spectrum.json`** ("Download my spectrum",

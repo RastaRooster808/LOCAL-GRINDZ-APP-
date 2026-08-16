@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { trackEvent } from '../lib/analytics';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
+import { parsePoster, type PosterRead } from '../lib/posterParse';
 
 /*
  * Kula Mele — the Color Piano & Signature Sign-In
@@ -268,6 +269,9 @@ export function SignatureSong() {
   const [heard, setHeard] = useState<string>('');                 // live voice announce
   const [posterUrl, setPosterUrl] = useState<string | null>(null);
   const [linkEmail, setLinkEmail] = useState('');
+  const [poster, setPoster] = useState<PosterRead | null>(null);
+  const [posterBusy, setPosterBusy] = useState(false);
+  const [posterRow, setPosterRow] = useState(0);
 
   const litTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const micRef = useRef<{ stream: MediaStream; ctx: AudioContext; raf: number } | null>(null);
@@ -405,7 +409,42 @@ export function SignatureSong() {
     const file = e.target.files?.[0]; if (!file) return;
     if (posterUrl) URL.revokeObjectURL(posterUrl);
     setPosterUrl(URL.createObjectURL(file));
+    setPoster(null); setPosterRow(0);
   }, [posterUrl]);
+
+  // Decode the uploaded poster into a colour grid, then into notes.
+  const readPoster = useCallback(async () => {
+    if (!posterUrl) return;
+    setPosterBusy(true); setStatus(''); setStatusKind('');
+    try {
+      const img = new Image();
+      img.src = posterUrl;
+      await img.decode();
+      // Downscale for speed — plenty of resolution for ~20×26 swatches.
+      const maxDim = 900;
+      const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.max(1, Math.round(img.naturalWidth * scale));
+      const h = Math.max(1, Math.round(img.naturalHeight * scale));
+      const cv = document.createElement('canvas');
+      cv.width = w; cv.height = h;
+      const ctx = cv.getContext('2d', { willReadFrequently: true });
+      if (!ctx) throw new Error('no canvas');
+      ctx.drawImage(img, 0, 0, w, h);
+      const { data } = ctx.getImageData(0, 0, w, h);
+      const read = parsePoster(data, w, h, LETTERS.map(l => l.hue));
+      setPoster(read); setPosterRow(0);
+      if (!read.seq.length) { setStatus('No colour swatches found — try a straighter, brighter photo.'); setStatusKind('err'); }
+      else { setStatus(`Read ${read.rows} × ${read.cols} — ${read.seq.length} notes.`); setStatusKind('ok'); }
+    } catch {
+      setStatus('Could not read that image.'); setStatusKind('err');
+    } finally { setPosterBusy(false); }
+  }, [posterUrl]);
+
+  /** Notes in one row of the poster (rests dropped), capped to a playable phrase. */
+  const rowNotes = useCallback((rowIdx: number, cap = 24): number[] => {
+    if (!poster) return [];
+    return poster.cells.filter(c => c.row === rowIdx && c.slot >= 0).map(c => c.slot).slice(0, cap);
+  }, [poster]);
   useEffect(() => () => { if (posterUrl) URL.revokeObjectURL(posterUrl); }, [posterUrl]);
 
   const enrollSeq = wordToSeq(enrollWord);
@@ -541,10 +580,54 @@ export function SignatureSong() {
 
       {/* Poster / colour-code reference upload */}
       <section className="sig-panel sig-poster-panel">
-        <label className="sig-label" htmlFor="sig-poster">Load your image — the realm your song lands you in</label>
+        <label className="sig-label" htmlFor="sig-poster">Load your colour-code poster — read it, and land in it</label>
         <input id="sig-poster" className="sig-file" type="file" accept="image/*" onChange={onPoster} />
         {posterUrl && <img className="sig-poster" src={posterUrl} alt="Your uploaded colour-code / realm image" />}
-        <p className="sig-muted sig-small">Shown as your palette reference, and as the world you enter when you light in. Automatic grid-reading from a photo is a planned upgrade.</p>
+
+        {posterUrl && (
+          <div className="sig-actions">
+            <button className="sig-btn primary" onClick={readPoster} disabled={posterBusy}>
+              {posterBusy ? 'Reading…' : '🔍 Read the colours'}
+            </button>
+          </div>
+        )}
+
+        {poster && poster.cells.length > 0 && (
+          <div className="sig-read">
+            <p className="sig-note sig-note-left">
+              Found a <b>{poster.rows} × {poster.cols}</b> grid — <b>{poster.seq.length}</b> colour-notes.
+              Each row is a phrase; white paper and pencil read as rests.
+            </p>
+            <div className="sig-grid" style={{ gridTemplateColumns: `repeat(${poster.cols}, 1fr)` }} aria-hidden="true">
+              {poster.cells.map((c, i) => (
+                <span key={i}
+                  className={'sig-gcell' + (c.row === posterRow ? ' on' : '') + (c.slot < 0 ? ' rest' : '')}
+                  style={{ background: c.slot >= 0 ? LETTERS[c.slot].color : 'transparent' }}
+                  title={c.slot >= 0 ? LETTERS[c.slot].ch : 'rest'} />
+              ))}
+            </div>
+            <div className="sig-actions">
+              <button className="sig-btn" onClick={() => setPosterRow(r => Math.max(0, r - 1))} disabled={posterRow <= 0}>◀</button>
+              <span className="sig-rowlab">Row {posterRow + 1} / {poster.rows}</span>
+              <button className="sig-btn" onClick={() => setPosterRow(r => Math.min(poster.rows - 1, r + 1))} disabled={posterRow >= poster.rows - 1}>▶</button>
+              <button className="sig-btn primary" onClick={() => playSeq(rowNotes(posterRow))} disabled={!rowNotes(posterRow).length}>▶ Play this row</button>
+              <button className="sig-btn" onClick={() => {
+                const notes = rowNotes(posterRow, 6);
+                if (notes.length < 2) return;
+                const rec = { word: `POSTER R${posterRow + 1}`, seq: notes };
+                try { localStorage.setItem(SIG_KEY, JSON.stringify(rec)); } catch { /* quota */ }
+                setSig(rec); setMode('signin'); setAttempt([]); setUnlocked(false);
+                setStatus('Signature taken from the poster. Play it back to light in.'); setStatusKind('ok');
+                playSeq(notes);
+              }} disabled={rowNotes(posterRow, 6).length < 2}>Use as my signature</button>
+            </div>
+            <p className="sig-muted sig-small">
+              Each swatch maps to its nearest key by hue, so two inks in the same colour family (a bright red and a deep maroon) land on the same note. Straight-on, evenly lit photos read best.
+            </p>
+          </div>
+        )}
+
+        <p className="sig-muted sig-small">Your image is also the world you enter when you light in. It never leaves your device — reading happens right here in the browser.</p>
       </section>
 
       <p className="sig-security">

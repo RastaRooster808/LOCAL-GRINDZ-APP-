@@ -2304,6 +2304,14 @@
 .sig-linkbtn { background: none; border: 0; color: #2f6f9e; cursor: pointer; font-size: 0.85rem; text-decoration: underline; padding: 0; }
 
 .sig-poster-panel .sig-file { font-size: 0.85rem; }
+/* Parsed poster: a live read-out of the detected swatch grid. */
+.sig-read { margin-top: 0.8rem; }
+.sig-grid { display: grid; gap: 1px; margin: 0.6rem 0; padding: 4px; border-radius: 0.5rem;
+  background: #0d140c; overflow-x: auto; }
+.sig-gcell { aspect-ratio: 1; border-radius: 2px; min-width: 6px; opacity: 0.45; transition: opacity 0.15s ease; }
+.sig-gcell.on { opacity: 1; box-shadow: 0 0 0 1px rgba(255,255,255,0.7); }
+.sig-gcell.rest { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); }
+.sig-rowlab { font-size: 0.82rem; color: #4c5b46; font-variant-numeric: tabular-nums; }
 .sig-poster { display: block; max-width: 100%; margin: 0.7rem 0; border-radius: 0.6rem; border: 1px solid #e5efd6; }
 .sig-muted { color: #8a9a80; }
 .sig-small { font-size: 0.76rem; }
