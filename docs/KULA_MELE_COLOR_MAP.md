@@ -39,6 +39,20 @@ A chosen Hawaiian word becomes a sequence of color-notes — the player's
 **signature song**. Reproducing it (by tapping the keys, or singing into the mic)
 lights them in.
 
+### The tuner's face — the Flower
+
+The tuner's centrepiece is the sacred geometry itself. The **Fruit of Life is
+exactly thirteen circles** — one centre, a ring of six, an outer ring of six —
+which is a one-to-one seat for each Hawaiian key (slot 0 = centre, 1–6 = inner
+ring, 7–12 = outer ring), drawn over a faint **Flower of Life** lattice (circles
+of radius r on a triangular lattice of spacing r, interlacing into petals). It is
+the same lattice the Powers of Ten export lands you on.
+
+Sing, and your note's circle **blooms** in its own hue, with an arc reporting the
+**cents offset** — green within ±8 cents, gold when sharp or flat, sweeping right
+for sharp and left for flat. A ~400 ms hold keeps the bloom from flickering
+between breaths. The glow pulse is suppressed under `prefers-reduced-motion`.
+
 **Voice path:** mic audio → **YIN** pitch detector (`detectPitch`: squared
 difference function → CMNDF → absolute threshold → parabolic interpolation) →
 nearest key within ±130 cents → same match logic as a tap. Validated to resolve

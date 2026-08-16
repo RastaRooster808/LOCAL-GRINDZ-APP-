@@ -253,6 +253,84 @@ function freqToSlot(freq: number, tolCents = 130): number {
   return bestCents <= tolCents ? best : -1;
 }
 
+// ── The Flower — centrepiece of the tuner ────────────────────────────────────
+// The Fruit of Life is exactly THIRTEEN circles: one centre, a ring of six, and
+// an outer ring of six. That is a one-to-one seat for each Hawaiian key, so the
+// tuner's face IS the sacred geometry — the same lattice the Powers of Ten export
+// lands you on. Sing, and your note's circle blooms; the ring reports the cents.
+interface TunerState { slot: number; cents: number; level: number; }
+
+/** 13 circle centres in units of the circle radius r (centre, 6 inner, 6 outer). */
+const FLOWER_POS: { x: number; y: number }[] = (() => {
+  const p = [{ x: 0, y: 0 }];
+  for (let i = 0; i < 6; i++) { const a = (i * 60) * Math.PI / 180; p.push({ x: 2 * Math.cos(a), y: 2 * Math.sin(a) }); }
+  const d = 2 * Math.sqrt(3);
+  for (let i = 0; i < 6; i++) { const a = (30 + i * 60) * Math.PI / 180; p.push({ x: d * Math.cos(a), y: d * Math.sin(a) }); }
+  return p;
+})();
+
+/** #rrggbb + alpha → rgba(). */
+function hexA(hex: string, a: number): string {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+}
+
+function drawFlower(ctx: CanvasRenderingContext2D, size: number, st: TunerState, glowPhase: number) {
+  const cx = size / 2, cy = size / 2, r = (size / 2) / 4.7;
+  ctx.clearRect(0, 0, size, size);
+
+  // The Flower of Life itself: circles of radius r on a triangular lattice of
+  // spacing r, so they interlace into petals. Drawn very faintly — this is the
+  // ground the thirteen seats rest on.
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,0.055)';
+  ctx.lineWidth = 1;
+  const reach = 3.6;
+  for (let j = -8; j <= 8; j++) {
+    for (let i = -8; i <= 8; i++) {
+      const px = (i + j / 2) * r, py = j * (Math.sqrt(3) / 2) * r;
+      if (Math.hypot(px, py) > reach * r) continue;
+      ctx.beginPath();
+      ctx.arc(cx + px, cy + py, r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+
+  // The thirteen seats — one circle per key.
+  for (let i = 0; i < FLOWER_POS.length; i++) {
+    const P = FLOWER_POS[i], L = LETTERS[i];
+    const x = cx + P.x * r, y = cy + P.y * r;
+    const active = i === st.slot;
+    ctx.save();
+    if (active) { ctx.shadowColor = L.color; ctx.shadowBlur = 18 + 10 * glowPhase; }
+    ctx.beginPath();
+    ctx.arc(x, y, active ? r * (1 + 0.05 * glowPhase) : r, 0, Math.PI * 2);
+    ctx.fillStyle = active ? hexA(L.color, 0.82) : hexA(L.color, 0.11);
+    ctx.fill();
+    ctx.lineWidth = active ? 2.5 : 1;
+    ctx.strokeStyle = active ? 'rgba(255,255,255,0.95)' : hexA(L.color, 0.4);
+    ctx.stroke();
+    ctx.restore();
+
+    if (active) {
+      // Cents arc: sweeps right when sharp, left when flat; green when in tune.
+      const inTune = Math.abs(st.cents) <= 8;
+      const sweep = Math.max(-1, Math.min(1, st.cents / 50)) * Math.PI * 0.8;
+      ctx.beginPath();
+      ctx.arc(x, y, r * 1.45, -Math.PI / 2, -Math.PI / 2 + (sweep || 0.001), sweep < 0);
+      ctx.lineWidth = 4; ctx.lineCap = 'round';
+      ctx.strokeStyle = inTune ? '#39d98a' : '#ffd166';
+      ctx.stroke();
+
+      ctx.fillStyle = '#fff';
+      ctx.font = `700 ${Math.round(r * 0.95)}px system-ui, sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(L.ch, x, y + r * 0.04);
+    }
+  }
+}
+
 type Mode = 'play' | 'enroll' | 'signin';
 
 export function SignatureSong() {
@@ -274,6 +352,8 @@ export function SignatureSong() {
   const [posterRow, setPosterRow] = useState(0);
 
   const litTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flowerRef = useRef<HTMLCanvasElement>(null);
+  const tunerRef = useRef<TunerState & { seen: number }>({ slot: -1, cents: 0, level: 0, seen: 0 });
   const micRef = useRef<{ stream: MediaStream; ctx: AudioContext; raf: number } | null>(null);
   const voiceState = useRef<{ lastSlot: number; stable: number; frames: number }>({ lastSlot: -1, stable: 0, frames: 0 });
 
@@ -351,6 +431,16 @@ export function SignatureSong() {
         analyser.getFloatTimeDomainData(buf);
         const f = detectPitch(buf, ctx.sampleRate);
         const slot = freqToSlot(f);
+
+        // Feed the flower: exact cents off the key, with a short hold so the
+        // bloom doesn't flicker between breaths.
+        const now = performance.now();
+        if (slot >= 0) {
+          tunerRef.current = { slot, cents: 1200 * Math.log2(f / LETTERS[slot].freq), level: 1, seen: now };
+        } else if (now - tunerRef.current.seen > 400) {
+          tunerRef.current = { slot: -1, cents: 0, level: 0, seen: tunerRef.current.seen };
+        }
+
         const vs = voiceState.current;
         if (slot >= 0 && slot === vs.lastSlot) vs.stable++;
         else { vs.lastSlot = slot; vs.stable = slot >= 0 ? 1 : 0; }
@@ -370,6 +460,31 @@ export function SignatureSong() {
   }, [stopMic]);
 
   useEffect(() => () => { if (litTimer.current) clearTimeout(litTimer.current); stopMic(); }, [stopMic]);
+
+  // Paint the flower. Runs while the tuner is on screen; the glow pulses only
+  // when a note is actually being held (and never under reduced-motion).
+  useEffect(() => {
+    if (mode !== 'signin') return;
+    const cv = flowerRef.current; if (!cv) return;
+    const ctx = cv.getContext('2d'); if (!ctx) return;
+    const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let raf = 0;
+    const paint = () => {
+      const css = cv.clientWidth || 260;
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const px = Math.round(css * dpr);
+      // Check BOTH axes: a <canvas> defaults to 300×150, so guarding on width
+      // alone silently leaves the height at 150 and squashes the drawing.
+      if (cv.width !== px || cv.height !== px) { cv.width = px; cv.height = px; }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const st = tunerRef.current;
+      const phase = (!calm && st.slot >= 0) ? (Math.sin(performance.now() / 260) + 1) / 2 : 0;
+      drawFlower(ctx, css, st, phase);
+      raf = requestAnimationFrame(paint);
+    };
+    raf = requestAnimationFrame(paint);
+    return () => cancelAnimationFrame(raf);
+  }, [mode]);
 
   const saveSignature = useCallback(() => {
     const seq = wordToSeq(enrollWord);
@@ -526,6 +641,16 @@ export function SignatureSong() {
           {!unlocked ? (
             <>
               <p className="sig-lead">Play your signature — <b>{sig.word}</b> — by tapping the colours or singing it.</p>
+
+              {/* The tuner: the Fruit of Life, thirteen circles for thirteen keys. */}
+              <div className="sig-tuner">
+                <canvas ref={flowerRef} className="sig-flower" role="img"
+                  aria-label="Flower tuner — thirteen circles, one per key; your sung note blooms on its circle" />
+                <p className="sig-heard" aria-live="polite">
+                  {listening ? (heard ? `Heard: ${heard}` : 'Sing a note…') : 'Tap 🎤 Sing it, and your note blooms.'}
+                </p>
+              </div>
+
               <div className="sig-progress" aria-label="Progress">
                 {sig.seq.map((s, i) => (
                   <span key={i} className={'sig-pip' + (i < attempt.length ? ' done' : '')}
@@ -539,7 +664,6 @@ export function SignatureSong() {
                 <button className="sig-btn" onClick={() => playSeq(sig.seq)}>▶ Remind me</button>
                 <button className="sig-btn" onClick={resetSignin}>↺ Restart</button>
               </div>
-              {listening && <p className="sig-heard" aria-live="polite">{heard ? `Heard: ${heard}` : 'Sing a note…'}</p>}
             </>
           ) : (
             <div className={'sig-unlocked' + (posterUrl ? ' has-realm' : '')}

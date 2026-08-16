@@ -4,6 +4,31 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Kula Mele: the Flower as the tuner's centrepiece (2026-08-16)
+
+### Added — the tuner's face is the sacred geometry
+- The voice tuner is now built around a **Flower** centrepiece. The **Fruit of
+  Life is exactly 13 circles** (centre + ring of 6 + outer ring of 6) — a
+  one-to-one seat for each Hawaiian key — drawn over a faint interlacing **Flower
+  of Life** lattice. It is the same lattice the Powers of Ten export lands on.
+- Sing and your note's circle **blooms in its own hue**, with a **cents arc**:
+  green within ±8 cents, gold when sharp/flat, sweeping right for sharp and left
+  for flat. The YIN detector now surfaces exact cents, not just the nearest key.
+- A ~400 ms hold stops the bloom flickering between breaths; the glow pulse is
+  suppressed under `prefers-reduced-motion`; canvas is DPR-aware.
+
+### Fixed
+- Canvas backing store was left at the default **300×150** because the resize
+  guard only checked `width`, squashing the drawing 2:1. Now checks both axes.
+
+### Verified
+- End-to-end with a **synthetic microphone**: Chromium launched with a generated
+  440 Hz WAV as the capture device → YIN → tuner reports **"Heard: H"** (H *is*
+  440 Hz), flower blooms on H's seat with the in-tune arc. Canvas confirmed
+  300×300. Build clean, no page errors.
+
+---
+
 ## [Unreleased] — Kula Mele: the poster parser (image as source) (2026-08-16)
 
 ### Added — read a printed colour-code poster into a melody

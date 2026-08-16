@@ -2275,6 +2275,12 @@
 .sig-pip { width: 1.4rem; height: 1.4rem; border-radius: 50%; border: 2px solid #d5e2c4; background: #fff; transition: background 0.15s ease; }
 .sig-pip.done { border-color: transparent; box-shadow: 0 0 10px 2px rgba(0,0,0,0.12); }
 .sig-heard { margin: 0.5rem 0 0; font-size: 0.86rem; color: #566a4f; }
+/* Tuner centrepiece — the Fruit of Life, 13 circles for 13 keys. */
+.sig-tuner { display: flex; flex-direction: column; align-items: center; margin: 0.6rem 0 0.9rem; }
+.sig-flower { width: min(300px, 78vw); aspect-ratio: 1; display: block;
+  border-radius: 50%; background: radial-gradient(circle at 50% 45%, #16210f, #0b120a 70%);
+  box-shadow: 0 8px 30px rgba(20,32,20,0.28), inset 0 0 0 1px rgba(255,255,255,0.06); }
+.sig-tuner .sig-heard { text-align: center; }
 
 .sig-unlocked { text-align: center; position: relative; padding: 0.5rem 0; }
 .sig-unlocked h2 { font-family: Georgia, serif; color: #213021; margin: 0.3rem 0 0.5rem; position: relative; }
