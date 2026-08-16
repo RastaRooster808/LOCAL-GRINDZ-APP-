@@ -1,9 +1,22 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { trackEvent } from '../lib/analytics';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
-import { parsePoster, type PosterRead, type Note as PosterNote } from '../lib/posterParse';
+import {
+  parsePoster, readLinesDetailed, rankOrders,
+  type PosterRead, type Note as PosterNote, type ReadOrder,
+} from '../lib/posterParse';
+
+const ORDER_LABEL: Record<ReadOrder, string> = {
+  'row': 'Rows →', 'col': 'Columns ↓', 'diag-down': 'Diagonal ↘', 'diag-up': 'Diagonal ↙',
+};
+const KIND_LABEL: Record<string, string> = {
+  band: 'one colour along it (a stripe)',
+  run: 'a rainbow run, a key at a time',
+  mixed: 'some structure',
+  scatter: 'no pattern',
+};
 
 /*
  * Kula Mele — the Color Piano & Signature Sign-In
@@ -323,12 +336,14 @@ function drawFlower(ctx: CanvasRenderingContext2D, size: number, st: TunerState,
       ctx.lineWidth = 4; ctx.lineCap = 'round';
       ctx.strokeStyle = inTune ? '#39d98a' : '#ffd166';
       ctx.stroke();
-
-      ctx.fillStyle = '#fff';
-      ctx.font = `700 ${Math.round(r * 0.95)}px system-ui, sans-serif`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(L.ch, x, y + r * 0.04);
     }
+
+    // Every seat is named, so the flower doubles as the key map — the sounding
+    // one bright, the rest legible but quiet.
+    ctx.fillStyle = active ? '#ffffff' : hexA(L.color, 0.72);
+    ctx.font = `${active ? 700 : 600} ${Math.round(r * (active ? 0.95 : 0.6))}px system-ui, sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(L.ch, x, y + r * 0.04);
   }
 }
 
@@ -351,6 +366,7 @@ export function SignatureSong() {
   const [poster, setPoster] = useState<PosterRead | null>(null);
   const [posterBusy, setPosterBusy] = useState(false);
   const [posterRow, setPosterRow] = useState(0);
+  const [readOrder, setReadOrder] = useState<ReadOrder>('row');
 
   const litTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const flowerRef = useRef<HTMLCanvasElement>(null);
@@ -565,14 +581,15 @@ export function SignatureSong() {
     } finally { setPosterBusy(false); }
   }, [posterUrl]);
 
-  /** Notes in one row of the poster (rests dropped), capped to a playable phrase. */
-  const rowNotes = useCallback((rowIdx: number, cap = 24): PosterNote[] => {
-    if (!poster) return [];
-    return poster.cells
-      .filter(c => c.row === rowIdx && c.slot >= 0)
-      .map(c => ({ slot: c.slot, octave: c.octave }))
-      .slice(0, cap);
-  }, [poster]);
+  // Lines under the chosen reading direction, and how each direction behaves.
+  const lines = useMemo(() => poster ? readLinesDetailed(poster, readOrder) : [], [poster, readOrder]);
+  const ranked = useMemo(() => poster ? rankOrders(poster) : [], [poster]);
+  const lineIdx = Math.min(posterRow, Math.max(0, lines.length - 1));
+  const activeCells = useMemo(() => new Set(lines[lineIdx]?.cellIdx ?? []), [lines, lineIdx]);
+
+  /** Notes in the current line, capped to a playable phrase. */
+  const rowNotes = useCallback((idx: number, cap = 24): PosterNote[] =>
+    (lines[idx]?.notes ?? []).slice(0, cap), [lines]);
   useEffect(() => () => { if (posterUrl) URL.revokeObjectURL(posterUrl); }, [posterUrl]);
 
   const enrollSeq = wordToSeq(enrollWord);
@@ -738,28 +755,53 @@ export function SignatureSong() {
             <div className="sig-grid" style={{ gridTemplateColumns: `repeat(${poster.cols}, 1fr)` }} aria-hidden="true">
               {poster.cells.map((c, i) => (
                 <span key={i}
-                  className={'sig-gcell' + (c.row === posterRow ? ' on' : '') + (c.slot < 0 ? ' rest' : '')
+                  className={'sig-gcell' + (activeCells.has(i) ? ' on' : '') + (c.slot < 0 ? ' rest' : '')
                     + (c.slot >= 0 && c.octave < 0 ? ' oct-down' : '') + (c.slot >= 0 && c.octave > 0 ? ' oct-up' : '')}
                   style={{ background: c.slot >= 0 ? LETTERS[c.slot].color : 'transparent' }}
                   title={c.slot >= 0 ? `${LETTERS[c.slot].ch}${c.octave < 0 ? ' ▾' : c.octave > 0 ? ' ▴' : ''}` : 'rest'} />
               ))}
             </div>
+
+            <div className="sig-orders" role="group" aria-label="Reading direction">
+              {(Object.keys(ORDER_LABEL) as ReadOrder[]).map(o => (
+                <button key={o} className={'sig-chip' + (readOrder === o ? ' on' : '')}
+                  onClick={() => { setReadOrder(o); setPosterRow(0); }}
+                  aria-pressed={readOrder === o}>{ORDER_LABEL[o]}</button>
+              ))}
+            </div>
+
             <div className="sig-actions">
-              <button className="sig-btn" onClick={() => setPosterRow(r => Math.max(0, r - 1))} disabled={posterRow <= 0}>◀</button>
-              <span className="sig-rowlab">Row {posterRow + 1} / {poster.rows}</span>
-              <button className="sig-btn" onClick={() => setPosterRow(r => Math.min(poster.rows - 1, r + 1))} disabled={posterRow >= poster.rows - 1}>▶</button>
-              <button className="sig-btn primary" onClick={() => playNotes(rowNotes(posterRow))} disabled={!rowNotes(posterRow).length}>▶ Play this row</button>
+              <button className="sig-btn" onClick={() => setPosterRow(r => Math.max(0, r - 1))} disabled={lineIdx <= 0}>◀</button>
+              <span className="sig-rowlab">Line {lineIdx + 1} / {lines.length}</span>
+              <button className="sig-btn" onClick={() => setPosterRow(r => Math.min(lines.length - 1, r + 1))} disabled={lineIdx >= lines.length - 1}>▶</button>
+              <button className="sig-btn primary" onClick={() => playNotes(rowNotes(lineIdx))} disabled={!rowNotes(lineIdx).length}>▶ Play this line</button>
               <button className="sig-btn" onClick={() => {
-                const notes = rowNotes(posterRow, 6);
+                const notes = rowNotes(lineIdx, 6);
                 if (notes.length < 2) return;
                 // Signatures stay octave-less: the 13 keys are what you tap back.
-                const rec = { word: `POSTER R${posterRow + 1}`, seq: notes.map(n => n.slot) };
+                const rec = { word: `POSTER L${lineIdx + 1}`, seq: notes.map(n => n.slot) };
                 try { localStorage.setItem(SIG_KEY, JSON.stringify(rec)); } catch { /* quota */ }
                 setSig(rec); setMode('signin'); setAttempt([]); setUnlocked(false);
                 setStatus('Signature taken from the poster. Play it back to light in.'); setStatusKind('ok');
                 playSeq(rec.seq);
-              }} disabled={rowNotes(posterRow, 6).length < 2}>Use as my signature</button>
+              }} disabled={rowNotes(lineIdx, 6).length < 2}>Use as my signature</button>
             </div>
+
+            {ranked.length > 0 && (
+              <div className="sig-struct">
+                <p className="sig-note sig-note-left"><b>What the poster does in each direction</b> — read it whichever way sounds right; this only describes the pattern.</p>
+                <ul className="sig-structlist">
+                  {ranked.map(s => (
+                    <li key={s.order} className={s.order === readOrder ? 'on' : ''}>
+                      <button className="sig-linkbtn" onClick={() => { setReadOrder(s.order); setPosterRow(0); }}>{ORDER_LABEL[s.order]}</button>
+                      <span className="sig-kind">{KIND_LABEL[s.kind]}</span>
+                      <span className="sig-muted sig-small">{s.lines} lines · avg step {s.meanStep.toFixed(2)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <p className="sig-muted sig-small">
               Hue picks the key; <b>lightness picks the octave</b> — a deep ink sings an octave down (▾), a pastel an octave up (▴) — so a maroon and a bright red stay distinct. Straight-on, evenly lit photos read best.
             </p>

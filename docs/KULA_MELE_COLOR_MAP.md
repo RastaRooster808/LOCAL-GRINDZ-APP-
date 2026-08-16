@@ -106,6 +106,46 @@ band detection recovered the grid exactly and cell→key accuracy was **518/520
 (99.6%)**; white paper and pencil grey both read as rests. End-to-end in-browser:
 upload → read → 520 cells → play a row → adopt a row as a signature.
 
+**Verified on the real poster.** A hand-held photo of the actual "TAS CODE" sheet
+— shot at an angle, paper curled at the top, uneven room light — read as
+**20 × 26 (520 swatches)**, matching the printed grid.
+
+This settles an open question. Band projection assumes the grid is roughly
+axis-aligned, so a de-skew pass (detect the sheet's corners, rectify, then
+project) was held as the likely next step. **It proved unnecessary:** the ink
+mask is robust to the skew present in an ordinary phone photo, because a modest
+lean shifts a column's pixels without merging it into its neighbour. De-skew
+stays unbuilt — revisit it only if a photo genuinely fails, and reach for a
+flatter, straight-on shot first.
+
+### Reading direction
+
+A printed grid needn't be read left-to-right, and the TAS CODE poster carries
+visible diagonal rainbows. `readLinesDetailed(read, order)` splits the grid four
+ways — **`row`**, **`col`**, **`diag-down`** (↘, cells sharing `col − row`) and
+**`diag-up`** (↙, sharing `col + row`) — returning each line's notes *and* the
+cell indices they came from, so highlighting and playback can't drift apart.
+
+`scoreOrder` / `rankOrders` describe what each direction does, by the mean
+circular key-step between neighbours:
+
+| kind | meaning | typical step |
+|:--|:--|:--|
+| `band` | colour is constant — you're running the length of a stripe | ~0 |
+| `run` | a rainbow progression, about a key at a time | ~1 |
+| `mixed` | some structure, no clean pattern | ≤2.5 |
+| `scatter` | neighbours unrelated | >2.5 |
+
+**A low score is not "the" reading direction.** A step near zero means the colour
+never changes along that line — informative, but musically a monotone. Which
+direction the author intended as the code is a judgement about the artwork, so
+the app reports the shape of all four and lets a person choose.
+
+**Verified:** on a poster printed with colour constant along ↘, the scorer
+labelled ↘ a `band` (step 0.00) and rows/columns `run`s (step 1.00); in-browser,
+switching direction regave 31 diagonal lines vs 18 rows vs 14 columns with the
+highlight following each.
+
 ## Powers of Ten (Unreal)
 
 The signature page exports a **`user_spectrum.json`** ("Download my spectrum",

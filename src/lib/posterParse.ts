@@ -256,6 +256,111 @@ export function parsePoster(
   };
 }
 
+// ── Reading order ────────────────────────────────────────────────────────────
+// A printed grid doesn't have to be read left-to-right. The TAS CODE poster runs
+// its colour in visible diagonal rainbows, so the code may well be written along
+// a diagonal rather than a row. Read all four ways and let the poster say which.
+
+export type ReadOrder = 'row' | 'col' | 'diag-down' | 'diag-up';
+export const READ_ORDERS: ReadOrder[] = ['row', 'col', 'diag-down', 'diag-up'];
+
+/** One playable line: its notes, plus which grid cells they came from. */
+export interface Line { notes: Note[]; cellIdx: number[]; }
+
+/**
+ * Split the grid into playable lines under a given reading order. Rests are
+ * dropped from the notes, and each line keeps the indices of the cells it came
+ * from, so highlighting and playback can never drift apart.
+ */
+export function readLinesDetailed(read: PosterRead, order: ReadOrder): Line[] {
+  const { rows, cols, cells } = read;
+  const lines: Line[] = [];
+  const push = (idxs: number[]) => {
+    const kept = idxs.filter(i => cells[i] && cells[i].slot >= 0);
+    if (kept.length) lines.push({ notes: kept.map(i => ({ slot: cells[i].slot, octave: cells[i].octave })), cellIdx: kept });
+  };
+  const at = (r: number, c: number) => r * cols + c;
+  if (order === 'row') {
+    for (let r = 0; r < rows; r++) { const l: number[] = []; for (let c = 0; c < cols; c++) l.push(at(r, c)); push(l); }
+  } else if (order === 'col') {
+    for (let c = 0; c < cols; c++) { const l: number[] = []; for (let r = 0; r < rows; r++) l.push(at(r, c)); push(l); }
+  } else if (order === 'diag-down') {
+    // ↘ — cells sharing (col − row)
+    for (let d = -(rows - 1); d <= cols - 1; d++) {
+      const l: number[] = [];
+      for (let r = 0; r < rows; r++) { const c = r + d; if (c >= 0 && c < cols) l.push(at(r, c)); }
+      push(l);
+    }
+  } else {
+    // ↙ — cells sharing (col + row)
+    for (let d = 0; d <= rows + cols - 2; d++) {
+      const l: number[] = [];
+      for (let r = 0; r < rows; r++) { const c = d - r; if (c >= 0 && c < cols) l.push(at(r, c)); }
+      push(l);
+    }
+  }
+  return lines;
+}
+
+/** Just the notes, for playback and scoring. */
+export function readLines(read: PosterRead, order: ReadOrder): Note[][] {
+  return readLinesDetailed(read, order).map(l => l.notes);
+}
+
+/**
+ * What a direction looks like, structurally:
+ * - `band`    — colour barely changes: you are travelling ALONG a stripe.
+ * - `run`     — colour advances about one key at a time: a rainbow progression.
+ * - `mixed`   — some structure, no clean pattern.
+ * - `scatter` — no relationship between neighbours.
+ */
+export type OrderKind = 'band' | 'run' | 'mixed' | 'scatter';
+
+export interface OrderScore {
+  order: ReadOrder;
+  lines: number;
+  /** Mean circular key-step between consecutive notes. */
+  meanStep: number;
+  /** Share of consecutive pairs that hold or advance by one key. */
+  runFrac: number;
+  kind: OrderKind;
+}
+
+/**
+ * Score a reading order by how colour moves along it.
+ *
+ * NOTE a low mean step is NOT automatically "the" reading direction: a step near
+ * zero means the colour is CONSTANT along that direction — you are running the
+ * length of a stripe. A deliberate rainbow progression sits near one step per
+ * cell. Both are structure; which one the author meant as the code is a judgement
+ * about the artwork, so this reports the shape and leaves the choice to a person.
+ */
+export function scoreOrder(read: PosterRead, order: ReadOrder, keyCount = 13): OrderScore {
+  const lines = readLines(read, order);
+  let steps = 0, total = 0, runs = 0;
+  for (const line of lines) {
+    for (let i = 1; i < line.length; i++) {
+      const raw = Math.abs(line[i].slot - line[i - 1].slot);
+      const step = Math.min(raw, keyCount - raw); // hues wrap
+      steps += step; total++;
+      if (step <= 1) runs++;
+    }
+  }
+  const meanStep = total ? steps / total : 0;
+  const runFrac = total ? runs / total : 0;
+  let kind: OrderKind;
+  if (meanStep < 0.25) kind = 'band';
+  else if (runFrac >= 0.8 && meanStep <= 1.35) kind = 'run';
+  else if (runFrac >= 0.35 || meanStep <= 2.5) kind = 'mixed';
+  else kind = 'scatter';
+  return { order, lines: lines.length, meanStep, runFrac, kind };
+}
+
+/** Score every reading order, smoothest first. */
+export function rankOrders(read: PosterRead, keyCount = 13): OrderScore[] {
+  return READ_ORDERS.map(o => scoreOrder(read, o, keyCount)).sort((a, b) => a.meanStep - b.meanStep);
+}
+
 function uniformBands(size: number, count: number): Band[] {
   const out: Band[] = [];
   for (let i = 0; i < count; i++) out.push({ start: (i * size) / count, end: ((i + 1) * size) / count });

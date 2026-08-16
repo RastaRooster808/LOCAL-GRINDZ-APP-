@@ -4,6 +4,46 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Read the poster in any direction (2026-08-16)
+
+### Added — rows, columns, and both diagonals
+- `readLinesDetailed(read, order)` splits the grid four ways: **`row`**, **`col`**,
+  **`diag-down`** (↘, cells sharing `col − row`), **`diag-up`** (↙, sharing
+  `col + row`). Each line carries its notes **and** the cell indices they came
+  from, so the on-screen highlight and playback cannot drift apart.
+- The read-out gains a **direction selector**; navigation is now by *line* rather
+  than row, and any line can still be adopted as a signature.
+
+### Added — what the poster does in each direction
+- `scoreOrder` / `rankOrders` measure the mean circular key-step between
+  neighbours and label each direction: **band** (colour constant — you're running
+  along a stripe), **run** (a rainbow, ~a key at a time), **mixed**, **scatter**.
+- Deliberately *not* a verdict: a near-zero step means monotone, not "the reading
+  direction". The app reports the shape of all four and leaves the choice to a
+  person, since which one the author meant is a judgement about the artwork.
+
+### Verified
+- On a poster printed with colour constant along ↘: scorer labelled ↘ a `band`
+  (step 0.00) and rows/columns `run`s (step 1.00). In-browser, switching gave
+  **31 diagonal lines vs 18 rows vs 14 columns**, highlight following each,
+  playback clean, no page errors.
+
+---
+
+## [Unreleased] — Poster parser confirmed on the real poster (2026-08-16)
+
+### Verified
+- A hand-held photo of the actual **"TAS CODE"** sheet — shot at an angle, paper
+  curled, uneven room light — read as **20 × 26 (520 swatches)**, matching the
+  printed grid. The parser works on the real artifact, not just synthetic tests.
+- **De-skew is therefore not needed and stays unbuilt.** It had been held as the
+  likely next step, since band projection assumes a roughly axis-aligned grid.
+  In practice the ink mask tolerates the skew of an ordinary phone photo: a
+  modest lean shifts a column's pixels without merging it into its neighbour.
+  Revisit only if a photo genuinely fails — try a flatter, straight-on shot first.
+
+---
+
 ## [Unreleased] — Kula Mele: lightness → octave (2026-08-16)
 
 ### Changed — the poster reader now hears shade, not just hue

@@ -2321,6 +2321,15 @@
 .sig-gcell.oct-down { box-shadow: inset 0 -3px 0 rgba(0,0,0,0.55); }
 .sig-gcell.oct-up { box-shadow: inset 0 3px 0 rgba(255,255,255,0.75); }
 .sig-rowlab { font-size: 0.82rem; color: #4c5b46; font-variant-numeric: tabular-nums; }
+/* Reading direction: rows, columns, or either diagonal. */
+.sig-orders { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.5rem 0 0.7rem; }
+.sig-orders .sig-chip.on { background: #21301f; color: #fff; border-color: #21301f; }
+.sig-struct { margin-top: 0.8rem; border-top: 1px solid #e9f0dd; padding-top: 0.7rem; }
+.sig-structlist { list-style: none; margin: 0.4rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.sig-structlist li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem;
+  font-size: 0.82rem; padding: 0.35rem 0.5rem; border-radius: 0.45rem; background: #fff; border: 1px solid #edf3e3; }
+.sig-structlist li.on { border-color: #bfe0a8; background: #f7fcef; }
+.sig-kind { color: #3a4a34; }
 .sig-poster { display: block; max-width: 100%; margin: 0.7rem 0; border-radius: 0.6rem; border: 1px solid #e5efd6; }
 .sig-muted { color: #8a9a80; }
 .sig-small { font-size: 0.76rem; }
