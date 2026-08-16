@@ -4,6 +4,121 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Kula Mele: full alphabet, continuous rainbow, flower-of-life, IP notice (2026-08-16)
+
+### Changed — the full 13-letter alphabet as one continuous rainbow
+- The color piano now spans the **complete Hawaiian alphabet**: 5 vowels + 7
+  consonants (H K L M N P **W**) + the **ʻokina** = **13 keys** (was 11). Pitches
+  extend to a C4→A5 run. Colors are now **generated as one continuous rainbow**
+  (`hue = i/13·360`, `hslHex`), and the keyboard renders as a single flowing
+  spectrum bar rather than discrete blocks.
+- Spelling now recognizes **W** and folds any apostrophe (`'‘’\``) to the
+  **ʻokina** key; kahakō (macron) still strips to the base vowel — so `ʻāina` →
+  `ʻAINA`, `wai` → `WAI`, `ʻawa` → `ʻAWA`. Table refreshed in
+  `docs/KULA_MELE_COLOR_MAP.md`.
+
+### Added — "land into the realm of your image"
+- Unlocking with an uploaded image now **lands you into that image**: it becomes
+  the animated backdrop of the lit-in state (`--realm` background + veil for
+  legible text). The upload is reframed as "the realm your song lands you in."
+
+### Changed — Powers of Ten offset = a Flower-of-Life lattice
+- `micro_ground` no longer scatters randomly: it **snaps to a Flower-of-Life
+  node** over Hawaiʻi, placed by the signature's own harmonics — average **pitch →
+  ring** (and ground elevation), average **hue → seat** around the ring, with a
+  small hash jitter to keep colliding words distinct. Re-validated: all sample
+  signatures land on-island; the Unreal importer's key contract is unchanged.
+
+### Added — IP protection ahead of vendor release
+- Repository **`NOTICE`**: proprietary/all-rights-reserved, with a limited,
+  revocable **vendor/partner license** clause and an explicit note that anti-cheat
+  controls (e.g. the server-held daily-challenge target) are load-bearing and must
+  not be weakened. Copyright headers added to the Kula Mele source + the Unreal
+  tool.
+
+---
+
+## [Unreleased] — Kula Mele: the color piano & signature sign-in (2026-08-15)
+
+### Added — "a piano made of colour" (11 Hawaiian letters)
+- New **`/signature`** route (**Kula Mele**), an additive module that leaves the
+  4-colour KullaCoin economy untouched. Eleven Hawaiian letters — 5 warm vowels
+  (A E I O U) + 6 cool consonants (H K L M N P) — each a **colour + pitch** on a
+  luminous keyboard. Colours flow as a spectrum; pitches are a rising C-major run
+  so any Hawaiian word sounds musical. Mapping documented in
+  `docs/KULA_MELE_COLOR_MAP.md` (W and the ʻokina reserved for a later 12th/13th
+  key). Nav link added.
+
+### Added — the signature song as an accessible sign-in
+- Spell a Hawaiian word → it becomes your **signature song** of colour and light.
+  Play it back (tap the keys **or sing it**) to "light in": a cascade of colour
+  confirms the match; wrong notes reset gently with **zero penalty**.
+- **Voice accessibility via real DSP:** mic audio runs through a **YIN** pitch
+  detector (squared-difference → CMNDF → absolute threshold → parabolic
+  interpolation), mapped to the nearest key within ±130 cents. Validated
+  offline to resolve all 11 colour-keys through harmonics + noise (an earlier
+  autocorrelation attempt octave-erred and was replaced).
+- **Honest security boundary:** the song is an **accessible local unlock** that
+  opens your profile on the device — *not* an account password. Right after
+  lighting in, a **Supabase magic-link** hand-off secures the real account across
+  devices (reuses the Account page's `signInWithOtp` flow). Signature persists
+  under a `kulla_`-prefixed key so it rides the existing KullaCoin cloud sync.
+- **Image-as-source:** upload your colour-code poster to show it as a palette
+  reference (automatic grid-reading from a photo is a documented future upgrade).
+
+### Added — Powers of Ten export (Unreal bridge)
+- Once a signature exists, a **"Download my spectrum"** button exports
+  **`user_spectrum.json`** — deterministically derived from the signature (FNV-1a
+  of `word:seq`) so everyone shares the macro planet view but each person gets a
+  **unique ground point** (planet → atmosphere → individual).
+- Committed the importer **`tools/unreal/generate_zoom_sequence.py`** (the
+  provided LevelSequence script) and documented the exact schema in
+  `docs/KULA_MELE_COLOR_MAP.md`. Verified the export satisfies every key the
+  script reads (dry-ran the importer's accesses; asset-safe `user_id`); browser
+  download smoke-tested. **All three priority-1 threads now landed.**
+- **Anchored the zoom on Hawaiʻi (HST):** coordinates now use a Big Island local
+  ENU frame (E/N/Up, meters × 100 = cm, origin = island centre). Unique points
+  spread across the real footprint (≈150 km × 130 km) with elevation from sea
+  level → Mauna Kea (≈4207 m), so the flight lands everyone somewhere on the
+  island. Tunable via the `HI` constants in `buildSpectrum()`. Re-validated:
+  six sample signatures all land on-island; importer contract unchanged.
+
+---
+
+## [Unreleased] — KullaCoin Phase C.2: the daily hidden-song challenge (2026-08-15)
+
+### Added — a cheat-resistant "Heardle for melodies"
+- One hidden **4-note song per day**, shared by everyone. The target is
+  **generated and stored server-side** in new **`kulla_daily`** — a table with
+  **RLS enabled and no policies**, so no client (anon or signed-in) can ever read
+  the answer. Only the security-definer guess RPC (which bypasses RLS) sees it.
+- **`kulla_daily_guess(text)`** validates a `[0-3]{4}` guess, lazily seeds the
+  day's random target, and returns **Wordle-style colour feedback** (green = right
+  colour & spot, gold = in the song wrong spot, grey = not in the song) — **never
+  the target**. Max **6 guesses**; solved on 4 greens. `EXECUTE` revoked from
+  `public`/`anon` (Postgres' default PUBLIC grant), so only signed-in players
+  guess. Verified live end-to-end with a seeded target, then test data cleaned.
+- **`kulla_daily_results`** (RLS: read-your-own; writes only via the definer RPC),
+  plus **`kulla_daily_state()`** (restore your progress) and public read-only
+  **`kulla_daily_board()`** (today's solvers ranked by fewest guesses, then
+  earliest).
+
+### Added — the 🎯 Daily overlay in the app
+- New toolbar button opens a Daily Song panel: a 6×4 feedback grid, four colour
+  pads (Blue/Gold/Red/Green) to compose a guess, **▶ Hear** to preview the guess
+  through the game's synth (new `kulla-note-preview` message the embed answers),
+  ⌫ back, and Guess. Today's board + player count shown below.
+- Per-device guess history persists to a `kulla_daily_hist_<UTC-date>` key (rides
+  the existing cloud sync); only colour hints are ever stored, never the answer.
+  Logged-out players see a log-in prompt.
+
+### Honest scope
+- Unlike the play-to-reveal leaderboard (which ranks *collection* since the answer
+  is shown), the Daily is a genuine **skill** test: the answer never reaches the
+  client, so it can't be peeked. No real-money value — in-game bragging rights.
+
+---
+
 ## [Unreleased] — KullaCoin Phase C: leaderboard, achievements & the winner's coupon (2026-08-12)
 
 ### Added — a real, cross-device leaderboard

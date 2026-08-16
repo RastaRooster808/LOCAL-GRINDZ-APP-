@@ -46,6 +46,16 @@ function deriveName(email: string | undefined): string {
 
 type SyncState = 'off' | 'loading' | 'synced' | 'error';
 interface Row { display_name: string; songs: number; rnk: number; }
+interface DailyBoardRow { display_name: string; guesses: number; rnk: number; }
+interface DailyRow { code: string; fb: string; }
+
+// Daily challenge palette — mirrors the embed's COLORS (Blue/Gold/Red/Green).
+const PAD_COLORS = ['#2a6fd0', '#e7a928', '#db3b2c', '#3fa06a'];
+const PAD_NAMES = ['Blue', 'Gold', 'Red', 'Green'];
+const MAX_GUESSES = 6;
+
+/** UTC day, matching Postgres current_date, for the local history key. */
+function dayKey(): string { return 'kulla_daily_hist_' + new Date().toISOString().slice(0, 10); }
 
 export function KullaCoin() {
   const { user } = useAuth();
@@ -60,6 +70,67 @@ export function KullaCoin() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const boardTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const myName = deriveName(user?.email);
+
+  // Daily hidden-song challenge (Heardle-style; target stays server-side).
+  const [showDaily, setShowDaily] = useState(false);
+  const [pending, setPending] = useState<number[]>([]);
+  const [dRows, setDRows] = useState<DailyRow[]>([]);
+  const [dDone, setDDone] = useState(false);
+  const [dSolved, setDSolved] = useState(false);
+  const [dPlayers, setDPlayers] = useState(0);
+  const [dBoard, setDBoard] = useState<DailyBoardRow[]>([]);
+  const [dMsg, setDMsg] = useState('');
+  const [dBusy, setDBusy] = useState(false);
+
+  const preview = useCallback((code: string) => {
+    if (!/^[0-3]{1,4}$/.test(code)) return;
+    frameRef.current?.contentWindow?.postMessage({ type: 'kulla-note-preview', code: code.padEnd(4, code.slice(-1)) }, '*');
+  }, []);
+
+  const loadDaily = useCallback(async () => {
+    try { const h = JSON.parse(localStorage.getItem(dayKey()) || '[]'); if (Array.isArray(h)) setDRows(h); } catch { /* ignore */ }
+    try {
+      const [stRes, bdRes] = await Promise.all([
+        user ? supabase.rpc('kulla_daily_state') : Promise.resolve({ data: null }),
+        supabase.rpc('kulla_daily_board', { p_limit: 15 }),
+      ]);
+      const st = stRes.data as { guesses?: number; solved?: boolean; players?: number } | null;
+      if (st && typeof st === 'object') {
+        setDSolved(!!st.solved);
+        setDDone(!!st.solved || (st.guesses ?? 0) >= MAX_GUESSES);
+        setDPlayers(st.players ?? 0);
+      }
+      if (Array.isArray(bdRes.data)) setDBoard(bdRes.data as DailyBoardRow[]);
+    } catch { /* offline — keep local */ }
+  }, [user]);
+
+  const submitGuess = useCallback(async () => {
+    if (!user) { setDMsg('Log in to play the daily challenge.'); return; }
+    if (pending.length !== 4 || dDone || dBusy) return;
+    const code = pending.join('');
+    setDBusy(true); setDMsg('');
+    try {
+      const { data, error } = await supabase.rpc('kulla_daily_guess', { p_guess: code });
+      if (error) throw error;
+      const res = data as { done?: boolean; solved?: boolean; feedback?: string | null };
+      if (res?.feedback) {
+        setDRows(prev => {
+          const next = [...prev, { code, fb: res.feedback as string }];
+          try { localStorage.setItem(dayKey(), JSON.stringify(next)); } catch { /* quota */ }
+          return next;
+        });
+      }
+      setPending([]);
+      setDSolved(!!res?.solved);
+      setDDone(!!res?.done);
+      if (res?.solved) setDMsg("🎉 You found today's song!");
+      else if (res?.done) setDMsg('Out of guesses — a fresh song drops tomorrow.');
+      loadDaily();
+    } catch { setDMsg('Could not submit — try again.'); }
+    finally { setDBusy(false); }
+  }, [user, pending, dDone, dBusy, loadDaily]);
+
+  const openDaily = useCallback(() => { setShowDaily(true); setDMsg(''); setPending([]); loadDaily(); }, [loadDaily]);
 
   useEffect(() => { trackEvent('page_view', { section: 'kullacoin' }); }, []);
 
@@ -168,6 +239,7 @@ export function KullaCoin() {
         <Link to="/" className="kc-back" aria-label="Back to Local Grindz">← Local Grindz</Link>
         <span className="kc-bar-title">KullaCoin</span>
         <span className="kc-bar-tools">
+          <button className="kc-board-btn" onClick={openDaily} aria-label="Daily challenge" title="Daily hidden-song challenge">🎯</button>
           <button className="kc-board-btn" onClick={() => { setShowBoard(s => !s); loadBoard(); }} aria-label="Leaderboard">🏆</button>
           <span className="kc-sync" aria-live="polite">
             {!user
@@ -213,7 +285,84 @@ export function KullaCoin() {
                 </li>
               ))}
             </ol>
-            <p className="kc-board-note">Ranks collection, not skill (the answer is shown). A cheat-resistant daily challenge is coming.</p>
+            <p className="kc-board-note">Ranks collection, not skill (the answer is shown). Try the 🎯 daily challenge for a cheat-resistant test.</p>
+          </div>
+        </div>
+      )}
+
+      {showDaily && (
+        <div className="kc-board-overlay" onClick={() => setShowDaily(false)}>
+          <div className="kc-board" onClick={e => e.stopPropagation()}>
+            <div className="kc-board-head">
+              <h2>🎯 Daily Song</h2>
+              <button className="kc-board-close" onClick={() => setShowDaily(false)} aria-label="close">✕</button>
+            </div>
+            <p className="kc-daily-sub">One hidden 4-note song for everyone today. Guess the colours — {MAX_GUESSES} tries. <b>Green</b> = right colour &amp; spot, <b>gold</b> = in the song, wrong spot. The answer never leaves the server.</p>
+
+            <div className="kc-legend">
+              {PAD_NAMES.map((n, i) => (
+                <span key={n}><span className="kc-swatch" style={{ background: PAD_COLORS[i] }} />{n}</span>
+              ))}
+            </div>
+
+            <div className="kc-daily-grid">
+              {Array.from({ length: MAX_GUESSES }).map((_, r) => {
+                const row = dRows[r];
+                const isPending = !row && !dDone && r === dRows.length;
+                return (
+                  <div key={r} className={'kc-drow' + (isPending ? ' kc-pending' : '')}>
+                    {Array.from({ length: 4 }).map((__, c) => {
+                      if (row) {
+                        const ci = Number(row.code[c]);
+                        const fb = row.fb[c];
+                        return <span key={c} className="kc-cell" data-fb={fb} style={{ background: PAD_COLORS[ci] }} />;
+                      }
+                      const ci = isPending ? pending[c] : undefined;
+                      return <span key={c} className={'kc-cell' + (ci === undefined ? ' empty' : '')}
+                        style={ci !== undefined ? { background: PAD_COLORS[ci] } : undefined} />;
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+
+            {!user ? (
+              <p className="kc-daily-msg"><Link to="/account" className="kc-sync-link">Log in</Link> to play today's challenge and join the board.</p>
+            ) : dDone ? (
+              <p className={'kc-daily-msg ' + (dSolved ? 'win' : 'lose')}>
+                {dSolved ? "🎉 Solved! Come back tomorrow for a new song." : 'Out of tries today — a fresh song drops tomorrow.'}
+              </p>
+            ) : (
+              <>
+                <div className="kc-pads">
+                  {PAD_COLORS.map((col, i) => (
+                    <button key={i} className="kc-pad" style={{ background: col }}
+                      disabled={pending.length >= 4}
+                      onClick={() => { const next = [...pending, i]; setPending(next); preview(String(i)); }}
+                      aria-label={PAD_NAMES[i]}>{PAD_NAMES[i]}</button>
+                  ))}
+                </div>
+                <div className="kc-daily-actions">
+                  <button onClick={() => setPending(p => p.slice(0, -1))} disabled={!pending.length || dBusy}>⌫ Back</button>
+                  <button onClick={() => preview(pending.join(''))} disabled={pending.length !== 4 || dBusy}>▶ Hear</button>
+                  <button className="kc-guess-go" onClick={submitGuess} disabled={pending.length !== 4 || dBusy}>Guess</button>
+                </div>
+                <p className={'kc-daily-msg' + (dMsg ? ' err' : '')}>{dMsg}</p>
+              </>
+            )}
+
+            <p className="kc-you">{dPlayers} player{dPlayers === 1 ? '' : 's'} in today · fewest guesses wins</p>
+            <ol className="kc-rows">
+              {dBoard.length === 0 && <li className="kc-empty">No one's solved today yet — be first!</li>}
+              {dBoard.map(r => (
+                <li key={r.rnk} className={'kc-row' + (r.rnk === 1 ? ' win' : '')}>
+                  <span className="kc-rank">{r.rnk === 1 ? '👑' : r.rnk}</span>
+                  <span className="kc-name">{r.display_name}</span>
+                  <span className="kc-songs">{r.guesses}🎯</span>
+                </li>
+              ))}
+            </ol>
+            <p className="kc-board-note">The daily song is generated and stored server-side; you only ever get colour hints back — no way to peek the answer.</p>
           </div>
         </div>
       )}

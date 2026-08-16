@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { label: 'Featured', to: '/vendors?cat=featured' },
   { label: 'Events', to: '/events' },
   { label: 'KullaCoin', to: '/kullacoin' },
+  { label: 'Kula Mele', to: '/signature' },
   { label: 'Profile', to: '/account' },
 ];
 

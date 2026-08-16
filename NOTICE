@@ -1,0 +1,34 @@
+Local Grindz / TOPP — KullaCoin & Kula Mele
+© 2026 Local Grindz / RastaRooster (rastarooster.com). All rights reserved.
+
+PROPRIETARY AND CONFIDENTIAL
+============================
+
+This repository and its contents — including the KullaCoin experience, the
+Kula Mele color piano and signature sign-in, the "Powers of Ten" spectrum
+export, their source code, artwork, copy, and design — are original works
+owned by Local Grindz / RastaRooster.
+
+No part of this work may be copied, reproduced, distributed, published,
+sublicensed, or used to create derivative works without the prior written
+permission of the owner.
+
+Vendor / partner use
+--------------------
+Any vendor, partner, or third party (e.g. a marketplace vendor honoring a
+KullaCoin contest prize) is granted only a limited, non-exclusive,
+non-transferable, revocable license to use the materials expressly provided
+to them, solely for the agreed purpose. This grant conveys no ownership and
+no right to redistribute, and terminates on written notice.
+
+Protection of functionality
+---------------------------
+Anti-cheat and integrity mechanisms in this project are intentional and load-
+bearing — e.g. the daily-challenge target is held server-side (RLS-hidden) and
+never sent to clients. Do not remove, weaken, or route around these controls.
+
+Third-party components retain their own licenses (see package.json and each
+dependency's LICENSE). Trademarks referenced (Shopify, Supabase, Unreal Engine,
+KTA, etc.) belong to their respective owners.
+
+For permissions or licensing inquiries: rastarooster.com
