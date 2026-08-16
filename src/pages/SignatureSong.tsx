@@ -170,7 +170,10 @@ function buildSpectrum(word: string, seq: number[]): Spectrum {
   const north = Math.round(clamp(node.b * (Math.sqrt(3) / 2) * spacingN + jitterN, HI.NS_CM / 2));
   const elev  = Math.round(pitchFrac * HI.SUMMIT_CM); // harmonic altitude: sea level → summit
 
-  const safeId = (word.replace(/[^A-Za-z0-9]/g, '').toUpperCase() || 'PLAYER') + '_' + h.toString(16);
+  // Fold kahakō to the base vowel BEFORE stripping, or a macron'd letter is lost
+  // outright: ʻĀINA would otherwise name the asset "INA".
+  const asciiWord = word.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]/g, '');
+  const safeId = (asciiWord.toUpperCase() || 'PLAYER') + '_' + h.toString(16);
   return {
     user_id: safeId,
     signature_word: word,
@@ -363,6 +366,7 @@ export function SignatureSong() {
   const [heard, setHeard] = useState<string>('');                 // live voice announce
   const [posterUrl, setPosterUrl] = useState<string | null>(null);
   const [linkEmail, setLinkEmail] = useState('');
+  const [spectrumText, setSpectrumText] = useState('');
   const [poster, setPoster] = useState<PosterRead | null>(null);
   const [posterBusy, setPosterBusy] = useState(false);
   const [posterRow, setPosterRow] = useState(0);
@@ -536,15 +540,41 @@ export function SignatureSong() {
 
   const downloadSpectrum = useCallback(() => {
     if (!sig) return;
-    const obj = buildSpectrum(sig.word, sig.seq);
-    const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'user_spectrum.json';
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    let text = '';
+    try {
+      text = JSON.stringify(buildSpectrum(sig.word, sig.seq), null, 2);
+    } catch {
+      setStatus('Could not build the spectrum from this signature.'); setStatusKind('err');
+      return;
+    }
+    // Always surface the JSON, so the spectrum is never trapped behind a download
+    // that the browser may refuse — iOS in particular blocks programmatic blob
+    // saves, and a phone has nowhere obvious to put a file.
+    setSpectrumText(text);
+    try {
+      const blob = new Blob([text], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'user_spectrum.json'; a.rel = 'noopener';
+      document.body.appendChild(a); a.click(); a.remove();
+      // Give slower devices time to actually read the blob before revoking it.
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      setStatus('Spectrum ready — check your downloads, or copy it below.'); setStatusKind('ok');
+    } catch {
+      setStatus('Your browser blocked the download — copy the spectrum below instead.'); setStatusKind('err');
+    }
     trackEvent('signature_unlock', { by: 'spectrum_export' });
   }, [sig]);
+
+  const copySpectrum = useCallback(async () => {
+    if (!spectrumText) return;
+    try {
+      await navigator.clipboard.writeText(spectrumText);
+      setStatus('Spectrum copied to your clipboard.'); setStatusKind('ok');
+    } catch {
+      setStatus('Copy blocked — select the text below and copy it by hand.'); setStatusKind('err');
+    }
+  }, [spectrumText]);
 
   const onPoster = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
@@ -727,7 +757,17 @@ export function SignatureSong() {
         <section className="sig-panel sig-powers">
           <h3 className="sig-h3">Powers of Ten</h3>
           <p className="sig-note sig-note-left">Your signature <b>{sig.word}</b> lands on one node of the flower-of-life lattice over Hawaiʻi — placed by its own harmonic colour code. Export it as <code>user_spectrum.json</code> to drive the Unreal “Powers of Ten” zoom — planet → atmosphere → you.</p>
-          <button className="sig-btn primary" onClick={downloadSpectrum}>⬇ Download my spectrum</button>
+          <div className="sig-actions">
+            <button className="sig-btn primary" onClick={downloadSpectrum}>⬇ Download my spectrum</button>
+            {spectrumText && <button className="sig-btn" onClick={copySpectrum}>⧉ Copy</button>}
+          </div>
+          {spectrumText && (
+            <details className="sig-spec" open>
+              <summary>Your spectrum (copy this if the download didn't land)</summary>
+              <textarea className="sig-spectext" readOnly rows={10} value={spectrumText}
+                onFocus={e => e.currentTarget.select()} aria-label="user_spectrum.json contents" />
+            </details>
+          )}
           <p className="sig-muted sig-small">Feed it to <code>tools/unreal/generate_zoom_sequence.py</code> in the Unreal editor.</p>
         </section>
       )}

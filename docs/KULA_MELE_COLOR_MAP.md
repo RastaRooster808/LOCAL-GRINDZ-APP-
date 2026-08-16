@@ -146,6 +146,12 @@ labelled ↘ a `band` (step 0.00) and rows/columns `run`s (step 1.00); in-browse
 switching direction regave 31 diagonal lines vs 18 rows vs 14 columns with the
 highlight following each.
 
+**The real poster reads as a `run` along ↘.** Measured on the actual TAS CODE
+sheet: the down-right diagonal is a rainbow progression, roughly a key at a time
+— not a stripe. So the poster's melody runs **↘**, and that is the direction to
+read it in. The visible diagonal banding is the pattern the eye catches; the
+progression underneath it is the music.
+
 ## Powers of Ten (Unreal)
 
 The signature page exports a **`user_spectrum.json`** ("Download my spectrum",

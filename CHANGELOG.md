@@ -4,6 +4,40 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Spectrum export fixed; a keyboard you can actually play (2026-08-16)
+
+### Fixed — the spectrum export could fail with no way out
+- **"Download my spectrum" had no error handling at all**, so any failure surfaced
+  as a raw error and the spectrum was unreachable. It now catches failures and
+  **always renders the JSON on the page** with a **Copy** button, so the export is
+  never trapped behind a download the browser refuses — iOS in particular blocks
+  programmatic blob saves, and a phone has nowhere obvious to put a file.
+- The blob URL was revoked after **1 second**, which can cut off a slow device
+  mid-save; now 60 s.
+- **`user_id` dropped macron'd letters:** `ʻĀINA` named the asset `INA`, because
+  `Ā` isn't in `A-Za-z` and was stripped whole. Kahakō now folds to the base vowel
+  first, so it correctly reads `AINA`. Verified end-to-end: the download yields
+  `AINA_e5c339e6` and the on-page copy matches the file byte for byte.
+- Confirmed the maths was never at fault — eight signature shapes (including
+  poster-derived, all-ʻokina, all-A, single-note and 24-note) produce no NaN, land
+  on-island, and give valid asset IDs.
+
+### Changed — a bigger, more playable keyboard
+- Thirteen keys across a phone gave **~26 px targets**, too fine to play. Keys are
+  now much taller with larger letters, and on narrow screens the board **wraps to
+  two rows (7 + 6)** so each key roughly doubles in width — rainbow order intact.
+  Measured: **45 × 88 px** on a 390 px phone (was ~26 px wide), **52 × 136 px** in
+  one continuous row on desktop.
+- Added press feedback, removed the tap-highlight flash, and honoured
+  `prefers-reduced-motion`.
+
+### Found
+- **The real poster reads as a `run` along ↘.** The down-right diagonal is a
+  rainbow progression, about a key at a time — so that is the direction the
+  poster's melody runs. Recorded in `docs/KULA_MELE_COLOR_MAP.md`.
+
+---
+
 ## [Unreleased] — Read the poster in any direction (2026-08-16)
 
 ### Added — rows, columns, and both diagonals
