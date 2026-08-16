@@ -118,6 +118,34 @@ lean shifts a column's pixels without merging it into its neighbour. De-skew
 stays unbuilt — revisit it only if a photo genuinely fails, and reach for a
 flatter, straight-on shot first.
 
+### Reading direction
+
+A printed grid needn't be read left-to-right, and the TAS CODE poster carries
+visible diagonal rainbows. `readLinesDetailed(read, order)` splits the grid four
+ways — **`row`**, **`col`**, **`diag-down`** (↘, cells sharing `col − row`) and
+**`diag-up`** (↙, sharing `col + row`) — returning each line's notes *and* the
+cell indices they came from, so highlighting and playback can't drift apart.
+
+`scoreOrder` / `rankOrders` describe what each direction does, by the mean
+circular key-step between neighbours:
+
+| kind | meaning | typical step |
+|:--|:--|:--|
+| `band` | colour is constant — you're running the length of a stripe | ~0 |
+| `run` | a rainbow progression, about a key at a time | ~1 |
+| `mixed` | some structure, no clean pattern | ≤2.5 |
+| `scatter` | neighbours unrelated | >2.5 |
+
+**A low score is not "the" reading direction.** A step near zero means the colour
+never changes along that line — informative, but musically a monotone. Which
+direction the author intended as the code is a judgement about the artwork, so
+the app reports the shape of all four and lets a person choose.
+
+**Verified:** on a poster printed with colour constant along ↘, the scorer
+labelled ↘ a `band` (step 0.00) and rows/columns `run`s (step 1.00); in-browser,
+switching direction regave 31 diagonal lines vs 18 rows vs 14 columns with the
+highlight following each.
+
 ## Powers of Ten (Unreal)
 
 The signature page exports a **`user_spectrum.json`** ("Download my spectrum",
