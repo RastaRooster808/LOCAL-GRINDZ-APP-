@@ -10,21 +10,26 @@ single flowing world of light rather than discrete blocks.
 a colour — see *The harmonic engine* below. Frequencies are equal temperament at
 full double precision; the column here is rounded for reading only.
 
-| Slot | Letter | Note | Freq (Hz, displayed) | Colour (OKLCH hue) |
-|:----:|:------:|:----:|:---------------------|:-------------------|
-| 0    | A      | C4   | 261.63               | #f275a0 (0°)       |
-| 1    | E      | D4   | 293.66               | #f9786b (27.7°)    |
-| 2    | I      | E4   | 329.63               | #ef852d (55.4°)    |
-| 3    | O      | F4   | 349.23               | #d19a00 (83.1°)    |
-| 4    | U      | G4   | 392.00               | #aaac00 (110.8°)   |
-| 5    | H      | A4   | 440.00               | #6ebc53 (138.5°)   |
-| 6    | K      | B4   | 493.88               | #00c18f (166.2°)   |
-| 7    | L      | C5   | 523.25               | #00bcbb (193.8°)   |
-| 8    | M      | D5   | 587.33               | #00b6df (221.5°)   |
-| 9    | N      | E5   | 659.25               | #4eaaff (249.2°)   |
-| 10   | P      | F5   | 698.46               | #8e9aff (276.9°)   |
-| 11   | W      | G5   | 783.99               | #bc88f4 (304.6°)   |
-| 12   | ʻokina | A5   | 880.00               | #de7bd0 (332.3°)   |
+| Slot | Letter | Note | Freq (Hz, displayed) | Colour | L | C |
+|:----:|:------:|:----:|:---------------------|:-------|--:|--:|
+| 0 | A | C4 | 261.63 | #fe0087 | 0.645 | 0.262 |
+| 1 | E | D4 | 293.66 | #ff0719 | 0.630 | 0.255 |
+| 2 | I | E4 | 329.63 | #ff8500 | 0.740 | 0.183 |
+| 3 | O | F4 | 349.23 | #febd00 | 0.835 | 0.172 |
+| 4 | U | G4 | 392.00 | #d8db00 | 0.860 | 0.189 |
+| 5 | H | A4 | 440.00 | #63f700 | 0.860 | 0.268 |
+| 6 | K | B4 | 493.88 | #00f5b6 | 0.860 | 0.178 |
+| 7 | L | C5 | 523.25 | #00eeed | 0.860 | 0.147 |
+| 8 | M | D5 | 587.33 | #00d0fe | 0.795 | 0.146 |
+| 9 | N | E5 | 659.26 | #0097fe | 0.665 | 0.185 |
+| 10 | P | F5 | 698.46 | #6567ff | 0.600 | 0.220 |
+| 11 | W | G5 | 783.99 | #a735ff | 0.600 | 0.274 |
+| 12 | ʻokina | A5 | 880.00 | #fe00ec | 0.690 | 0.311 |
+
+Mean chroma **0.215**. Lightness roams within **[0.60, 0.86]** by design — see
+*The harmonic engine*: holding L constant capped chroma at whatever the worst hue
+allowed (~0.15) and forced yellow into olive, so each hue is instead taken to its
+most colourful point inside that band.
 
 ## The full alphabet (12 + ʻokina)
 
@@ -66,7 +71,22 @@ never be presented as protecting the account from someone else. Real account
 security stays with Supabase email magic-link (offered immediately after
 lighting in). Front door of color and light; real lock behind it.
 
-## Image as source — the poster parser
+## Posters — an output, and an optional creator tool
+
+**An image is never required to reach your space.** The authoritative data is the
+mathematically generated spectrum, so the relationship runs one way:
+
+> Identity creates the spectrum. The spectrum creates the scene.
+> Hawaiʻi provides the anchor. Unreal provides the cinematic realization.
+
+**Your poster** (`generatePoster`) therefore runs *outwards* — it renders a PNG
+**from** your signature's spectrum, laid out as a diagonal progression in the same
+language the printed sheets use, captioned with the word and its lattice
+coordinates. A keepsake, not an input.
+
+**Reading a printed sheet** is a separate, optional creator tool for turning an
+existing poster into notes. It lives behind *Explore → Technical details* and
+feeds nothing in the sign-in path.
 
 `src/lib/posterParse.ts` reads a printed colour-code grid (e.g. the "TAS CODE"
 poster) off a photo and turns it into notes. It is **pure** — raw RGBA + width and

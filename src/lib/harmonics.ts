@@ -61,8 +61,16 @@ export function frequencyOf(midi: number): number {
 // ── 3-5. Colour: normalized position → OKLCH → sRGB ─────────────────────────
 // A perceptually uniform space is the point: equal steps in hue read as equal
 // steps of colour, which an HSL rainbow does not deliver.
-export const OKLCH_L = 0.72;
-export const OKLCH_C = 0.16;
+// Vividness over uniform lightness, deliberately. Holding L fixed keeps the set
+// perceptually even but caps chroma at whatever the WORST hue allows (~0.15) and
+// forces yellow into olive, because yellow only reads as yellow when it is light.
+// Instead each hue is taken to its most colourful point within a bounded
+// lightness band: mean chroma 0.214 rather than 0.152, and the board reads as
+// light rather than paint. The band keeps the set coherent — lightness roams, but
+// only between these limits.
+export const LIGHTNESS_BAND: [number, number] = [0.60, 0.86];
+/** Asked-for chroma; always beyond the gamut so the search clamps to the real max. */
+const CHROMA_PROBE = 0.40;
 
 export interface Rgb { r: number; g: number; b: number; }
 export interface OkColor {
@@ -138,6 +146,21 @@ export interface HarmonicNode {
   color: OkColor;
 }
 
+/**
+ * The most colourful sRGB rendering of a hue, searched across the lightness band.
+ * `oklch` clamps chroma to the gamut, so probing beyond it returns each
+ * lightness's true maximum; the brightest of those wins.
+ */
+export function mostVivid(hueDeg: number): OkColor {
+  const [lo, hi] = LIGHTNESS_BAND;
+  let best: OkColor | null = null;
+  for (let L = lo; L <= hi + 1e-9; L += 0.005) {
+    const candidate = oklch(L, CHROMA_PROBE, hueDeg);
+    if (!best || candidate.c > best.c) best = candidate;
+  }
+  return best as OkColor;
+}
+
 const NODES: HarmonicNode[] = ALPHABET.map((l, i) => {
   const position = i / KEY_COUNT;
   return {
@@ -148,7 +171,7 @@ const NODES: HarmonicNode[] = ALPHABET.map((l, i) => {
     frequency_hz: frequencyOf(l.midi),
     frequency_precision: FREQUENCY_PRECISION,
     position,
-    color: oklch(OKLCH_L, OKLCH_C, position * 360),
+    color: mostVivid(position * 360),
   };
 });
 
