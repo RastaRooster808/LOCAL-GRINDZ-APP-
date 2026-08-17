@@ -4,6 +4,31 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Hawaiʻi is the offset, stated in the file (2026-08-16)
+
+### Added — the anchor travels with the export
+- Confirmed the frame was already correct: coordinates are Big Island local ENU
+  with the island centre as origin, so **placing Hawaiʻi at the Unreal world
+  origin is exactly the assumption the export was built on**. No retune needed.
+- That anchor previously lived only in a code comment. Each `user_spectrum.json`
+  now carries an **`origin`** block naming it — `Hawaiʻi Island (centre)`, lat
+  **19.5949**, lon **-155.5028**, frame `ENU (+X east, +Y north, +Z up)`, units
+  `cm` — so the assumption is visible and checkable in the file itself.
+- Added **`micro_ground_geo`**: the person's point as real **lat / lon /
+  altitude**, so a georeferenced scene (e.g. Cesium for Unreal) can place it
+  without assuming anything. A scene with Hawaiʻi at the origin ignores it and
+  uses the ENU centimetres exactly as before.
+
+### Verified
+- Six signatures (ALOHA, MAHALO, HONU, PONO, WAI, ʻĀINA) all resolve to
+  coordinates **inside the real Hawaiʻi Island bounds** (18.9–20.3 °N,
+  156.1–154.8 °W) with plausible altitudes (718 m – 1717 m).
+- The importer contract is unchanged — every key
+  `tools/unreal/generate_zoom_sequence.py` reads is still present; the new keys
+  are additive and the script ignores extras. Build clean.
+
+---
+
 ## [Unreleased] — The line, traced on the sheet itself (2026-08-16)
 
 ### Added — the reading drawn back onto the photo

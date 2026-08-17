@@ -163,8 +163,17 @@ island** (via an FNV-1a hash of `word:seq`), so the camera flies down to *you*,
 somewhere on Hawaiʻi.
 
 **Coordinate frame — Big Island local ENU:** `+X` = East, `+Y` = North, `+Z` =
-Up, origin = island centre, **meters × 100 = Unreal cm**. Place Hawaiʻi at the
-Unreal world origin (or apply your own offset in the level). Footprint ≈ **150 km
+Up, origin = island centre, **meters × 100 = Unreal cm**. **Hawaiʻi is the
+offset** — place the island centre at the Unreal world origin and every
+coordinate in the export is measured from it.
+
+That anchor is no longer an unwritten assumption: each export carries an
+**`origin`** block naming it (`Hawaiʻi Island (centre)`, lat **19.5949**, lon
+**-155.5028**, frame, units), plus **`micro_ground_geo`** giving the person's
+point as real **lat / lon / altitude**. A georeferenced scene (e.g. Cesium for
+Unreal) can place it directly; a scene with Hawaiʻi at the origin can ignore both
+and use the ENU centimetres as before. Verified: six signatures all resolve to
+coordinates inside the real island bounds with plausible altitudes. Footprint ≈ **150 km
 E-W × 130 km N-S**; `micro_ground` elevation runs **sea level → Mauna Kea summit
 (≈4207 m)**. `macro_space` sits ~2000 km straight up (the archipelago/planet
 framing); `meso_atmosphere` ~12 km on descent. Tunable constants live in the `HI`
