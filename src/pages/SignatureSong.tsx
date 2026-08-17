@@ -374,6 +374,12 @@ export function SignatureSong() {
 
   const litTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const flowerRef = useRef<HTMLCanvasElement>(null);
+  // The poster photo with the reading drawn over it, and a playhead that walks
+  // the line in time with the audio.
+  const sheetRef = useRef<HTMLCanvasElement>(null);
+  const sheetImgRef = useRef<HTMLImageElement | null>(null);
+  const playRef = useRef<{ start: number; count: number; step: number } | null>(null);
+  const sheetRaf = useRef(0);
   const tunerRef = useRef<TunerState & { seen: number }>({ slot: -1, cents: 0, level: 0, seen: 0 });
   const micRef = useRef<{ stream: MediaStream; ctx: AudioContext; raf: number } | null>(null);
   const voiceState = useRef<{ lastSlot: number; stable: number; frames: number }>({ lastSlot: -1, stable: 0, frames: 0 });
@@ -603,6 +609,7 @@ export function SignatureSong() {
       ctx.drawImage(img, 0, 0, w, h);
       const { data } = ctx.getImageData(0, 0, w, h);
       const read = parsePoster(data, w, h, LETTERS.map(l => l.hue));
+      sheetImgRef.current = img;   // keep it for the overlay
       setPoster(read); setPosterRow(0);
       if (!read.seq.length) { setStatus('No colour swatches found — try a straighter, brighter photo.'); setStatusKind('err'); }
       else { setStatus(`Read ${read.rows} × ${read.cols} — ${read.seq.length} notes.`); setStatusKind('ok'); }
@@ -620,6 +627,94 @@ export function SignatureSong() {
   /** Notes in the current line, capped to a playable phrase. */
   const rowNotes = useCallback((idx: number, cap = 24): PosterNote[] =>
     (lines[idx]?.notes ?? []).slice(0, cap), [lines]);
+
+  // ── The sheet: the photo itself, with the line being read drawn onto it ────
+  // Everything is dimmed except the swatches of the current line, which are cut
+  // back out of the veil, threaded together, and lit one at a time as they sound.
+  const drawSheet = useCallback(() => {
+    const cv = sheetRef.current, img = sheetImgRef.current, read = poster;
+    if (!cv || !img || !read) return;
+    const ctx = cv.getContext('2d'); if (!ctx) return;
+
+    const cssW = cv.clientWidth || 320;
+    const scale = cssW / read.width;
+    const cssH = Math.max(1, Math.round(read.height * scale));
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const pxW = Math.round(cssW * dpr), pxH = Math.round(cssH * dpr);
+    if (cv.width !== pxW || cv.height !== pxH) { cv.width = pxW; cv.height = pxH; }
+    cv.style.height = cssH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cssW, cssH);
+    ctx.drawImage(img, 0, 0, cssW, cssH);
+
+    const line = lines[lineIdx];
+    if (!line) return;
+
+    ctx.fillStyle = 'rgba(8,12,8,0.6)';
+    ctx.fillRect(0, 0, cssW, cssH);
+
+    const S = (v: number) => v * scale;
+    const boxes = line.cellIdx.map(ci => read.cells[ci]).filter(Boolean)
+      .map(c => ({ c, x: S(c.rect.x), y: S(c.rect.y), w: S(c.rect.w), h: S(c.rect.h) }));
+
+    // Where the playhead is, from elapsed time against the audio's own step.
+    const pl = playRef.current;
+    let head = -1;
+    if (pl) {
+      head = Math.floor((performance.now() - pl.start) / 1000 / pl.step);
+      if (head >= pl.count) { head = -1; playRef.current = null; }
+    }
+
+    // The thread through the line — this is what makes a diagonal read as a line.
+    if (boxes.length > 1) {
+      ctx.beginPath();
+      boxes.forEach((b, i) => {
+        const cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+        if (i) ctx.lineTo(cx, cy); else ctx.moveTo(cx, cy);
+      });
+      ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+      ctx.lineWidth = Math.max(1, S(2));
+      ctx.stroke();
+    }
+
+    boxes.forEach((b, i) => {
+      const on = i === head;
+      // Cut the real swatch back out of the veil, so you see the actual ink.
+      ctx.save();
+      ctx.beginPath(); ctx.rect(b.x, b.y, b.w, b.h); ctx.clip();
+      ctx.drawImage(img, 0, 0, cssW, cssH);
+      ctx.restore();
+
+      const col = b.c.slot >= 0 ? LETTERS[b.c.slot].color : '#9aa896';
+      ctx.save();
+      if (on) { ctx.shadowColor = col; ctx.shadowBlur = 20; ctx.lineWidth = Math.max(2, S(4)); ctx.strokeStyle = '#fff'; }
+      else { ctx.lineWidth = Math.max(1, S(1.5)); ctx.strokeStyle = col; }
+      ctx.strokeRect(b.x, b.y, b.w, b.h);
+      ctx.restore();
+    });
+  }, [poster, lines, lineIdx]);
+
+  /** Play a line and walk the playhead across the sheet in step with it. */
+  const playLine = useCallback((idx: number) => {
+    const notes = rowNotes(idx);
+    if (!notes.length) return;
+    playNotes(notes);
+    playRef.current = { start: performance.now(), count: notes.length, step: 0.42 };
+    cancelAnimationFrame(sheetRaf.current);
+    const tick = () => {
+      drawSheet();
+      if (playRef.current) sheetRaf.current = requestAnimationFrame(tick);
+    };
+    sheetRaf.current = requestAnimationFrame(tick);
+  }, [rowNotes, playNotes, drawSheet]);
+
+  // Repaint when the reading, direction, or line changes.
+  useEffect(() => { drawSheet(); }, [drawSheet]);
+  useEffect(() => {
+    const onResize = () => drawSheet();
+    window.addEventListener('resize', onResize);
+    return () => { window.removeEventListener('resize', onResize); cancelAnimationFrame(sheetRaf.current); };
+  }, [drawSheet]);
   useEffect(() => () => { if (posterUrl) URL.revokeObjectURL(posterUrl); }, [posterUrl]);
 
   const enrollSeq = wordToSeq(enrollWord);
@@ -776,7 +871,14 @@ export function SignatureSong() {
       <section className="sig-panel sig-poster-panel">
         <label className="sig-label" htmlFor="sig-poster">Load your colour-code poster — read it, and land in it</label>
         <input id="sig-poster" className="sig-file" type="file" accept="image/*" onChange={onPoster} />
-        {posterUrl && <img className="sig-poster" src={posterUrl} alt="Your uploaded colour-code / realm image" />}
+        {posterUrl && !poster && <img className="sig-poster" src={posterUrl} alt="Your uploaded colour-code / realm image" />}
+        {poster && (
+          <figure className="sig-sheet">
+            <canvas ref={sheetRef} className="sig-sheetcv" role="img"
+              aria-label={`Your poster with line ${lineIdx + 1} of ${lines.length} marked, read ${ORDER_LABEL[readOrder]}`} />
+            <figcaption>Line {lineIdx + 1} traced on the sheet — each swatch lights as it sounds.</figcaption>
+          </figure>
+        )}
 
         {posterUrl && (
           <div className="sig-actions">
@@ -814,7 +916,7 @@ export function SignatureSong() {
               <button className="sig-btn" onClick={() => setPosterRow(r => Math.max(0, r - 1))} disabled={lineIdx <= 0}>◀</button>
               <span className="sig-rowlab">Line {lineIdx + 1} / {lines.length}</span>
               <button className="sig-btn" onClick={() => setPosterRow(r => Math.min(lines.length - 1, r + 1))} disabled={lineIdx >= lines.length - 1}>▶</button>
-              <button className="sig-btn primary" onClick={() => playNotes(rowNotes(lineIdx))} disabled={!rowNotes(lineIdx).length}>▶ Play this line</button>
+              <button className="sig-btn primary" onClick={() => playLine(lineIdx)} disabled={!rowNotes(lineIdx).length}>▶ Play this line</button>
               <button className="sig-btn" onClick={() => {
                 const notes = rowNotes(lineIdx, 6);
                 if (notes.length < 2) return;

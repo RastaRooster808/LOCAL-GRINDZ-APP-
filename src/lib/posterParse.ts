@@ -13,6 +13,8 @@
 export interface Hsl { h: number; s: number; l: number; }
 /** A colour-note: which key (hue) and which octave (lightness). */
 export interface Note { slot: number; octave: number; }
+/** Where a cell sits in the parsed image, in that image's pixel space. */
+export interface Rect { x: number; y: number; w: number; h: number; }
 export interface Cell {
   row: number; col: number;
   r: number; g: number; b: number;
@@ -22,9 +24,13 @@ export interface Cell {
   slot: number;
   /** -1 / 0 / +1 — a deep ink sings low, a pastel sings high. */
   octave: number;
+  /** Pixel bounds, so a reading can be drawn back onto the photo. */
+  rect: Rect;
 }
 export interface PosterRead {
   rows: number; cols: number;
+  /** Dimensions the parse ran at — the frame `Cell.rect` is measured in. */
+  width: number; height: number;
   cells: Cell[];
   /** Row-major reading order, rests dropped — the melody (keys only). */
   seq: number[];
@@ -243,13 +249,17 @@ export function parsePoster(
         hsl,
         slot: colorToSlot(hsl, hues),
         octave: colorToOctave(hsl),
+        rect: {
+          x: colEdges[c].start, y: rowEdges[r].start,
+          w: colEdges[c].end - colEdges[c].start, h: rowEdges[r].end - rowEdges[r].start,
+        },
       });
     }
   }
   const n = Math.max(1, rows * cols);
   const voiced = cells.filter(c => c.slot >= 0);
   return {
-    rows, cols, cells,
+    rows, cols, width: w, height: h, cells,
     seq: voiced.map(c => c.slot),
     notes: voiced.map(c => ({ slot: c.slot, octave: c.octave })),
     fit: fitTotal / n,

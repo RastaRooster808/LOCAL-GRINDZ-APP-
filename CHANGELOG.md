@@ -4,6 +4,30 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — The line, traced on the sheet itself (2026-08-16)
+
+### Added — the reading drawn back onto the photo
+- The parsed poster is no longer a separate abstract grid beside the picture. The
+  photo now renders to a canvas with the **current line traced directly on it**:
+  the sheet dims, the line's swatches are **cut back out of the veil** so you see
+  the actual ink, and a thread joins them — which is what makes a diagonal read
+  as a line rather than scattered squares.
+- **A playhead walks the line as it sounds.** Each swatch lights with a white ring
+  and its own glow exactly when its note plays, driven from elapsed time against
+  the audio's own step, so picture and sound stay together.
+- `Cell` now carries its pixel `rect`, and `PosterRead` its `width`/`height`, so a
+  reading can be mapped back onto the image at any display size. The overlay is
+  DPR-aware and redraws on resize and on any change of direction or line.
+
+### Verified
+- On a ↘-progression poster: the middle diagonal (line 15 / 30) traces correctly
+  across the sheet; white highlight pixels went **0 → 180 → 207** across playback,
+  confirming the playhead lights and advances. Cell rectangles align exactly with
+  the printed swatches — visible where a single-cell corner diagonal lights one
+  swatch and nothing else. No page errors, build clean.
+
+---
+
 ## [Unreleased] — Spectrum export fixed; a keyboard you can actually play (2026-08-16)
 
 ### Fixed — the spectrum export could fail with no way out
