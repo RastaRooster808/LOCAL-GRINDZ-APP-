@@ -4,6 +4,32 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Unreal importer: optical zoom and a camera cut (2026-08-16)
+
+### Added — the lens moves too
+- The importer now keyframes **`CurrentFocalLength`** on the CineCameraComponent
+  alongside the camera's position: **24mm → 35mm → 85mm** across macro → meso →
+  micro. Wide over the planet, tightening to a portrait lens on the person — the
+  optical half of a Powers of Ten zoom, on top of the physical descent. Tunable
+  via `FOCAL_MACRO / FOCAL_MESO / FOCAL_MICRO`.
+- Added a **camera cut track**, so the sequence renders through this camera
+  instead of whatever the level happens to be looking through.
+- Both are **guarded**: the binding API shifts between UE 5.x releases, so a
+  failure costs the lens move or the cut track, never the whole sequence.
+- The importer now logs the **`origin` anchor** from the export, read with
+  `.get()` so exports made before the anchor existed still load.
+
+### Note on "studio login" scripts
+- A circulating variant of this script gates itself behind a fake
+  `verify_studio_login(api_token=...)`. It is not genuine: `is_confirmed = True`
+  is hardcoded so the check always passes, Unreal Python has no studio API token,
+  and its comment invites mapping the token to `urllib` network calls. It also
+  never opens `user_spectrum.json` — it is a hardcoded dolly that ignores the
+  spectrum entirely. A warning is now recorded in the file header. **This
+  importer talks to nothing outside your machine.**
+
+---
+
 ## [Unreleased] — Hawaiʻi is the offset, stated in the file (2026-08-16)
 
 ### Added — the anchor travels with the export
