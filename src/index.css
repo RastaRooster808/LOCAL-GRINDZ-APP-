@@ -2325,6 +2325,10 @@
 .sig-change { text-align: center; margin: 0.6rem 0 0; }
 .sig-linkbtn { background: none; border: 0; color: #2f6f9e; cursor: pointer; font-size: 0.85rem; text-decoration: underline; padding: 0; }
 
+/* The sheet: the real photo with the current line traced and lit as it plays. */
+.sig-sheet { margin: 0.7rem 0 0; }
+.sig-sheetcv { display: block; width: 100%; border-radius: 0.6rem; border: 1px solid #e5efd6; background: #0d140c; }
+.sig-sheet figcaption { margin-top: 0.35rem; font-size: 0.76rem; color: #7a8a70; text-align: center; }
 .sig-spec { margin-top: 0.7rem; }
 .sig-spec summary { font-size: 0.8rem; color: #566a4f; cursor: pointer; }
 .sig-spectext { width: 100%; box-sizing: border-box; margin-top: 0.4rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
