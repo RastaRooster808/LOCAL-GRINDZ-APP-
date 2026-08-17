@@ -2325,6 +2325,28 @@
 .sig-change { text-align: center; margin: 0.6rem 0 0; }
 .sig-linkbtn { background: none; border: 0; color: #2f6f9e; cursor: pointer; font-size: 0.85rem; text-decoration: underline; padding: 0; }
 
+/* Arrival: the post-login state. Identity resolves and the space appears. */
+.sig-arrived h1 { animation: sig-arrive 0.7s ease both; }
+.sig-scene { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; margin: 1rem 0 0.6rem; }
+.sig-scenenote { display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-width: 3.1rem; padding: 0.5rem 0.35rem; border-radius: 0.6rem; color: #fff;
+  box-shadow: 0 4px 16px rgba(20,32,20,0.22), inset 0 1px 0 rgba(255,255,255,0.3);
+  animation: sig-arrive 0.6s ease both; }
+.sig-scenenote b { font-size: 1.15rem; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+.sig-scenenote i { font-style: normal; font-size: 0.62rem; opacity: 0.9; font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+.sig-place { font-size: 0.84rem; color: #566a4f; margin: 0.2rem 0 0; }
+@keyframes sig-arrive { from { opacity: 0; transform: translateY(10px) scale(0.96); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .sig-arrived h1, .sig-scenenote { animation: none; }
+}
+
+/* Creator surface, folded away — the player never needs to open this. */
+.sig-tech { margin-top: 2rem; border-top: 1px solid #e5efd6; padding-top: 0.8rem; }
+.sig-tech > summary { cursor: pointer; font-size: 0.82rem; color: #7a8a70; letter-spacing: 0.03em; }
+.sig-tech > summary:hover { color: #3a4a34; }
+.sig-tech[open] > summary { margin-bottom: 0.8rem; }
+
 /* The sheet: the real photo with the current line traced and lit as it plays. */
 .sig-sheet { margin: 0.7rem 0 0; }
 .sig-sheetcv { display: block; width: 100%; border-radius: 0.6rem; border: 1px solid #e5efd6; background: #0d140c; }

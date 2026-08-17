@@ -7,6 +7,8 @@ import {
   parsePoster, readLinesDetailed, rankOrders,
   type PosterRead, type Note as PosterNote, type ReadOrder,
 } from '../lib/posterParse';
+import { buildScenePackage, buildSpectrumCard, type SpectrumCard } from '../lib/scenePackage';
+import { alphabetNodes, toIndices } from '../lib/harmonics';
 
 const ORDER_LABEL: Record<ReadOrder, string> = {
   'row': 'Rows →', 'col': 'Columns ↓', 'diag-down': 'Diagonal ↘', 'diag-up': 'Diagonal ↙',
@@ -40,29 +42,17 @@ const KIND_LABEL: Record<string, string> = {
 
 interface Letter { ch: string; freq: number; color: string; hue: number; }
 
-// HSL → #rrggbb (continuous-rainbow key colours are generated, never hand-picked).
-function hslHex(h: number, s: number, l: number): string {
-  const a = s * Math.min(l, 1 - l);
-  const f = (n: number) => {
-    const k = (n + h / 30) % 12;
-    const c = l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
-    return Math.round(255 * c).toString(16).padStart(2, '0');
-  };
-  return `#${f(0)}${f(8)}${f(4)}`;
-}
-
-// The 13 Hawaiian letters + their pitches (a rising C-major run C4→A5 so any word
-// sounds musical). The ʻokina (glottal stop) is the 13th key — a bright top note.
-const ALPHABET: [string, number][] = [
-  ['A', 261.63], ['E', 293.66], ['I', 329.63], ['O', 349.23], ['U', 392.00],
-  ['H', 440.00], ['K', 493.88], ['L', 523.25], ['M', 587.33], ['N', 659.25],
-  ['P', 698.46], ['W', 783.99], ['ʻ', 880.00],
-];
-// Colours flow as a continuous rainbow: hue = i / N · 360.
-const LETTERS: Letter[] = ALPHABET.map(([ch, freq], i) => {
-  const hue = (i / ALPHABET.length) * 360;
-  return { ch, freq, hue, color: hslHex(hue, 0.82, 0.56) };
-});
+// The keys come from the harmonic engine — NOT recomputed here. That is the whole
+// point of the engine: one place decides every frequency and colour, so the
+// keyboard, the tuner, the exported package and Unreal all agree exactly.
+// Frequencies arrive at full precision (A = 261.6255653005986, not 261.63) and
+// colours as gamut-mapped OKLCH, which steps evenly to the eye where HSL does not.
+const LETTERS: Letter[] = alphabetNodes().map(n => ({
+  ch: n.letter,
+  freq: n.frequency_hz,
+  hue: n.position * 360,
+  color: n.color.hex,
+}));
 const IDX: Record<string, number> = Object.fromEntries(LETTERS.map((l, i) => [l.ch, i]));
 
 // A few real Hawaiian words to spell as signatures (meanings kept modest/correct).
@@ -82,130 +72,18 @@ const WORDS: { w: string; mean: string }[] = [
 
 const SIG_KEY = 'kulla_signature'; // kulla-prefixed → rides the KullaCoin cloud sync
 
-/** Map a word to key slots: strip kahakō (macron) to the base vowel, fold any
- *  apostrophe form to the ʻokina key, keep the 13 supported letters. */
-function wordToSeq(word: string): number[] {
-  const clean = word
-    .normalize('NFD').replace(/[̀-ͯ]/g, '') // drop combining kahakō
-    .replace(/[‘’'`]/g, 'ʻ')                          // any apostrophe → ʻokina
-    .toUpperCase();
-  const seq: number[] = [];
-  for (const ch of clean) if (ch in IDX) seq.push(IDX[ch]);
-  return seq;
+/** A friendly name from the signed-in address, for the welcome. */
+function deriveName(email: string | undefined): string {
+  return (email?.split('@')[0] || 'friend').slice(0, 24);
 }
 
-/** Deterministic 32-bit FNV-1a hash — stable, so a signature always maps to the
- *  same point on the planet. */
-function fnv32(s: string): number {
-  let h = 2166136261 >>> 0;
-  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
-  return h >>> 0;
-}
+/** Canonical letters of a word as key indices — delegated to the engine so the
+ *  folding rule (kahakō → base vowel, apostrophe → ʻokina) exists in one place. */
+const wordToSeq = toIndices;
 
-interface Coord { x: number; y: number; z: number; pitch: number; yaw: number; }
-interface Spectrum {
-  user_id: string;
-  signature_word: string;
-  generated_at: string;
-  spectrum: { letter: string; color: string; freq: number }[];
-  sequence_settings: { duration_seconds: number; fps: number };
-  /** The anchor the coordinates are measured from — Hawaiʻi is the offset. */
-  origin: { anchor: string; lat: number; lon: number; frame: string; units: string };
-  coordinates: { macro_space: Coord; meso_atmosphere: Coord; micro_ground: Coord };
-  /** micro_ground as real-world lat/lon, for a georeferenced scene. */
-  micro_ground_geo: { lat: number; lon: number; alt_m: number };
-}
-
-/** Anchor of the local frame: the centre of Hawaiʻi Island. Place this at the
- *  Unreal world origin — every coordinate in the export is measured from it. */
-const ORIGIN = { anchor: 'Hawaiʻi Island (centre)', lat: 19.5949, lon: -155.5028 };
-
-// Build the `user_spectrum.json` the Unreal "Powers of Ten" LevelSequence script
-// consumes (tools/unreal/generate_zoom_sequence.py). The zoom is anchored on
-// HAWAIʻI (HST): everyone shares the same planet-scale macro view over the Big
-// Island; the signature places one UNIQUE point on the island (micro), so the
-// camera flies planet → atmosphere → this individual, somewhere on Hawaiʻi.
-//
-// Frame: Big Island local ENU — +X = East, +Y = North, +Z = Up, origin = island
-// centre, meters × 100 = Unreal cm. (Place Hawaiʻi at the Unreal world origin, or
-// apply your own offset in the level.) Footprint ≈ 150 km E-W × 130 km N-S;
-// elevation runs sea level → Mauna Kea summit (≈4207 m).
-const HI = {
-  EW_CM: 15000000,   // 150 km E-W span (cm)
-  NS_CM: 13000000,   // 130 km N-S span (cm)
-  SUMMIT_CM: 420700, // Mauna Kea ≈ 4207 m, in cm
-  EYE_CM: 170,       // standing eye height 1.7 m
-  MACRO_Z: 200000000,   // 2000 km straight up — the whole archipelago/planet framing
-  MESO_Z: 1200000,      // ≈12 km cruising altitude on descent
-  FOL_RINGS: 6,         // Flower-of-Life lattice: rings of overlapping circles
-};
-
-// Flower-of-Life lattice nodes (triangular grid) within FOL_RINGS rings — the
-// "sea of flower of life" the harmonic colour code lands you on. Built once.
-const FOL_NODES: { a: number; b: number; ring: number }[] = (() => {
-  const R = HI.FOL_RINGS, out: { a: number; b: number; ring: number }[] = [];
-  for (let a = -R; a <= R; a++) for (let b = -R; b <= R; b++) {
-    const ring = (Math.abs(a) + Math.abs(b) + Math.abs(a + b)) / 2;
-    if (ring <= R) out.push({ a, b, ring });
-  }
-  return out;
-})();
-
-function buildSpectrum(word: string, seq: number[]): Spectrum {
-  const key = `${word}:${seq.join('')}`;
-  const h = fnv32(key), h2 = fnv32('salt:' + key);
-  const avgIdx = seq.reduce((a, b) => a + b, 0) / Math.max(1, seq.length);
-  const yaw = Math.round((avgIdx / (LETTERS.length - 1)) * 360); // cumulative hue → heading
-
-  // ── Harmonic colour code → a Flower-of-Life node ──────────────────────────
-  // The signature's average PITCH picks the ring (higher notes → outer rings and
-  // higher ground); its average HUE picks the seat around that ring. A small
-  // hash jitter keeps colliding words distinct without leaving the node's cell.
-  const fMin = LETTERS[0].freq, fMax = LETTERS[LETTERS.length - 1].freq;
-  const avgFreq = seq.reduce((a, i) => a + LETTERS[i].freq, 0) / Math.max(1, seq.length);
-  const pitchFrac = Math.min(1, Math.max(0, (avgFreq - fMin) / (fMax - fMin)));
-  const ringTarget = Math.round(pitchFrac * HI.FOL_RINGS);
-  const ringNodes = FOL_NODES.filter(n => n.ring === ringTarget);
-  const hueFrac = avgIdx / (LETTERS.length - 1);
-  const node = ringNodes[Math.floor(hueFrac * ringNodes.length) % ringNodes.length] || FOL_NODES[0];
-
-  const spacingE = (HI.EW_CM / 2) / HI.FOL_RINGS;
-  const spacingN = (HI.NS_CM / 2) / HI.FOL_RINGS;
-  const jitterE = ((h % 1000) / 1000 - 0.5) * spacingE * 0.3;
-  const jitterN = ((h2 % 1000) / 1000 - 0.5) * spacingN * 0.3;
-  const clamp = (v: number, m: number) => Math.max(-m, Math.min(m, v));
-  const east  = Math.round(clamp((node.a + node.b * 0.5) * spacingE + jitterE, HI.EW_CM / 2));
-  const north = Math.round(clamp(node.b * (Math.sqrt(3) / 2) * spacingN + jitterN, HI.NS_CM / 2));
-  const elev  = Math.round(pitchFrac * HI.SUMMIT_CM); // harmonic altitude: sea level → summit
-
-  // Fold kahakō to the base vowel BEFORE stripping, or a macron'd letter is lost
-  // outright: ʻĀINA would otherwise name the asset "INA".
-  const asciiWord = word.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]/g, '');
-  const safeId = (asciiWord.toUpperCase() || 'PLAYER') + '_' + h.toString(16);
-  return {
-    user_id: safeId,
-    signature_word: word,
-    generated_at: new Date().toISOString(),
-    spectrum: seq.map(i => ({ letter: LETTERS[i].ch, color: LETTERS[i].color, freq: LETTERS[i].freq })),
-    sequence_settings: { duration_seconds: 8 + seq.length, fps: 30 },
-    origin: { ...ORIGIN, frame: 'ENU (+X east, +Y north, +Z up)', units: 'cm' },
-    // Same point in real-world terms, so a georeferenced scene can place it
-    // without assuming anything. Flat-earth approximation is ample at ±75 km.
-    micro_ground_geo: {
-      lat: +(ORIGIN.lat + (north / 100) / 111320).toFixed(6),
-      lon: +(ORIGIN.lon + (east / 100) / (111320 * Math.cos(ORIGIN.lat * Math.PI / 180))).toFixed(6),
-      alt_m: Math.round(elev / 100),
-    },
-    coordinates: {
-      // Straight down over the island centre — the planet/archipelago view.
-      macro_space:     { x: 0, y: 0, z: HI.MACRO_Z, pitch: -90, yaw: h % 360 },
-      // Descending toward the person's quadrant, banking to their heading.
-      meso_atmosphere: { x: Math.round(east * 0.4), y: Math.round(north * 0.4), z: HI.MESO_Z, pitch: -60, yaw },
-      // The individual, standing on Hawaiʻi at their unique spot + elevation.
-      micro_ground:    { x: east, y: north, z: elev + HI.EYE_CM, pitch: -8, yaw },
-    },
-  };
-}
+// Spectrum construction now lives in src/lib/scenePackage.ts, built on the
+// harmonic engine. The former local buildSpectrum()/FOL/ORIGIN block was removed
+// so no second implementation can drift from it.
 
 // ── Web Audio (bell-like note, reused across the page) ───────────────────────
 let audioCtx: AudioContext | null = null;
@@ -383,6 +261,9 @@ export function SignatureSong() {
   const [posterUrl, setPosterUrl] = useState<string | null>(null);
   const [linkEmail, setLinkEmail] = useState('');
   const [spectrumText, setSpectrumText] = useState('');
+  // The user-facing view of who they are — no operator detail in it.
+  const card: SpectrumCard | null = useMemo(
+    () => (sig ? buildSpectrumCard(sig.word) : null), [sig]);
   const [poster, setPoster] = useState<PosterRead | null>(null);
   const [posterBusy, setPosterBusy] = useState(false);
   const [posterRow, setPosterRow] = useState(0);
@@ -564,7 +445,8 @@ export function SignatureSong() {
     if (!sig) return;
     let text = '';
     try {
-      text = JSON.stringify(buildSpectrum(sig.word, sig.seq), null, 2);
+      // v2 scene package — cameras, cuts, lens and palette, all from the engine.
+      text = JSON.stringify(buildScenePackage(sig.word, user?.email ? deriveName(user.email) : undefined), null, 2);
     } catch {
       setStatus('Could not build the spectrum from this signature.'); setStatusKind('err');
       return;
@@ -577,7 +459,7 @@ export function SignatureSong() {
       const blob = new Blob([text], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = 'user_spectrum.json'; a.rel = 'noopener';
+      a.href = url; a.download = 'harmonic_scene.json'; a.rel = 'noopener';
       document.body.appendChild(a); a.click(); a.remove();
       // Give slower devices time to actually read the blob before revoking it.
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
@@ -586,7 +468,7 @@ export function SignatureSong() {
       setStatus('Your browser blocked the download — copy the spectrum below instead.'); setStatusKind('err');
     }
     trackEvent('signature_unlock', { by: 'spectrum_export' });
-  }, [sig]);
+  }, [sig, user]);
 
   const copySpectrum = useCallback(async () => {
     if (!spectrumText) return;
@@ -743,10 +625,29 @@ export function SignatureSong() {
         <Link to="/kullacoin" className="sig-bar-link">KullaCoin →</Link>
       </header>
 
-      <section className="sig-hero">
-        <h1>A piano made of colour</h1>
-        <p>The thirteen letters of the Hawaiian alphabet, each a colour and a note — one continuous rainbow. Spell a word and it becomes your <b>signature song</b> of colour and light. Play it back to light yourself in.</p>
-      </section>
+      {/* The login IS the experience: identity resolves, the space appears. */}
+      {unlocked && card ? (
+        <section className="sig-hero sig-arrived">
+          <h1>Aloha{user?.email ? `, ${deriveName(user.email)}` : `, ${card.canonical}`}</h1>
+          <p>Your harmonic space is ready.</p>
+          <div className="sig-scene" aria-label="Your harmonic spectrum">
+            {card.notes.map((n, i) => (
+              <span key={i} className="sig-scenenote" style={{ background: n.hex, animationDelay: `${i * 90}ms` }}>
+                <b>{n.letter}</b><i>{n.hz}</i>
+              </span>
+            ))}
+          </div>
+          <p className="sig-place">
+            Your node sits on ring {card.place.ring} of the lattice over Hawaiʻi —
+            {' '}{card.place.lat.toFixed(4)}°, {card.place.lon.toFixed(4)}° at {card.place.alt_m} m.
+          </p>
+        </section>
+      ) : (
+        <section className="sig-hero">
+          <h1>Aloha</h1>
+          <p>{sig ? 'Play your signature to continue.' : 'Choose a signature to continue — a Hawaiian word that becomes yours.'}</p>
+        </section>
+      )}
 
       {/* The colour piano — 13 keys forming one continuous rainbow */}
       <div className="sig-piano" role="group" aria-label="Colour piano — the Hawaiian alphabet as a continuous rainbow">
@@ -840,10 +741,8 @@ export function SignatureSong() {
             <div className={'sig-unlocked' + (posterUrl ? ' has-realm' : '')}
               style={posterUrl ? { ['--realm' as string]: `url(${posterUrl})` } as React.CSSProperties : undefined}>
               <div className="sig-realm-veil" aria-hidden="true" />
-              <div className="sig-burst" aria-hidden="true">
-                {LETTERS.map((l, i) => <i key={i} style={{ background: l.color, animationDelay: `${i * 40}ms` }} />)}
-              </div>
-              <h2>✨ Lit in — welcome{user?.email ? `, ${user.email.split('@')[0]}` : ''}!</h2>
+              {/* The welcome lives in the hero above; this panel only carries what
+                  still needs doing — securing the account across devices. */}
               {posterUrl && <p className="sig-note sig-realm-note">You landed in the realm of your image.</p>}
               {user ? (
                 <p className="sig-note">You're signed in and your progress is saving to the cloud.</p>
@@ -863,23 +762,28 @@ export function SignatureSong() {
         </section>
       )}
 
-      {/* Powers of Ten — export the signature as user_spectrum.json for Unreal */}
+      {/* ── Everything below is creator/operator surface. It stays folded away:
+             signing in is the whole experience, and nobody should need to know
+             what a scene package is to use their own space. ────────────────── */}
+      <details className="sig-tech">
+        <summary>Technical details</summary>
+
       {sig && (
         <section className="sig-panel sig-powers">
-          <h3 className="sig-h3">Powers of Ten</h3>
-          <p className="sig-note sig-note-left">Your signature <b>{sig.word}</b> lands on one node of the flower-of-life lattice over Hawaiʻi — placed by its own harmonic colour code. Export it as <code>user_spectrum.json</code> to drive the Unreal “Powers of Ten” zoom — planet → atmosphere → you.</p>
+          <h3 className="sig-h3">Unreal scene package</h3>
+          <p className="sig-note sig-note-left">The creator-side artefact for <b>{sig.word}</b>: harmonic nodes, palette, the Hawaiʻi anchor, cameras, lens progression and camera cuts — everything the importer needs, built by the browser. Not something the player ever handles.</p>
           <div className="sig-actions">
-            <button className="sig-btn primary" onClick={downloadSpectrum}>⬇ Download my spectrum</button>
+            <button className="sig-btn primary" onClick={downloadSpectrum}>⬇ Scene package</button>
             {spectrumText && <button className="sig-btn" onClick={copySpectrum}>⧉ Copy</button>}
           </div>
           {spectrumText && (
-            <details className="sig-spec" open>
-              <summary>Your spectrum (copy this if the download didn't land)</summary>
+            <details className="sig-spec">
+              <summary>Package contents (copy this if the download didn't land)</summary>
               <textarea className="sig-spectext" readOnly rows={10} value={spectrumText}
-                onFocus={e => e.currentTarget.select()} aria-label="user_spectrum.json contents" />
+                onFocus={e => e.currentTarget.select()} aria-label="harmonic scene package contents" />
             </details>
           )}
-          <p className="sig-muted sig-small">Feed it to <code>tools/unreal/generate_zoom_sequence.py</code> in the Unreal editor.</p>
+          <p className="sig-muted sig-small">In Unreal: <code>import_harmonic_scene(&quot;harmonic_scene.json&quot;)</code> — one call builds the cameras, cuts, lens animation and timeline.</p>
         </section>
       )}
 
@@ -970,8 +874,9 @@ export function SignatureSong() {
       </section>
 
       <p className="sig-security">
-        <b>How the sign-in works:</b> your signature song is an <b>accessible unlock</b> that opens your profile on this device and lights up the screen — a friendly, verbal-first front door. It is not a password and cannot protect your account from someone else; real account security uses the emailed magic link above.
+        <b>How the sign-in works:</b> your signature song is an <b>accessible unlock</b> that opens your profile on this device and lights up the screen — a friendly, verbal-first front door. It is not a password and cannot protect your account from someone else; real account security uses the emailed magic link.
       </p>
+      </details>
     </div>
   );
 }
