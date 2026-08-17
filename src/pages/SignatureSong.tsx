@@ -8,7 +8,8 @@ import {
   type PosterRead, type Note as PosterNote, type ReadOrder,
 } from '../lib/posterParse';
 import { buildScenePackage, buildSpectrumCard, type SpectrumCard } from '../lib/scenePackage';
-import { alphabetNodes, toIndices } from '../lib/harmonics';
+import { alphabetNodes, toIndices, frequencyOf } from '../lib/harmonics';
+import { voiceLead } from '../lib/voiceLeading';
 
 const ORDER_LABEL: Record<ReadOrder, string> = {
   'row': 'Rows →', 'col': 'Columns ↓', 'diag-down': 'Diagonal ↘', 'diag-up': 'Diagonal ↙',
@@ -105,6 +106,38 @@ function playNote(slot: number, when = 0, dur = 0.5, gain = 0.16, octave = 0) {
     amp.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     o.connect(amp).connect(a.destination); o.start(t); o.stop(t + dur + 0.02);
   }
+}
+
+/** A darker, rounder voice for the bass, so the two lines stay distinguishable. */
+function playBass(midi: number, when = 0, dur = 0.9, gain = 0.09) {
+  const a = ac(); const t = a.currentTime + when;
+  const f = frequencyOf(midi);
+  const o = a.createOscillator(), amp = a.createGain(), lp = a.createBiquadFilter();
+  o.type = 'sine'; o.frequency.value = f;
+  lp.type = 'lowpass'; lp.frequency.value = 700;
+  amp.gain.setValueAtTime(0, t);
+  amp.gain.linearRampToValueAtTime(gain, t + 0.03);
+  amp.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(lp).connect(amp).connect(a.destination);
+  o.start(t); o.stop(t + dur + 0.02);
+}
+
+/**
+ * Play a signature as TWO voices. The melody is the signature; the bass beneath
+ * it is generated to obey voice leading — no hidden octaves reached by similar
+ * leap, and no parallel octaves or fifths. That is the difference between a row
+ * of notes and something that sounds composed.
+ */
+function playVoiced(slots: number[], step = 0.42, onNote?: (slot: number, i: number) => void) {
+  const nodes = alphabetNodes();
+  const melody = slots.map(s => nodes[s].midi);
+  const voiced = voiceLead(melody);
+  ac();
+  voiced.forEach((v, i) => {
+    playNote(slots[i], i * step);
+    playBass(v.bass, i * step, step * 2.1);
+    if (onNote) setTimeout(() => onNote(slots[i], i), i * step * 1000);
+  });
 }
 
 // ── Pitch detection — YIN (difference → CMNDF → threshold → parabolic) ───────
@@ -301,12 +334,9 @@ export function SignatureSong() {
     litTimer.current = setTimeout(() => setActive(null), dur);
   }, []);
 
+  /** A signature always sounds as two voices, correctly led. */
   const playSeq = useCallback((seq: number[]) => {
-    ac();
-    seq.forEach((s, i) => {
-      playNote(s, i * 0.42);
-      setTimeout(() => flash(s), i * 420);
-    });
+    playVoiced(seq, 0.42, s => flash(s));
   }, [flash]);
 
   /** Play colour-notes with their octaves — how the poster actually sounds. */

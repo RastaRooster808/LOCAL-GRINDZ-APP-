@@ -289,3 +289,37 @@ It computes nothing itself; it only places what the package already decided.
 | 120 | `CAM_Anchor` | 35 mm | anchor |
 | 240 | `CAM_Lattice` | 50 mm | lattice |
 | 360 | `CAM_User` | 85 mm | identity |
+
+## Voice leading — why the sign-in sounds composed
+
+A signature played alone is a row of notes. It is played as **two voices**: the
+melody, and a bass line generated beneath it by `src/lib/voiceLeading.ts`. The
+bass is not decoration — its motion is constrained by the rules that separate
+composed music from arbitrary intervals.
+
+**The hidden (direct) octave.** When the outer voices move in similar motion into
+an octave, the ear fills in the leap and hears a parallel octave that was never
+written. The generator refuses any bass note that would create it:
+
+| case | verdict |
+|:--|:--|
+| both outer voices **leap upward** into an octave | **forbidden** — sounds amateurish |
+| the motion into the octave is **downward** | allowed — far less noticeable |
+| **at least one voice arrives by step** (semitone or whole tone) | allowed |
+| contrary or oblique motion | never the fault |
+
+**Parallel perfects.** Consecutive octaves/unisons or fifths in similar motion are
+also rejected — two voices holding the same perfect interval stop sounding like
+two voices. This was caught by the exhaustive test rather than by inspection: the
+first generator audited for parallels but never *prevented* them, and 21 of 2197
+three-note melodies came out faulty.
+
+Among legal candidates the cost function prefers **contrary motion**, then a bass
+that walks rather than leaps, then staying in register (MIDI 36–57).
+
+**Verified exhaustively**, not by ear alone: every 2-note (169), 3-note (2 197)
+and 4-note (28 561) melody in the alphabet, plus 20 000 random 6-note melodies —
+**zero** hidden octaves and **zero** parallel perfects. Across the sample words,
+motion came out contrary 35 · oblique 5 · similar 1. In-browser the two voices
+sum to a peak of 0.21 where the melody alone caps at 0.16, confirming the bass
+actually sounds.
