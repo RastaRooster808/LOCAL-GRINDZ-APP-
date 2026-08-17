@@ -109,8 +109,16 @@ interface Spectrum {
   generated_at: string;
   spectrum: { letter: string; color: string; freq: number }[];
   sequence_settings: { duration_seconds: number; fps: number };
+  /** The anchor the coordinates are measured from — Hawaiʻi is the offset. */
+  origin: { anchor: string; lat: number; lon: number; frame: string; units: string };
   coordinates: { macro_space: Coord; meso_atmosphere: Coord; micro_ground: Coord };
+  /** micro_ground as real-world lat/lon, for a georeferenced scene. */
+  micro_ground_geo: { lat: number; lon: number; alt_m: number };
 }
+
+/** Anchor of the local frame: the centre of Hawaiʻi Island. Place this at the
+ *  Unreal world origin — every coordinate in the export is measured from it. */
+const ORIGIN = { anchor: 'Hawaiʻi Island (centre)', lat: 19.5949, lon: -155.5028 };
 
 // Build the `user_spectrum.json` the Unreal "Powers of Ten" LevelSequence script
 // consumes (tools/unreal/generate_zoom_sequence.py). The zoom is anchored on
@@ -180,6 +188,14 @@ function buildSpectrum(word: string, seq: number[]): Spectrum {
     generated_at: new Date().toISOString(),
     spectrum: seq.map(i => ({ letter: LETTERS[i].ch, color: LETTERS[i].color, freq: LETTERS[i].freq })),
     sequence_settings: { duration_seconds: 8 + seq.length, fps: 30 },
+    origin: { ...ORIGIN, frame: 'ENU (+X east, +Y north, +Z up)', units: 'cm' },
+    // Same point in real-world terms, so a georeferenced scene can place it
+    // without assuming anything. Flat-earth approximation is ample at ±75 km.
+    micro_ground_geo: {
+      lat: +(ORIGIN.lat + (north / 100) / 111320).toFixed(6),
+      lon: +(ORIGIN.lon + (east / 100) / (111320 * Math.cos(ORIGIN.lat * Math.PI / 180))).toFixed(6),
+      alt_m: Math.round(elev / 100),
+    },
     coordinates: {
       // Straight down over the island centre — the planet/archipelago view.
       macro_space:     { x: 0, y: 0, z: HI.MACRO_Z, pitch: -90, yaw: h % 360 },
