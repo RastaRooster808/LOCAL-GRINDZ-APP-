@@ -2420,3 +2420,12 @@
 }
 .sig-madeposter { padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid #e9f0dd; }
 .sig-readtitle { margin-top: 0.2rem; }
+/* Codex call — the spoken direction register. */
+.sig-callstring { font-family: Georgia, serif; font-size: 1.6rem; letter-spacing: 0.06em;
+  color: #21301f; text-align: center; margin: 0.7rem 0 0.9rem; }
+.sig-calllist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.sig-calllist li { display: flex; align-items: baseline; gap: 0.6rem; font-size: 0.82rem;
+  background: #fff; border: 1px solid #edf3e3; border-radius: 0.45rem; padding: 0.35rem 0.6rem; }
+.sig-calllist li b { font-family: Georgia, serif; font-size: 1.05rem; min-width: 2.2rem; color: #21301f; }
+.sig-calllist li em { margin-left: auto; font-style: normal; font-size: 0.68rem; color: #b3790d;
+  border: 1px solid #ecd9a6; border-radius: 999px; padding: 0.05rem 0.4rem; }

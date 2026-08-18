@@ -10,6 +10,7 @@ import {
 import { buildScenePackage, buildSpectrumCard, type SpectrumCard } from '../lib/scenePackage';
 import { alphabetNodes, toIndices, frequencyOf } from '../lib/harmonics';
 import { voiceLead } from '../lib/voiceLeading';
+import { callPhrase, callString } from '../lib/phoneticCodex';
 
 const ORDER_LABEL: Record<ReadOrder, string> = {
   'row': 'Rows →', 'col': 'Columns ↓', 'diag-down': 'Diagonal ↘', 'diag-up': 'Diagonal ↙',
@@ -301,6 +302,17 @@ export function SignatureSong() {
   // The user-facing view of who they are — no operator detail in it.
   const card: SpectrumCard | null = useMemo(
     () => (sig ? buildSpectrumCard(sig.word) : null), [sig]);
+  // The DIRECTION register — how the phrase moves, spoken. Kept apart from the
+  // identity register above: one is an absolute cipher, the other relative, and
+  // the codex itself warns they must never be active in the same breath.
+  const codex = useMemo(() => {
+    if (!sig) return null;
+    const nodes = alphabetNodes();
+    const midi = sig.seq.map(i => nodes[i].midi);
+    if (midi.length < 2) return null;
+    const calls = callPhrase(midi);
+    return { calls, text: callString(midi), approx: calls.filter(c => c.approximate).length };
+  }, [sig]);
   const [poster, setPoster] = useState<PosterRead | null>(null);
   const [posterBusy, setPosterBusy] = useState(false);
   const [posterRow, setPosterRow] = useState(0);
@@ -879,6 +891,31 @@ export function SignatureSong() {
              what a scene package is to use their own space. ────────────────── */}
       <details className="sig-tech">
         <summary>Technical details</summary>
+
+      {codex && (
+        <section className="sig-panel">
+          <h3 className="sig-h3">Codex call — the direction register</h3>
+          <p className="sig-note sig-note-left">How this phrase <b>moves</b>, spoken aloud: consonant = size of the jump, vowel = direction (<code>i</code> up, <code>o</code> down). Called by a conductor to steer a song the ensemble already knows.</p>
+          <p className="sig-callstring">{codex.text}</p>
+          <ul className="sig-calllist">
+            {codex.calls.map((c, i) => (
+              <li key={i}>
+                <b>{c.syllable}</b>
+                <span>{c.name} {c.direction === 'sustain' ? 'held' : c.direction}</span>
+                <span className="sig-muted">{c.size}</span>
+                {c.approximate && <em title="This interval is not in the codex; nearest size used">approx</em>}
+              </li>
+            ))}
+          </ul>
+          {codex.approx > 0 && (
+            <p className="sig-muted sig-small">
+              {codex.approx} of {codex.calls.length} moves land on an interval the codex doesn't define (tritone, or a seventh) — shown as the nearest defined size rather than invented.
+            </p>
+          )}
+          <p className="sig-muted sig-small">Identity and direction stay in separate moments: your signature is sung whole and fixed; the codex is spoken relative to whatever note is already sounding. Close the signature on the ʻokina stop before the first call — that glottal break is the handoff.</p>
+          <p className="sig-muted sig-small"><b>Before performing:</b> a signature used to sign in is a credential. Don't call yours aloud in a public set, and use a different word for performance than the one you sign in with.</p>
+        </section>
+      )}
 
       {sig && (
         <section className="sig-panel sig-powers">

@@ -323,3 +323,59 @@ and 4-note (28 561) melody in the alphabet, plus 20 000 random 6-note melodies �
 motion came out contrary 35 · oblique 5 · similar 1. In-browser the two voices
 sum to a peak of 0.21 where the melody alone caps at 0.16, confirming the bass
 actually sounds.
+
+## The Phonetic Codex — the direction register
+
+`src/lib/phoneticCodex.ts` implements the spoken layer laid under the score: one
+syllable per interval a phrase moves through, so a line can be **called aloud**
+as fluently as it is played. Its purpose is live direction — cueing entrances,
+redirecting a phrase, flagging hidden notes, without stopping the music.
+
+Three rules, each from a documented mechanism:
+
+1. **Consonant = size of the jump.** Sound symbolism (bouba-kiki) sits mainly in
+   consonants. Steps take sonorants (`l`, `n`); leaps take voiceless stops
+   (`p`, `k`, `ʻ`).
+2. **Vowel = direction.** Ohala's frequency code: ascending takes `i`, descending
+   takes `o`.
+3. **Long vowel (kahakō) = an implied tone.** Per the auditory continuity
+   illusion, a hidden note is flagged by lengthening the vowel on the syllable
+   **before** it — `calls[k-2]` for a hidden note `k`, since a call lands on the
+   note *after* the one it starts from.
+
+| Interval | Size | Asc | Desc |
+|:--|:--|:--|:--|
+| Unison | sustain | a | a |
+| m2 | step | li | lo |
+| M2 | step | ni | no |
+| m3 | small leap | mi | mo |
+| M3 | small leap | wi | wo |
+| P4 | small leap | hi | ho |
+| P5 | large leap | pi | po |
+| m6 / M6 | large leap | ki | ko |
+| Octave | largest leap | ʻi | ʻo |
+
+**A gap in the source, measured not guessed.** The codex defines 0, 1, 2, 3, 4,
+5, 7, 8, 9 and 12 semitones — it has no entry for the **tritone (6)** or the
+**sevenths (10, 11)**. Those intervals really occur here: across all 169 ordered
+letter pairs, **18 (10.7%)** land on an undefined interval — 6 st ×4, 10 st ×10,
+11 st ×4 (e.g. `A→K` = 11 st, `O→K` = 6 st). Rather than invent syllables, such
+moves are mapped to the nearest defined size and flagged `approximate: true`,
+which the UI shows as an `approx` badge. **Filling those three gaps is a decision
+for whoever owns the codex, not for the code.**
+
+### Two registers, never one
+
+Kula Mele is an **absolute cipher** — a letter is always the same fixed pitch.
+The codex is a **relative protocol** — a syllable describes motion from whatever
+note is already sounding. Spoken `po` means *leap down*, while the letters P and O
+in Kula Mele are two unrelated fixed pitches. Same sounds, opposite grammars.
+
+They are therefore kept in separate performance moments, and the codex call is
+**not shown on the sign-in path at all** — it lives behind *Explore*. Every
+signature closes on the **ʻokina stop** before the first call; that glottal break
+is the ensemble's cue that identity mode has ended and direction mode begun.
+
+**Safety, carried over from the source document:** a signature used to sign in is
+a credential. It should not be called aloud in a public set, and a performance
+word should differ from a sign-in word. The app states this in the codex panel.
