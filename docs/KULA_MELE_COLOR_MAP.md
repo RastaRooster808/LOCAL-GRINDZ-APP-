@@ -10,21 +10,26 @@ single flowing world of light rather than discrete blocks.
 a colour — see *The harmonic engine* below. Frequencies are equal temperament at
 full double precision; the column here is rounded for reading only.
 
-| Slot | Letter | Note | Freq (Hz, displayed) | Colour (OKLCH hue) |
-|:----:|:------:|:----:|:---------------------|:-------------------|
-| 0    | A      | C4   | 261.63               | #f275a0 (0°)       |
-| 1    | E      | D4   | 293.66               | #f9786b (27.7°)    |
-| 2    | I      | E4   | 329.63               | #ef852d (55.4°)    |
-| 3    | O      | F4   | 349.23               | #d19a00 (83.1°)    |
-| 4    | U      | G4   | 392.00               | #aaac00 (110.8°)   |
-| 5    | H      | A4   | 440.00               | #6ebc53 (138.5°)   |
-| 6    | K      | B4   | 493.88               | #00c18f (166.2°)   |
-| 7    | L      | C5   | 523.25               | #00bcbb (193.8°)   |
-| 8    | M      | D5   | 587.33               | #00b6df (221.5°)   |
-| 9    | N      | E5   | 659.25               | #4eaaff (249.2°)   |
-| 10   | P      | F5   | 698.46               | #8e9aff (276.9°)   |
-| 11   | W      | G5   | 783.99               | #bc88f4 (304.6°)   |
-| 12   | ʻokina | A5   | 880.00               | #de7bd0 (332.3°)   |
+| Slot | Letter | Note | Freq (Hz, displayed) | Colour | L | C |
+|:----:|:------:|:----:|:---------------------|:-------|--:|--:|
+| 0 | A | C4 | 261.63 | #fe0087 | 0.645 | 0.262 |
+| 1 | E | D4 | 293.66 | #ff0719 | 0.630 | 0.255 |
+| 2 | I | E4 | 329.63 | #ff8500 | 0.740 | 0.183 |
+| 3 | O | F4 | 349.23 | #febd00 | 0.835 | 0.172 |
+| 4 | U | G4 | 392.00 | #d8db00 | 0.860 | 0.189 |
+| 5 | H | A4 | 440.00 | #63f700 | 0.860 | 0.268 |
+| 6 | K | B4 | 493.88 | #00f5b6 | 0.860 | 0.178 |
+| 7 | L | C5 | 523.25 | #00eeed | 0.860 | 0.147 |
+| 8 | M | D5 | 587.33 | #00d0fe | 0.795 | 0.146 |
+| 9 | N | E5 | 659.26 | #0097fe | 0.665 | 0.185 |
+| 10 | P | F5 | 698.46 | #6567ff | 0.600 | 0.220 |
+| 11 | W | G5 | 783.99 | #a735ff | 0.600 | 0.274 |
+| 12 | ʻokina | A5 | 880.00 | #fe00ec | 0.690 | 0.311 |
+
+Mean chroma **0.215**. Lightness roams within **[0.60, 0.86]** by design — see
+*The harmonic engine*: holding L constant capped chroma at whatever the worst hue
+allowed (~0.15) and forced yellow into olive, so each hue is instead taken to its
+most colourful point inside that band.
 
 ## The full alphabet (12 + ʻokina)
 
@@ -66,7 +71,22 @@ never be presented as protecting the account from someone else. Real account
 security stays with Supabase email magic-link (offered immediately after
 lighting in). Front door of color and light; real lock behind it.
 
-## Image as source — the poster parser
+## Posters — an output, and an optional creator tool
+
+**An image is never required to reach your space.** The authoritative data is the
+mathematically generated spectrum, so the relationship runs one way:
+
+> Identity creates the spectrum. The spectrum creates the scene.
+> Hawaiʻi provides the anchor. Unreal provides the cinematic realization.
+
+**Your poster** (`generatePoster`) therefore runs *outwards* — it renders a PNG
+**from** your signature's spectrum, laid out as a diagonal progression in the same
+language the printed sheets use, captioned with the word and its lattice
+coordinates. A keepsake, not an input.
+
+**Reading a printed sheet** is a separate, optional creator tool for turning an
+existing poster into notes. It lives behind *Explore → Technical details* and
+feeds nothing in the sign-in path.
 
 `src/lib/posterParse.ts` reads a printed colour-code grid (e.g. the "TAS CODE"
 poster) off a photo and turns it into notes. It is **pure** — raw RGBA + width and
@@ -269,3 +289,93 @@ It computes nothing itself; it only places what the package already decided.
 | 120 | `CAM_Anchor` | 35 mm | anchor |
 | 240 | `CAM_Lattice` | 50 mm | lattice |
 | 360 | `CAM_User` | 85 mm | identity |
+
+## Voice leading — why the sign-in sounds composed
+
+A signature played alone is a row of notes. It is played as **two voices**: the
+melody, and a bass line generated beneath it by `src/lib/voiceLeading.ts`. The
+bass is not decoration — its motion is constrained by the rules that separate
+composed music from arbitrary intervals.
+
+**The hidden (direct) octave.** When the outer voices move in similar motion into
+an octave, the ear fills in the leap and hears a parallel octave that was never
+written. The generator refuses any bass note that would create it:
+
+| case | verdict |
+|:--|:--|
+| both outer voices **leap upward** into an octave | **forbidden** — sounds amateurish |
+| the motion into the octave is **downward** | allowed — far less noticeable |
+| **at least one voice arrives by step** (semitone or whole tone) | allowed |
+| contrary or oblique motion | never the fault |
+
+**Parallel perfects.** Consecutive octaves/unisons or fifths in similar motion are
+also rejected — two voices holding the same perfect interval stop sounding like
+two voices. This was caught by the exhaustive test rather than by inspection: the
+first generator audited for parallels but never *prevented* them, and 21 of 2197
+three-note melodies came out faulty.
+
+Among legal candidates the cost function prefers **contrary motion**, then a bass
+that walks rather than leaps, then staying in register (MIDI 36–57).
+
+**Verified exhaustively**, not by ear alone: every 2-note (169), 3-note (2 197)
+and 4-note (28 561) melody in the alphabet, plus 20 000 random 6-note melodies —
+**zero** hidden octaves and **zero** parallel perfects. Across the sample words,
+motion came out contrary 35 · oblique 5 · similar 1. In-browser the two voices
+sum to a peak of 0.21 where the melody alone caps at 0.16, confirming the bass
+actually sounds.
+
+## The Phonetic Codex — the direction register
+
+`src/lib/phoneticCodex.ts` implements the spoken layer laid under the score: one
+syllable per interval a phrase moves through, so a line can be **called aloud**
+as fluently as it is played. Its purpose is live direction — cueing entrances,
+redirecting a phrase, flagging hidden notes, without stopping the music.
+
+Three rules, each from a documented mechanism:
+
+1. **Consonant = size of the jump.** Sound symbolism (bouba-kiki) sits mainly in
+   consonants. Steps take sonorants (`l`, `n`); leaps take voiceless stops
+   (`p`, `k`, `ʻ`).
+2. **Vowel = direction.** Ohala's frequency code: ascending takes `i`, descending
+   takes `o`.
+3. **Long vowel (kahakō) = an implied tone.** Per the auditory continuity
+   illusion, a hidden note is flagged by lengthening the vowel on the syllable
+   **before** it — `calls[k-2]` for a hidden note `k`, since a call lands on the
+   note *after* the one it starts from.
+
+| Interval | Size | Asc | Desc |
+|:--|:--|:--|:--|
+| Unison | sustain | a | a |
+| m2 | step | li | lo |
+| M2 | step | ni | no |
+| m3 | small leap | mi | mo |
+| M3 | small leap | wi | wo |
+| P4 | small leap | hi | ho |
+| P5 | large leap | pi | po |
+| m6 / M6 | large leap | ki | ko |
+| Octave | largest leap | ʻi | ʻo |
+
+**A gap in the source, measured not guessed.** The codex defines 0, 1, 2, 3, 4,
+5, 7, 8, 9 and 12 semitones — it has no entry for the **tritone (6)** or the
+**sevenths (10, 11)**. Those intervals really occur here: across all 169 ordered
+letter pairs, **18 (10.7%)** land on an undefined interval — 6 st ×4, 10 st ×10,
+11 st ×4 (e.g. `A→K` = 11 st, `O→K` = 6 st). Rather than invent syllables, such
+moves are mapped to the nearest defined size and flagged `approximate: true`,
+which the UI shows as an `approx` badge. **Filling those three gaps is a decision
+for whoever owns the codex, not for the code.**
+
+### Two registers, never one
+
+Kula Mele is an **absolute cipher** — a letter is always the same fixed pitch.
+The codex is a **relative protocol** — a syllable describes motion from whatever
+note is already sounding. Spoken `po` means *leap down*, while the letters P and O
+in Kula Mele are two unrelated fixed pitches. Same sounds, opposite grammars.
+
+They are therefore kept in separate performance moments, and the codex call is
+**not shown on the sign-in path at all** — it lives behind *Explore*. Every
+signature closes on the **ʻokina stop** before the first call; that glottal break
+is the ensemble's cue that identity mode has ended and direction mode begun.
+
+**Safety, carried over from the source document:** a signature used to sign in is
+a credential. It should not be called aloud in a public set, and a performance
+word should differ from a sign-in word. The app states this in the codex panel.

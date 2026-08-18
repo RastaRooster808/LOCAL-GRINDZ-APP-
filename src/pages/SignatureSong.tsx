@@ -8,7 +8,9 @@ import {
   type PosterRead, type Note as PosterNote, type ReadOrder,
 } from '../lib/posterParse';
 import { buildScenePackage, buildSpectrumCard, type SpectrumCard } from '../lib/scenePackage';
-import { alphabetNodes, toIndices } from '../lib/harmonics';
+import { alphabetNodes, toIndices, frequencyOf } from '../lib/harmonics';
+import { voiceLead } from '../lib/voiceLeading';
+import { callPhrase, callString } from '../lib/phoneticCodex';
 
 const ORDER_LABEL: Record<ReadOrder, string> = {
   'row': 'Rows →', 'col': 'Columns ↓', 'diag-down': 'Diagonal ↘', 'diag-up': 'Diagonal ↙',
@@ -105,6 +107,38 @@ function playNote(slot: number, when = 0, dur = 0.5, gain = 0.16, octave = 0) {
     amp.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     o.connect(amp).connect(a.destination); o.start(t); o.stop(t + dur + 0.02);
   }
+}
+
+/** A darker, rounder voice for the bass, so the two lines stay distinguishable. */
+function playBass(midi: number, when = 0, dur = 0.9, gain = 0.09) {
+  const a = ac(); const t = a.currentTime + when;
+  const f = frequencyOf(midi);
+  const o = a.createOscillator(), amp = a.createGain(), lp = a.createBiquadFilter();
+  o.type = 'sine'; o.frequency.value = f;
+  lp.type = 'lowpass'; lp.frequency.value = 700;
+  amp.gain.setValueAtTime(0, t);
+  amp.gain.linearRampToValueAtTime(gain, t + 0.03);
+  amp.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(lp).connect(amp).connect(a.destination);
+  o.start(t); o.stop(t + dur + 0.02);
+}
+
+/**
+ * Play a signature as TWO voices. The melody is the signature; the bass beneath
+ * it is generated to obey voice leading — no hidden octaves reached by similar
+ * leap, and no parallel octaves or fifths. That is the difference between a row
+ * of notes and something that sounds composed.
+ */
+function playVoiced(slots: number[], step = 0.42, onNote?: (slot: number, i: number) => void) {
+  const nodes = alphabetNodes();
+  const melody = slots.map(s => nodes[s].midi);
+  const voiced = voiceLead(melody);
+  ac();
+  voiced.forEach((v, i) => {
+    playNote(slots[i], i * step);
+    playBass(v.bass, i * step, step * 2.1);
+    if (onNote) setTimeout(() => onNote(slots[i], i), i * step * 1000);
+  });
 }
 
 // ── Pitch detection — YIN (difference → CMNDF → threshold → parabolic) ───────
@@ -254,6 +288,10 @@ export function SignatureSong() {
   const [active, setActive] = useState<number | null>(null);       // key currently lit
   const [attempt, setAttempt] = useState<number[]>([]);            // sign-in taps so far
   const [unlocked, setUnlocked] = useState(false);
+  // Arrival: a brief "being prepared" beat, then the space. `exploring` reveals
+  // the instrument and creator surface only when asked for.
+  const [preparing, setPreparing] = useState(false);
+  const [exploring, setExploring] = useState(false);
   const [status, setStatus] = useState('');
   const [statusKind, setStatusKind] = useState<'' | 'ok' | 'err'>('');
   const [listening, setListening] = useState(false);
@@ -264,6 +302,17 @@ export function SignatureSong() {
   // The user-facing view of who they are — no operator detail in it.
   const card: SpectrumCard | null = useMemo(
     () => (sig ? buildSpectrumCard(sig.word) : null), [sig]);
+  // The DIRECTION register — how the phrase moves, spoken. Kept apart from the
+  // identity register above: one is an absolute cipher, the other relative, and
+  // the codex itself warns they must never be active in the same breath.
+  const codex = useMemo(() => {
+    if (!sig) return null;
+    const nodes = alphabetNodes();
+    const midi = sig.seq.map(i => nodes[i].midi);
+    if (midi.length < 2) return null;
+    const calls = callPhrase(midi);
+    return { calls, text: callString(midi), approx: calls.filter(c => c.approximate).length };
+  }, [sig]);
   const [poster, setPoster] = useState<PosterRead | null>(null);
   const [posterBusy, setPosterBusy] = useState(false);
   const [posterRow, setPosterRow] = useState(0);
@@ -297,12 +346,9 @@ export function SignatureSong() {
     litTimer.current = setTimeout(() => setActive(null), dur);
   }, []);
 
+  /** A signature always sounds as two voices, correctly led. */
   const playSeq = useCallback((seq: number[]) => {
-    ac();
-    seq.forEach((s, i) => {
-      playNote(s, i * 0.42);
-      setTimeout(() => flash(s), i * 420);
-    });
+    playVoiced(seq, 0.42, s => flash(s));
   }, [flash]);
 
   /** Play colour-notes with their octaves — how the poster actually sounds. */
@@ -325,6 +371,8 @@ export function SignatureSong() {
       if (!ok) { setStatus('Not quite — try again.'); setStatusKind('err'); return []; }
       if (next.length === sig.seq.length) {
         setUnlocked(true); setStatus(''); setStatusKind('');
+        setPreparing(true); setExploring(false);
+        setTimeout(() => setPreparing(false), 1600);
         playSeq(sig.seq);
         trackEvent('signature_unlock', { by: 'tap' });
         return [];
@@ -429,7 +477,10 @@ export function SignatureSong() {
     playSeq(seq);
   }, [enrollWord, playSeq]);
 
-  const resetSignin = useCallback(() => { setAttempt([]); setUnlocked(false); setStatus(''); setStatusKind(''); }, []);
+  const resetSignin = useCallback(() => {
+    setAttempt([]); setUnlocked(false); setPreparing(false); setExploring(false);
+    setStatus(''); setStatusKind('');
+  }, []);
 
   const sendMagicLink = useCallback(async () => {
     const email = linkEmail.trim();
@@ -469,6 +520,50 @@ export function SignatureSong() {
     }
     trackEvent('signature_unlock', { by: 'spectrum_export' });
   }, [sig, user]);
+
+  /**
+   * A poster generated FROM the signature — the inverse of reading one in. The
+   * spectrum is the authoritative data, so an image is an output you can keep,
+   * never an input required to enter your space. Laid out as a diagonal
+   * progression, the same reading direction the printed sheets carry.
+   */
+  const generatePoster = useCallback(() => {
+    if (!card) return;
+    const cols = 14, rows = 18, cell = 78, pad = 90;
+    const w = pad * 2 + cols * cell, h = pad * 2 + rows * cell + 120;
+    const cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    const ctx = cv.getContext('2d'); if (!ctx) return;
+    ctx.fillStyle = '#fbf9f4'; ctx.fillRect(0, 0, w, h);
+
+    const hexes = card.notes.map(n => n.hex);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        ctx.fillStyle = hexes[(c + r) % hexes.length];
+        const x = pad + c * cell, y = pad + r * cell, s = cell * 0.72, rad = s * 0.22;
+        ctx.beginPath();
+        ctx.roundRect ? ctx.roundRect(x, y, s, s, rad) : ctx.rect(x, y, s, s);
+        ctx.fill();
+      }
+    }
+    ctx.fillStyle = '#21301f';
+    ctx.font = '600 44px Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(card.canonical, w / 2, h - 92);
+    ctx.font = '400 22px system-ui, sans-serif';
+    ctx.fillStyle = '#7a8a70';
+    ctx.fillText(`ring ${card.place.ring} · ${card.place.lat.toFixed(4)}°, ${card.place.lon.toFixed(4)}° · ${card.place.alt_m} m`, w / 2, h - 52);
+
+    cv.toBlob(blob => {
+      if (!blob) { setStatus('Could not render the poster.'); setStatusKind('err'); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `${card.canonical}-spectrum.png`; a.rel = 'noopener';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      setStatus('Your poster is ready.'); setStatusKind('ok');
+    }, 'image/png');
+  }, [card]);
 
   const copySpectrum = useCallback(async () => {
     if (!spectrumText) return;
@@ -627,27 +722,56 @@ export function SignatureSong() {
 
       {/* The login IS the experience: identity resolves, the space appears. */}
       {unlocked && card ? (
-        <section className="sig-hero sig-arrived">
-          <h1>Aloha{user?.email ? `, ${deriveName(user.email)}` : `, ${card.canonical}`}</h1>
-          <p>Your harmonic space is ready.</p>
-          <div className="sig-scene" aria-label="Your harmonic spectrum">
-            {card.notes.map((n, i) => (
-              <span key={i} className="sig-scenenote" style={{ background: n.hex, animationDelay: `${i * 90}ms` }}>
-                <b>{n.letter}</b><i>{n.hz}</i>
-              </span>
-            ))}
-          </div>
-          <p className="sig-place">
-            Your node sits on ring {card.place.ring} of the lattice over Hawaiʻi —
-            {' '}{card.place.lat.toFixed(4)}°, {card.place.lon.toFixed(4)}° at {card.place.alt_m} m.
-          </p>
-        </section>
+        preparing ? (
+          <section className="sig-hero sig-prep">
+            <h1>Aloha</h1>
+            <p>Your harmonic space is being prepared…</p>
+            <div className="sig-prepbar" aria-hidden="true">
+              {card.notes.map((n, i) => (
+                <i key={i} style={{ background: n.hex, animationDelay: `${i * 110}ms` }} />
+              ))}
+            </div>
+          </section>
+        ) : (
+          <section className="sig-space" aria-live="polite">
+            <h1 className="sig-greet">Aloha{user?.email ? `, ${deriveName(user.email)}` : ''}.</h1>
+            <p className="sig-ready">Your space is ready.</p>
+
+            <div className="sig-field">
+              <span className="sig-label-sm">Your signature</span>
+              <span className="sig-sigword">{card.canonical}</span>
+            </div>
+
+            <div className="sig-field">
+              <span className="sig-label-sm">Hawaiʻi anchor</span>
+              <span className="sig-anchordot" aria-hidden="true" />
+            </div>
+
+            <div className="sig-field">
+              <span className="sig-label-sm">Harmonic spectrum</span>
+              <div className="sig-spectrum" role="img"
+                aria-label={`Your spectrum: ${card.notes.map(n => n.letter).join(', ')}`}>
+                {card.notes.map((n, i) => (
+                  <span key={i} className="sig-band" style={{ background: n.hex, animationDelay: `${i * 90}ms` }} />
+                ))}
+              </div>
+            </div>
+
+            <button className="sig-explore" onClick={() => setExploring(e => !e)} aria-expanded={exploring}>
+              {exploring ? 'Close' : 'Explore'}
+            </button>
+          </section>
+        )
       ) : (
         <section className="sig-hero">
           <h1>Aloha</h1>
           <p>{sig ? 'Play your signature to continue.' : 'Choose a signature to continue — a Hawaiian word that becomes yours.'}</p>
         </section>
       )}
+
+      {/* Below here is the instrument: how you sign in, and what a creator needs.
+          Once you have arrived it stays out of the way until you ask for it. */}
+      {(!unlocked || exploring) && (<>
 
       {/* The colour piano — 13 keys forming one continuous rainbow */}
       <div className="sig-piano" role="group" aria-label="Colour piano — the Hawaiian alphabet as a continuous rainbow">
@@ -768,6 +892,31 @@ export function SignatureSong() {
       <details className="sig-tech">
         <summary>Technical details</summary>
 
+      {codex && (
+        <section className="sig-panel">
+          <h3 className="sig-h3">Codex call — the direction register</h3>
+          <p className="sig-note sig-note-left">How this phrase <b>moves</b>, spoken aloud: consonant = size of the jump, vowel = direction (<code>i</code> up, <code>o</code> down). Called by a conductor to steer a song the ensemble already knows.</p>
+          <p className="sig-callstring">{codex.text}</p>
+          <ul className="sig-calllist">
+            {codex.calls.map((c, i) => (
+              <li key={i}>
+                <b>{c.syllable}</b>
+                <span>{c.name} {c.direction === 'sustain' ? 'held' : c.direction}</span>
+                <span className="sig-muted">{c.size}</span>
+                {c.approximate && <em title="This interval is not in the codex; nearest size used">approx</em>}
+              </li>
+            ))}
+          </ul>
+          {codex.approx > 0 && (
+            <p className="sig-muted sig-small">
+              {codex.approx} of {codex.calls.length} moves land on an interval the codex doesn't define (tritone, or a seventh) — shown as the nearest defined size rather than invented.
+            </p>
+          )}
+          <p className="sig-muted sig-small">Identity and direction stay in separate moments: your signature is sung whole and fixed; the codex is spoken relative to whatever note is already sounding. Close the signature on the ʻokina stop before the first call — that glottal break is the handoff.</p>
+          <p className="sig-muted sig-small"><b>Before performing:</b> a signature used to sign in is a credential. Don't call yours aloud in a public set, and use a different word for performance than the one you sign in with.</p>
+        </section>
+      )}
+
       {sig && (
         <section className="sig-panel sig-powers">
           <h3 className="sig-h3">Unreal scene package</h3>
@@ -789,7 +938,17 @@ export function SignatureSong() {
 
       {/* Poster / colour-code reference upload */}
       <section className="sig-panel sig-poster-panel">
-        <label className="sig-label" htmlFor="sig-poster">Load your colour-code poster — read it, and land in it</label>
+        {card && (
+          <div className="sig-madeposter">
+            <h3 className="sig-h3">Your poster</h3>
+            <p className="sig-note sig-note-left">Made <b>from</b> your spectrum, not required to reach it — a keepsake in the same diagonal language the printed sheets use.</p>
+            <button className="sig-btn primary" onClick={generatePoster}>⬇ Make my poster</button>
+          </div>
+        )}
+
+        <h3 className="sig-h3 sig-readtitle">Read a printed sheet</h3>
+        <p className="sig-note sig-note-left">A creator tool for turning an existing colour-code poster into notes. Optional — your space comes from your signature, never from an image.</p>
+        <label className="sig-label" htmlFor="sig-poster">Choose a photo of a printed sheet</label>
         <input id="sig-poster" className="sig-file" type="file" accept="image/*" onChange={onPoster} />
         {posterUrl && !poster && <img className="sig-poster" src={posterUrl} alt="Your uploaded colour-code / realm image" />}
         {poster && (
@@ -870,13 +1029,14 @@ export function SignatureSong() {
           </div>
         )}
 
-        <p className="sig-muted sig-small">Your image is also the world you enter when you light in. It never leaves your device — reading happens right here in the browser.</p>
+        <p className="sig-muted sig-small">The image never leaves your device — reading happens right here in the browser.</p>
       </section>
 
       <p className="sig-security">
         <b>How the sign-in works:</b> your signature song is an <b>accessible unlock</b> that opens your profile on this device and lights up the screen — a friendly, verbal-first front door. It is not a password and cannot protect your account from someone else; real account security uses the emailed magic link.
       </p>
       </details>
+      </>)}
     </div>
   );
 }

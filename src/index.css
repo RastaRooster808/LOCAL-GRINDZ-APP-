@@ -2325,6 +2325,35 @@
 .sig-change { text-align: center; margin: 0.6rem 0 0; }
 .sig-linkbtn { background: none; border: 0; color: #2f6f9e; cursor: pointer; font-size: 0.85rem; text-decoration: underline; padding: 0; }
 
+/* Preparing: one quiet beat between the signature landing and the space. */
+.sig-prep { padding: 3rem 0 2rem; }
+.sig-prepbar { display: flex; gap: 0.4rem; justify-content: center; margin-top: 1.4rem; }
+.sig-prepbar i { width: 0.75rem; height: 0.75rem; border-radius: 50%;
+  animation: sig-pulse 1.1s ease-in-out infinite; }
+@keyframes sig-pulse { 0%,100% { opacity: 0.25; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.15); } }
+
+/* The space itself — signature, anchor, spectrum, one way further in. */
+.sig-space { text-align: center; padding: 2.5rem 0 2rem; display: flex; flex-direction: column;
+  align-items: center; gap: 0.15rem; animation: sig-arrive 0.9s ease both; }
+.sig-greet { font-family: Georgia, serif; font-weight: 400; font-size: clamp(1.9rem, 6vw, 2.8rem);
+  margin: 0; color: #21301f; letter-spacing: 0.01em; }
+.sig-ready { color: #6b7a62; margin: 0 0 2rem; font-size: 1rem; }
+.sig-field { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin-bottom: 1.9rem; }
+.sig-label-sm { font-size: 0.66rem; letter-spacing: 0.18em; text-transform: uppercase; color: #8a9a80; }
+.sig-sigword { font-family: Georgia, serif; font-size: 1.9rem; letter-spacing: 0.16em; color: #21301f; }
+.sig-anchordot { width: 0.85rem; height: 0.85rem; border-radius: 50%; background: #21301f;
+  box-shadow: 0 0 0 6px rgba(33,48,31,0.09), 0 0 0 13px rgba(33,48,31,0.045); }
+.sig-spectrum { display: flex; gap: 3px; height: 4.5rem; align-items: stretch; }
+.sig-band { width: 2.2rem; border-radius: 0.3rem; animation: sig-rise-band 0.7s ease both;
+  box-shadow: 0 3px 14px rgba(20,32,20,0.2); }
+@keyframes sig-rise-band { from { opacity: 0; transform: scaleY(0.25); } to { opacity: 1; transform: none; } }
+.sig-explore { margin-top: 0.5rem; background: none; border: 1px solid #cddcbb; color: #3a4a34;
+  border-radius: 999px; padding: 0.5rem 1.6rem; font-size: 0.86rem; letter-spacing: 0.06em; cursor: pointer; }
+.sig-explore:hover { background: #f4faec; border-color: #bfe0a8; }
+@media (prefers-reduced-motion: reduce) {
+  .sig-space, .sig-band, .sig-prepbar i { animation: none; }
+}
+
 /* Arrival: the post-login state. Identity resolves and the space appears. */
 .sig-arrived h1 { animation: sig-arrive 0.7s ease both; }
 .sig-scene { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; margin: 1rem 0 0.6rem; }
@@ -2389,3 +2418,14 @@
 @media (prefers-reduced-motion: reduce) {
   .sig-key, .sig-btn.listening, .sig-burst i { transition: none; animation: none; }
 }
+.sig-madeposter { padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid #e9f0dd; }
+.sig-readtitle { margin-top: 0.2rem; }
+/* Codex call — the spoken direction register. */
+.sig-callstring { font-family: Georgia, serif; font-size: 1.6rem; letter-spacing: 0.06em;
+  color: #21301f; text-align: center; margin: 0.7rem 0 0.9rem; }
+.sig-calllist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.sig-calllist li { display: flex; align-items: baseline; gap: 0.6rem; font-size: 0.82rem;
+  background: #fff; border: 1px solid #edf3e3; border-radius: 0.45rem; padding: 0.35rem 0.6rem; }
+.sig-calllist li b { font-family: Georgia, serif; font-size: 1.05rem; min-width: 2.2rem; color: #21301f; }
+.sig-calllist li em { margin-left: auto; font-style: normal; font-size: 0.68rem; color: #b3790d;
+  border: 1px solid #ecd9a6; border-radius: 999px; padding: 0.05rem 0.4rem; }
