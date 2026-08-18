@@ -4,6 +4,42 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Rasta Rooster custom tee order request (2026-08-18)
+
+### Added — direct-to-community custom apparel, no middleman
+- New **`/custom-tee`** page: customers pick garment (standard tee / heavy
+  cotton / hoodie), size, color, print locations (front, or front + back for
+  a flat add-on), and choose free Pāhoa pickup or flat-rate Hawaiʻi Island
+  shipping. A live price quote updates as they choose.
+- `src/lib/customTeeOrder.ts` — typed pricing calculator
+  (`calculateCustomTeeOrder`) and the garment/fulfillment option tables the
+  page renders from, so price logic lives in one place.
+- Orders are design **requests**, not live checkout: no payment is collected
+  in-app. Submissions insert into a new `custom_tee_orders` table
+  (`docs/migrations/phase-5b-custom-tee-orders.sql`) for admin follow-up —
+  same guest-submit / admin-review RLS pattern as `vendor_applications`.
+  Screen printing, heat transfer, or DTG production and payment are arranged
+  directly with the customer after design review.
+- Linked from the homepage promo rotator and footer nav.
+
+### Not included in this pass
+- No drag/rotate/scale visual customizer canvas yet — design intent is
+  captured via notes + an optional reference-art link. No reference-image
+  file upload (would need a new public storage bucket + RLS policy).
+- No Stripe/Apple Pay checkout and no admin dashboard tab for reviewing
+  these orders yet — both are natural next steps once the intake flow is
+  validated with real customers.
+
+### Governance note
+- Reviewed against `docs/TEAM_CHARTER.md`: Atlas (no live Shopify/payment
+  changes — intentionally a request-only flow), Kai (clear price transparency
+  before any payment is asked for), Orion (build clean, RLS mirrors an
+  existing, working table pattern), Sentinel (no critical issues; rollback is
+  deleting the route + dropping the table). No payment, tax, or Shopify
+  product settings were touched, per standing rules.
+
+---
+
 ## [Unreleased] — Unreal importer: optical zoom and a camera cut (2026-08-16)
 
 ### Added — the lens moves too

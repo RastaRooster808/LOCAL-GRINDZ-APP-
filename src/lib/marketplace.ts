@@ -181,6 +181,14 @@ export interface Promo {
 
 export const HOME_PROMOS: Promo[] = [
   {
+    id: 'custom-tee',
+    label: 'Design Your Own Rasta Rooster Tee',
+    text: 'Custom tees and hoodies with Rasta Rooster flash art or your own design — free Pāhoa pickup or Big Island shipping.',
+    emoji: '👕',
+    to: '/custom-tee',
+    accent: '#2d6a4f',
+  },
+  {
     id: 'community-raffle',
     label: 'Win a 2003 Toyota Camry',
     text: 'Monthly drawing for Ekalesia Hoʻole Pope o Kekaha — a $1 donation enters you to win a white Camry with Hawaiian Kingdom plates.',
