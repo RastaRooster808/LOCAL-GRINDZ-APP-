@@ -2429,3 +2429,5 @@
 .sig-calllist li b { font-family: Georgia, serif; font-size: 1.05rem; min-width: 2.2rem; color: #21301f; }
 .sig-calllist li em { margin-left: auto; font-style: normal; font-size: 0.68rem; color: #b3790d;
   border: 1px solid #ecd9a6; border-radius: 999px; padding: 0.05rem 0.4rem; }
+.sig-syllight { display: inline-flex; gap: 2px; }
+.sig-syllight i { width: 0.62rem; height: 0.62rem; border-radius: 0.15rem; display: block; }

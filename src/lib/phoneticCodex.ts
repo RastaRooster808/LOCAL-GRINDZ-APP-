@@ -18,12 +18,18 @@
 //   3. LONG VOWEL (kahakō) = an implied tone.  Per the auditory continuity
 //      illusion, listeners fill in a briefly missing tone; the codex flags a
 //      hidden note by lengthening the vowel on the syllable BEFORE it.
+//   4. TRAILING ʻOKINA (coda) = the interval one semitone larger.  Hawaiian
+//      allows a syllable-final glottal catch. Placed AFTER the vowel — not
+//      before it, which is the octave's own sound — it stretches a defined
+//      interval up by a semitone, covering the tritone and both sevenths. It is
+//      a coda consonant while rule 3 is vowel length, so the two markers are
+//      independent and can both appear on one syllable (hiʻ -> hīʻ).
 //
 // Built only from real Hawaiian phonemes, so it sits inside the ensemble's own
 // language: consonants p k ʻ h m n l w; vowels a e i o u.
 
 export type Direction = 'ascending' | 'descending' | 'sustain';
-export type Size = 'sustain' | 'step' | 'small leap' | 'large leap' | 'largest leap';
+export type Size = 'sustain' | 'step' | 'stretched step' | 'small leap' | 'large leap' | 'stretched leap' | 'largest leap';
 
 export interface CodexEntry {
   /** Interval in semitones (0–12). */
@@ -43,21 +49,32 @@ export const WORD_BANK: CodexEntry[] = [
   { semitones: 2,  name: 'M2',          size: 'step',         consonant: 'n', ascending: 'ni', descending: 'no', why: 'sonorant = smooth' },
   { semitones: 3,  name: 'm3',          size: 'small leap',   consonant: 'm', ascending: 'mi', descending: 'mo', why: 'nasal = a soft catch' },
   { semitones: 4,  name: 'M3',          size: 'small leap',   consonant: 'w', ascending: 'wi', descending: 'wo', why: 'approximant = gliding lift' },
-  { semitones: 5,  name: 'P4',          size: 'small leap',   consonant: 'h', ascending: 'hi', descending: 'ho', why: 'breath = open transition' },
-  { semitones: 7,  name: 'P5',          size: 'large leap',   consonant: 'p', ascending: 'pi', descending: 'po', why: 'voiceless stop = sharp, per bouba-kiki' },
-  { semitones: 8,  name: 'm6',          size: 'large leap',   consonant: 'k', ascending: 'ki', descending: 'ko', why: 'voiceless stop = sharp' },
-  { semitones: 9,  name: 'M6',          size: 'large leap',   consonant: 'k', ascending: 'ki', descending: 'ko', why: 'voiceless stop = sharp' },
-  { semitones: 12, name: 'Octave',      size: 'largest leap', consonant: 'ʻ', ascending: 'ʻi', descending: 'ʻo', why: 'hardest stop Hawaiian has = arrival' },
+  { semitones: 5,  name: 'P4',          size: 'small leap',      consonant: 'h',      ascending: 'hi',  descending: 'ho',  why: 'breath = open transition' },
+  { semitones: 6,  name: 'Tritone',     size: 'stretched step',  consonant: 'h + ʻ',  ascending: 'hiʻ', descending: 'hoʻ', why: "P4's breath, caught short of P5" },
+  { semitones: 7,  name: 'P5',          size: 'large leap',      consonant: 'p',      ascending: 'pi',  descending: 'po',  why: 'voiceless stop = sharp, per bouba-kiki' },
+  { semitones: 8,  name: 'm6',          size: 'large leap',      consonant: 'k',      ascending: 'ki',  descending: 'ko',  why: 'voiceless stop = sharp' },
+  { semitones: 9,  name: 'M6',          size: 'large leap',      consonant: 'k',      ascending: 'ki',  descending: 'ko',  why: 'voiceless stop = sharp' },
+  { semitones: 10, name: 'm7',          size: 'stretched leap',  consonant: 'k + ʻ',  ascending: 'kiʻ', descending: 'koʻ', why: 'the leap consonant, caught short of the octave' },
+  { semitones: 11, name: 'M7',          size: 'stretched leap',  consonant: 'p + ʻ',  ascending: 'piʻ', descending: 'poʻ', why: 'one half-step shy of arrival' },
+  { semitones: 12, name: 'Octave',      size: 'largest leap',    consonant: 'ʻ',      ascending: 'ʻi',  descending: 'ʻo',  why: 'hardest stop Hawaiian has = arrival' },
 ];
 
-/** Intervals the codex defines outright. 6, 10 and 11 are NOT among them. */
+/** Intervals the codex defines. Complete across 0–12 since rule 4 was added. */
 const DEFINED = new Set(WORD_BANK.map(e => e.semitones));
 
 /** Long (kahakō) forms — the held breath that flags an implied tone. */
 const LONG: Record<string, string> = { a: 'ā', e: 'ē', i: 'ī', o: 'ō', u: 'ū' };
+/**
+ * Lengthen the VOWEL, not merely the final character. Rule 4 syllables end in a
+ * coda ʻokina, so `hiʻ` must become `hīʻ` — the two markers are independent and
+ * both can sit on one syllable.
+ */
 export function lengthen(syllable: string): string {
-  const last = syllable.slice(-1);
-  return LONG[last] ? syllable.slice(0, -1) + LONG[last] : syllable;
+  for (let i = syllable.length - 1; i >= 0; i--) {
+    const long = LONG[syllable[i]];
+    if (long) return syllable.slice(0, i) + long + syllable.slice(i + 1);
+  }
+  return syllable;
 }
 
 export interface Call {
@@ -155,4 +172,47 @@ export const HANDOFF_STOP = 'ʻ';
 /** Does this signature close with the ʻokina that hands off to direction mode? */
 export function closesWithHandoff(canonicalLetters: string): boolean {
   return canonicalLetters.slice(-1) === HANDOFF_STOP;
+}
+
+// ── Sound, word, light — one chain ──────────────────────────────────────────
+// The codex and Kula Mele draw on the SAME thirteen letters, with no orphans on
+// either side: anything spellable in one is spellable in the other. So a spoken
+// syllable is not merely a label for a motion — it is itself a Hawaiian word
+// fragment, and every letter in it already owns a pitch and a hue.
+//
+//        motion  →  syllable  →  letters  →  colours + pitches
+//        (sound)    (sound)      (word)      (light)
+//
+// That is the join: the call you speak can be SHOWN, because its own phonemes
+// carry the same light the keyboard does. Nothing new is invented here — the
+// colours come from the harmonic engine, the single source of truth.
+
+import { canonicalize, alphabetNodes } from './harmonics';
+
+export interface Lit {
+  letter: string;
+  hex: string;
+  frequency_hz: number;
+}
+
+/**
+ * The light a syllable carries: its own letters, resolved through the harmonic
+ * engine. Kahakō and the coda ʻokina both fold correctly — a macron drops to its
+ * base vowel, and the glottal catch is the ʻokina key.
+ */
+export function syllableLight(syllable: string): Lit[] {
+  const nodes = alphabetNodes();
+  const byLetter = new Map(nodes.map(n => [n.letter, n]));
+  return canonicalize(syllable)
+    .map(ch => byLetter.get(ch))
+    .filter((n): n is NonNullable<typeof n> => !!n)
+    .map(n => ({ letter: n.letter, hex: n.color.hex, frequency_hz: n.frequency_hz }));
+}
+
+/** A call, with the light its own syllable carries. */
+export interface LitCall extends Call { light: Lit[]; }
+
+/** Call a phrase and light every syllable from its own letters. */
+export function litPhrase(melody: number[], impliedAt: number[] = []): LitCall[] {
+  return callPhrase(melody, impliedAt).map(c => ({ ...c, light: syllableLight(c.syllable) }));
 }

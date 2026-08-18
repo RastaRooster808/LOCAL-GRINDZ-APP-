@@ -10,7 +10,7 @@ import {
 import { buildScenePackage, buildSpectrumCard, type SpectrumCard } from '../lib/scenePackage';
 import { alphabetNodes, toIndices, frequencyOf } from '../lib/harmonics';
 import { voiceLead } from '../lib/voiceLeading';
-import { callPhrase, callString } from '../lib/phoneticCodex';
+import { litPhrase, callString } from '../lib/phoneticCodex';
 
 const ORDER_LABEL: Record<ReadOrder, string> = {
   'row': 'Rows →', 'col': 'Columns ↓', 'diag-down': 'Diagonal ↘', 'diag-up': 'Diagonal ↙',
@@ -310,7 +310,7 @@ export function SignatureSong() {
     const nodes = alphabetNodes();
     const midi = sig.seq.map(i => nodes[i].midi);
     if (midi.length < 2) return null;
-    const calls = callPhrase(midi);
+    const calls = litPhrase(midi);
     return { calls, text: callString(midi), approx: calls.filter(c => c.approximate).length };
   }, [sig]);
   const [poster, setPoster] = useState<PosterRead | null>(null);
@@ -901,15 +901,25 @@ export function SignatureSong() {
             {codex.calls.map((c, i) => (
               <li key={i}>
                 <b>{c.syllable}</b>
+                {/* Sound → word → light: the syllable's own letters, lit by the
+                    same engine that lights the keyboard. */}
+                <span className="sig-syllight" aria-hidden="true">
+                  {c.light.map((l, j) => (
+                    <i key={j} style={{ background: l.hex }} title={`${l.letter} · ${l.frequency_hz.toFixed(2)} Hz`} />
+                  ))}
+                </span>
                 <span>{c.name} {c.direction === 'sustain' ? 'held' : c.direction}</span>
                 <span className="sig-muted">{c.size}</span>
-                {c.approximate && <em title="This interval is not in the codex; nearest size used">approx</em>}
+                {c.approximate && <em title="Not defined in the codex; nearest size used">approx</em>}
               </li>
             ))}
           </ul>
+          <p className="sig-muted sig-small">
+            Each syllable is spelled from the same thirteen letters, so it carries its own light — sound, word and colour are one chain. A trailing ʻokina stretches an interval a semitone; a long vowel flags a note you'll hear implied but not sung.
+          </p>
           {codex.approx > 0 && (
             <p className="sig-muted sig-small">
-              {codex.approx} of {codex.calls.length} moves land on an interval the codex doesn't define (tritone, or a seventh) — shown as the nearest defined size rather than invented.
+              {codex.approx} of {codex.calls.length} moves fell back on a nearest size.
             </p>
           )}
           <p className="sig-muted sig-small">Identity and direction stay in separate moments: your signature is sung whole and fixed; the codex is spoken relative to whatever note is already sounding. Close the signature on the ʻokina stop before the first call — that glottal break is the handoff.</p>

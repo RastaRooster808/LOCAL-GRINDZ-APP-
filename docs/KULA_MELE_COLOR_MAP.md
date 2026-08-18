@@ -355,14 +355,45 @@ Three rules, each from a documented mechanism:
 | m6 / M6 | large leap | ki | ko |
 | Octave | largest leap | ʻi | ʻo |
 
-**A gap in the source, measured not guessed.** The codex defines 0, 1, 2, 3, 4,
-5, 7, 8, 9 and 12 semitones — it has no entry for the **tritone (6)** or the
-**sevenths (10, 11)**. Those intervals really occur here: across all 169 ordered
-letter pairs, **18 (10.7%)** land on an undefined interval — 6 st ×4, 10 st ×10,
-11 st ×4 (e.g. `A→K` = 11 st, `O→K` = 6 st). Rather than invent syllables, such
-moves are mapped to the nearest defined size and flagged `approximate: true`,
-which the UI shows as an `approx` badge. **Filling those three gaps is a decision
-for whoever owns the codex, not for the code.**
+**Rule 4 — a trailing ʻokina = one semitone larger.** The first version of the
+codex defined 0–5, 7–9 and 12 semitones and left the tritone and both sevenths
+undefined; measured against this alphabet, **18 of 169 ordered letter pairs
+(10.7%)** landed there. The revised codex closes that with a syllable-final
+glottal catch, placed *after* the vowel — distinct from the octave's leading
+ʻokina:
+
+| Interval | Syllable | Reading |
+|:--|:--|:--|
+| Tritone (6) | `hiʻ` / `hoʻ` | P4's breath, caught short of P5 |
+| m7 (10) | `kiʻ` / `koʻ` | the leap consonant, caught short of the octave |
+| M7 (11) | `piʻ` / `poʻ` | one half-step shy of arrival |
+
+The word bank is now **complete across 0–12**: nothing falls back on a nearest
+approximation, and the `approximate` flag no longer fires for any interval in the
+alphabet. `MELE` went from `ʻo-ki-ko` *(2 approximated)* to exactly `ʻo-kiʻ-koʻ`.
+
+Rules 3 and 4 are independent — one is vowel length, the other a coda consonant —
+so both can sit on one syllable: a tritone into an implied note is **`hīʻ`**. This
+required fixing `lengthen` to target the *vowel* rather than the final character,
+which a coda syllable no longer ends with.
+
+## Sound, word, light — one chain
+
+The two systems draw on the **same thirteen letters, with no orphans on either
+side**, so a spoken syllable is not merely a label for a motion — it is itself a
+Hawaiian word fragment, and every letter in it already owns a pitch and a hue:
+
+```
+motion  →  syllable  →  letters  →  colours + pitches
+(sound)    (sound)      (word)      (light)
+```
+
+`syllableLight()` resolves any syllable through the harmonic engine, so `li`
+lights as L·I, `hoʻ` as H·O·ʻ, and `hīʻ` as H·I·ʻ — kahakō folding to its base
+vowel and the glottal catch resolving to the ʻokina key. The colours are **not a
+second table**: they come from the same engine that lights the keyboard, verified
+by asserting `syllableLight('li')[0].hex` equals the L key's own hex. Every
+syllable in the bank is spellable in Kula Mele — **zero orphans**.
 
 ### Two registers, never one
 
