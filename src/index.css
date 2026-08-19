@@ -2017,6 +2017,49 @@
 .raffle-note { font-style: italic; color: var(--r-stone); }
 .raffle-fine { margin-top: 1.4rem; font-size: 0.76rem; color: var(--r-stone); line-height: 1.5; max-width: 52ch; }
 
+/* ── Rasta Rooster Clothing landing page ─────────────────────────────── */
+.rr-page {
+  --rr-mint: #e5fff0; --rr-ink: #1c2b21; --rr-red: #d81f1f; --rr-gold: #d99400;
+  --rr-green: #2c8730; --rr-stone: #5c6b60; --rr-rule: #cdebd9;
+  background: var(--rr-mint); color: var(--rr-ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.6; max-width: 640px; margin: 0 auto; min-height: 100vh;
+}
+@media (prefers-color-scheme: dark) {
+  .rr-page { --rr-mint: #0f1a13; --rr-ink: #e6f5ec; --rr-rule: #23372a; --rr-stone: #9db3a5; }
+}
+.rr-page h1, .rr-page h2, .rr-page h3 { font-weight: 800; }
+
+.rr-hero { text-align: center; padding: 2rem 1.5rem 2.5rem; position: relative; }
+.rr-mast { position: absolute; top: 1.2rem; left: 1.5rem; }
+.rr-home { color: var(--rr-stone); text-decoration: none; font-size: 0.85rem; }
+.rr-home:hover { text-decoration: underline; }
+.rr-logo { max-width: 260px; width: 60%; height: auto; margin: 2rem auto 0.5rem; display: block; }
+.rr-kicker { font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rr-green); font-weight: 700; margin-bottom: 0.6rem; }
+.rr-lede { font-size: 1.02rem; color: var(--rr-stone); max-width: 42ch; margin: 0 auto 1.5rem; text-wrap: balance; }
+
+.rr-btn { display: inline-block; font-weight: 700; font-size: 0.95rem; text-decoration: none;
+  padding: 0.85rem 1.8rem; border-radius: 999px; cursor: pointer; transition: opacity .15s ease; }
+.rr-btn:hover { opacity: 0.88; }
+.rr-btn-primary { background: var(--rr-red); color: #fff; }
+
+.rr-section { padding: 2.2rem 1.5rem; border-bottom: 1px solid var(--rr-rule); }
+.rr-section--alt { background: rgba(255,255,255,0.4); }
+@media (prefers-color-scheme: dark) { .rr-section--alt { background: rgba(255,255,255,0.03); } }
+.rr-eyebrow { font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rr-gold); font-weight: 700; margin-bottom: 1rem; }
+.rr-body { font-size: 0.98rem; color: var(--rr-ink); margin-bottom: 1rem; max-width: 56ch; }
+
+.rr-steps { display: grid; gap: 1.5rem; }
+.rr-step { display: grid; grid-template-columns: 2.6rem 1fr; gap: 0.9rem; }
+.rr-step-num { font-size: 1.3rem; font-weight: 800; color: var(--rr-red); line-height: 1; }
+.rr-step h3 { font-size: 1.05rem; margin-bottom: 0.3rem; }
+.rr-step p { font-size: 0.92rem; color: var(--rr-stone); max-width: 50ch; }
+
+.rr-connect { padding: 2.6rem 1.5rem 3rem; text-align: center; }
+.rr-connect h2 { font-size: 1.4rem; margin-bottom: 0.6rem; }
+.rr-connect-copy { color: var(--rr-stone); font-size: 0.95rem; max-width: 44ch; margin: 0 auto 1.4rem; }
+.rr-fine { margin-top: 1.6rem; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rr-stone); }
+
 /* ── Admin raffle view ───────────────────────────────────────────────── */
 .admin-table-wrap { overflow-x: auto; }
 .raffle-winner-box { margin-top: 0.9rem; padding: 0.9rem 1rem; border: 2px solid var(--lava, #a9791f); border-radius: 8px; background: #fffaf0; }

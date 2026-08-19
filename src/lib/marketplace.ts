@@ -10,6 +10,11 @@
  * no schema changes. Featured vendor entries here are presentation-layer only.
  */
 
+// Small circular badge for the featured-vendor card — the cross mark alone
+// reads better at 52px than the full logo lockup (see src/assets for the
+// full lockup, used on the /rasta-rooster landing page hero).
+const RASTA_ROOSTER_MARK = `${import.meta.env.BASE_URL}icons/rasta-rooster-mark-192.png`;
+
 export interface MarketplaceCategory {
   slug: string;
   label: string;
@@ -83,6 +88,22 @@ export interface FeaturedVendor {
 }
 
 export const FEATURED_VENDORS: FeaturedVendor[] = [
+  {
+    id: 'rasta-rooster',
+    name: 'Rasta Rooster Clothing',
+    categorySlug: 'makers',
+    categoryLabel: 'Featured Maker',
+    tagline: 'Jah Blessings Be Upon You',
+    description:
+      'Custom tees and hoodies with Rasta Rooster flash art or your own design — made to order, direct from Pāhoa.',
+    badges: ['Custom Tees', 'Pāhoa Pickup', 'Made to Order'],
+    logoUrl: RASTA_ROOSTER_MARK,
+    emoji: '🐓',
+    theme: { banner: 'linear-gradient(135deg, #e5fff0 0%, #eafff4 60%, #ffffff 100%)', accent: '#d81f1f' },
+    routeTo: '/rasta-rooster',
+    shopLabel: 'Design a Tee',
+    rating: 'New',
+  },
   {
     id: 'alas-kitchen',
     name: "Ala's Kitchen — Get Smashed",
@@ -185,7 +206,7 @@ export const HOME_PROMOS: Promo[] = [
     label: 'Design Your Own Rasta Rooster Tee',
     text: 'Custom tees and hoodies with Rasta Rooster flash art or your own design — free Pāhoa pickup or Big Island shipping.',
     emoji: '👕',
-    to: '/custom-tee',
+    to: '/rasta-rooster',
     accent: '#2d6a4f',
   },
   {

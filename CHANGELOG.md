@@ -4,6 +4,33 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Rasta Rooster brand landing page + favicon (2026-08-19)
+
+### Added — a front door for the brand, with its own tab icon
+- New **`/rasta-rooster`** landing page: hero lockup (the supplied logo,
+  processed into a web-optimized WebP), brand story, a 3-step "how it
+  works" section, and CTAs into the `/custom-tee` order flow.
+- Logo assets generated from the source artwork: `src/assets/rasta-rooster-logo.webp`
+  (full lockup, hero use) and `public/icons/rasta-rooster-mark-{32,192,512,apple-touch}.png`
+  (the cross mark alone, cropped and cleaned up for small sizes — the source
+  file's cross and wordmark overlap closely enough that the corners needed
+  painting out to keep the mark crisp at favicon sizes).
+- `src/hooks/usePageFavicon.ts` — swaps `<link rel="icon">` to the Rasta
+  Rooster mark while `/rasta-rooster` is mounted and restores whatever was
+  there before (Local Grindz doesn't ship a site-wide favicon yet, so that's
+  "none" for every other page today).
+- Added a "Rasta Rooster Clothing" featured-vendor card on the homepage
+  (`src/lib/marketplace.ts`, using the cross mark as its 52px badge — the
+  full lockup read poorly cropped into a circle at that size) and retargeted
+  the existing homepage promo from `/custom-tee` straight to `/rasta-rooster`,
+  so the order form now has a proper brand front door ahead of it.
+- Verified in a real browser (Playwright against a `vite preview` build):
+  the landing page renders, the favicon swaps in on `/rasta-rooster` and
+  reverts on navigating away, `/custom-tee` still works, and the homepage
+  card renders correctly.
+
+---
+
 ## [Unreleased] — Rasta Rooster custom tee order request (2026-08-18)
 
 ### Added — direct-to-community custom apparel, no middleman

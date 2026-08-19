@@ -11,6 +11,7 @@ import { Protea } from './pages/Protea';
 import { Blissings } from './pages/Blissings';
 import { Raffle } from './pages/Raffle';
 import { CustomTee } from './pages/CustomTee';
+import { RastaRooster } from './pages/RastaRooster';
 import { ToastContainer } from './components/ui/Toast';
 
 // Heavy pages: code-split to keep initial bundle lean
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="/blissings" element={<Blissings />} />
         <Route path="/raffle" element={<Raffle />} />
         <Route path="/custom-tee" element={<CustomTee />} />
+        <Route path="/rasta-rooster" element={<RastaRooster />} />
         <Route path="/kullacoin" element={<Suspense fallback={<PageLoader />}><KullaCoin /></Suspense>} />
         <Route path="/signature" element={<Suspense fallback={<PageLoader />}><SignatureSong /></Suspense>} />
         <Route path="/vendor" element={<Suspense fallback={<PageLoader />}><VendorDashboard /></Suspense>} />
