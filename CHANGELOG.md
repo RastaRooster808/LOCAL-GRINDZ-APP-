@@ -4,6 +4,69 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Rasta Rooster brand landing page + favicon (2026-08-19)
+
+### Added — a front door for the brand, with its own tab icon
+- New **`/rasta-rooster`** landing page: hero lockup (the supplied logo,
+  processed into a web-optimized WebP), brand story, a 3-step "how it
+  works" section, and CTAs into the `/custom-tee` order flow.
+- Logo assets generated from the source artwork: `src/assets/rasta-rooster-logo.webp`
+  (full lockup, hero use) and `public/icons/rasta-rooster-mark-{32,192,512,apple-touch}.png`
+  (the cross mark alone, cropped and cleaned up for small sizes — the source
+  file's cross and wordmark overlap closely enough that the corners needed
+  painting out to keep the mark crisp at favicon sizes).
+- `src/hooks/usePageFavicon.ts` — swaps `<link rel="icon">` to the Rasta
+  Rooster mark while `/rasta-rooster` is mounted and restores whatever was
+  there before (Local Grindz doesn't ship a site-wide favicon yet, so that's
+  "none" for every other page today).
+- Added a "Rasta Rooster Clothing" featured-vendor card on the homepage
+  (`src/lib/marketplace.ts`, using the cross mark as its 52px badge — the
+  full lockup read poorly cropped into a circle at that size) and retargeted
+  the existing homepage promo from `/custom-tee` straight to `/rasta-rooster`,
+  so the order form now has a proper brand front door ahead of it.
+- Verified in a real browser (Playwright against a `vite preview` build):
+  the landing page renders, the favicon swaps in on `/rasta-rooster` and
+  reverts on navigating away, `/custom-tee` still works, and the homepage
+  card renders correctly.
+
+---
+
+## [Unreleased] — Rasta Rooster custom tee order request (2026-08-18)
+
+### Added — direct-to-community custom apparel, no middleman
+- New **`/custom-tee`** page: customers pick garment (standard tee / heavy
+  cotton / hoodie), size, color, print locations (front, or front + back for
+  a flat add-on), and choose free Pāhoa pickup or flat-rate Hawaiʻi Island
+  shipping. A live price quote updates as they choose.
+- `src/lib/customTeeOrder.ts` — typed pricing calculator
+  (`calculateCustomTeeOrder`) and the garment/fulfillment option tables the
+  page renders from, so price logic lives in one place.
+- Orders are design **requests**, not live checkout: no payment is collected
+  in-app. Submissions insert into a new `custom_tee_orders` table
+  (`docs/migrations/phase-5b-custom-tee-orders.sql`) for admin follow-up —
+  same guest-submit / admin-review RLS pattern as `vendor_applications`.
+  Screen printing, heat transfer, or DTG production and payment are arranged
+  directly with the customer after design review.
+- Linked from the homepage promo rotator and footer nav.
+
+### Not included in this pass
+- No drag/rotate/scale visual customizer canvas yet — design intent is
+  captured via notes + an optional reference-art link. No reference-image
+  file upload (would need a new public storage bucket + RLS policy).
+- No Stripe/Apple Pay checkout and no admin dashboard tab for reviewing
+  these orders yet — both are natural next steps once the intake flow is
+  validated with real customers.
+
+### Governance note
+- Reviewed against `docs/TEAM_CHARTER.md`: Atlas (no live Shopify/payment
+  changes — intentionally a request-only flow), Kai (clear price transparency
+  before any payment is asked for), Orion (build clean, RLS mirrors an
+  existing, working table pattern), Sentinel (no critical issues; rollback is
+  deleting the route + dropping the table). No payment, tax, or Shopify
+  product settings were touched, per standing rules.
+
+---
+
 ## [Unreleased] — Unreal importer: optical zoom and a camera cut (2026-08-16)
 
 ### Added — the lens moves too
