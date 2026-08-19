@@ -2038,10 +2038,12 @@
 .rr-kicker { font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rr-green); font-weight: 700; margin-bottom: 0.6rem; }
 .rr-lede { font-size: 1.02rem; color: var(--rr-stone); max-width: 42ch; margin: 0 auto 1.5rem; text-wrap: balance; }
 
+.rr-hero-btns, .rr-connect-btns { display: flex; gap: 0.7rem; justify-content: center; flex-wrap: wrap; }
 .rr-btn { display: inline-block; font-weight: 700; font-size: 0.95rem; text-decoration: none;
   padding: 0.85rem 1.8rem; border-radius: 999px; cursor: pointer; transition: opacity .15s ease; }
 .rr-btn:hover { opacity: 0.88; }
 .rr-btn-primary { background: var(--rr-red); color: #fff; }
+.rr-btn-line { background: transparent; border: 1.5px solid var(--rr-red); color: var(--rr-red); }
 
 .rr-section { padding: 2.2rem 1.5rem; border-bottom: 1px solid var(--rr-rule); }
 .rr-section--alt { background: rgba(255,255,255,0.4); }

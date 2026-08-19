@@ -4,6 +4,7 @@ import { usePageFavicon } from '../hooks/usePageFavicon';
 import logo from '../assets/rasta-rooster-logo.webp';
 
 const FAVICON = `${import.meta.env.BASE_URL}icons/rasta-rooster-mark-192.png`;
+const SHOPIFY_MERCH_URL = 'https://rastarooster.com/collections/merch';
 
 const STEPS = [
   {
@@ -38,13 +39,24 @@ export function RastaRooster() {
           A direct-to-community custom apparel line — no middleman, no big-box
           shipping rates. Just Rasta Rooster tees, made to order for the Big Island.
         </p>
-        <Link
-          className="rr-btn rr-btn-primary"
-          to="/custom-tee"
-          onClick={() => trackEvent('cta_click', { label: 'rr_design_your_tee', destination: '/custom-tee', section: 'rasta_rooster' })}
-        >
-          Design Your Tee
-        </Link>
+        <div className="rr-hero-btns">
+          <Link
+            className="rr-btn rr-btn-primary"
+            to="/custom-tee"
+            onClick={() => trackEvent('cta_click', { label: 'rr_design_your_tee', destination: '/custom-tee', section: 'rasta_rooster' })}
+          >
+            Design Your Tee
+          </Link>
+          <a
+            className="rr-btn rr-btn-line"
+            href={SHOPIFY_MERCH_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackEvent('cta_click', { label: 'rr_shop_rastarooster', destination: SHOPIFY_MERCH_URL, section: 'rasta_rooster' })}
+          >
+            Shop rastarooster.com ↗
+          </a>
+        </div>
       </header>
 
       <section className="rr-section">
@@ -82,13 +94,24 @@ export function RastaRooster() {
           Takes a couple minutes — we'll follow up to confirm your design and price
           before we print anything.
         </p>
-        <Link
-          className="rr-btn rr-btn-primary"
-          to="/custom-tee"
-          onClick={() => trackEvent('cta_click', { label: 'rr_design_your_tee_footer', destination: '/custom-tee', section: 'rasta_rooster' })}
-        >
-          Design Your Tee
-        </Link>
+        <div className="rr-connect-btns">
+          <Link
+            className="rr-btn rr-btn-primary"
+            to="/custom-tee"
+            onClick={() => trackEvent('cta_click', { label: 'rr_design_your_tee_footer', destination: '/custom-tee', section: 'rasta_rooster' })}
+          >
+            Design Your Tee
+          </Link>
+          <a
+            className="rr-btn rr-btn-line"
+            href={SHOPIFY_MERCH_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackEvent('cta_click', { label: 'rr_shop_rastarooster_footer', destination: SHOPIFY_MERCH_URL, section: 'rasta_rooster' })}
+          >
+            Shop rastarooster.com ↗
+          </a>
+        </div>
         <p className="rr-fine">Rasta Rooster · Pāhoa, Hawaiʻi Island</p>
       </section>
     </div>

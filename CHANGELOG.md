@@ -4,6 +4,18 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Rasta Rooster landing page: link out to rastarooster.com (2026-08-19)
+
+### Added
+- The `/rasta-rooster` hero and footer CTAs now each carry a second button,
+  "Shop rastarooster.com ↗", linking to the existing `merch` Shopify
+  collection (`https://rastarooster.com/collections/merch` — the same
+  collection referenced in `docs/SHOPIFY_SYNC_CHECKLIST.md`, confirmed to
+  already exist rather than guessed). Opens in a new tab with
+  `rel="noopener noreferrer"`.
+
+---
+
 ## [Unreleased] — Rasta Rooster brand landing page + favicon (2026-08-19)
 
 ### Added — a front door for the brand, with its own tab icon
