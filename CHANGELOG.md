@@ -4,6 +4,37 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Email notification for new custom tee requests (2026-08-19)
+
+### Added
+- `supabase/functions/custom-tee-notify/index.ts` — a DB-webhook edge
+  function that fires on `custom_tee_orders` INSERT and emails a summary
+  (garment, print, design notes, customer contact, estimated total) to
+  info@rastarooster.com via Resend. Deployed to the live project
+  (`pqzygehnnojdttmqadrz`), `verify_jwt = false` to match the existing
+  webhook functions (`order-notify`, `vendor-new-order`).
+- Registered in `supabase/config.toml`.
+
+### Still manual (outside what I can do from here)
+- **The Database Webhook itself isn't wired up yet.** Of the five functions
+  under `supabase/functions/`, only one (`rehost-eija-gallery`) was actually
+  deployed before this change — `order-notify` and `vendor-new-order` are
+  checked into the repo but were never deployed or connected to a webhook
+  either, so this isn't a new gap, just the same one this feature now hits
+  too. To activate: Supabase Dashboard → Database → Webhooks → New webhook,
+  table `custom_tee_orders`, event `INSERT`, URL
+  `https://pqzygehnnojdttmqadrz.supabase.co/functions/v1/custom-tee-notify`.
+- **`RESEND_API_KEY` isn't set** as a project secret (can't confirm this
+  from here — no tool exposes secret values, and I don't have a Resend key
+  to set one). Without it the function no-ops (logs and returns 200,
+  doesn't email or error). Set via Dashboard → Edge Functions → Secrets, or
+  `supabase secrets set RESEND_API_KEY=...`.
+- **Whether info@rastarooster.com receives mail at all** is domain/mail-host
+  configuration (Google Workspace, Shopify email forwarding, registrar,
+  etc.) — outside this repo, can't verify from here.
+
+---
+
 ## [Unreleased] — Rasta Rooster landing page: link out to rastarooster.com (2026-08-19)
 
 ### Added
