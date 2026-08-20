@@ -921,6 +921,18 @@ const AUTHORED=[
           <circle cx="7" cy="9" r="5" fill="#e0432f"/><circle cx="-7" cy="9" r="5" fill="#e0432f"/><circle cx="-10" cy="-4" r="5" fill="#e0432f"/>
           <circle r="6" fill="#db3b2c"/><circle r="3" fill="#f2b21b"/></g></g>
       <g class="cover"><ellipse cx="50" cy="72" rx="8" ry="5" fill="#7a5230"/><path d="M50,71 q-2,-7 3,-9" stroke="#3f8f2f" stroke-width="2" fill="none"/></g></svg>` },
+  // Off a real GarageBand chord strip: C major's diatonic triads (Em Am Dm G C F Bdim)
+  // plus a borrowed bVII (Bb) — a classic reggae/gospel vamp move. This game only has
+  // four pads (C/D/G/A), so the tribute is the four strip chords whose ROOT matches a
+  // pad — Am, Dm, G, C — played as single notes in the strip's own left-to-right order.
+  { title:'Chord Strip', clue:"Uncle Robert's Wednesday night — read the changes off the strip.", seq:[3,1,2,0],
+    payoff:{emoji:'🐓', title:'Rasta Vamp!', text:'A · D · G · C — the same four roots off tonight’s chord strip (Am · Dm · G · C), read right to left.'},
+    stage:()=>`<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#1a2e1a"/>
+      <g class="reveal-layer"><text x="50" y="62" font-size="46" text-anchor="middle">🐓</text></g>
+      <g class="cover"><rect x="14" y="32" width="72" height="38" rx="4" fill="#f4f1ea"/>
+        <line x1="32" y1="32" x2="32" y2="70" stroke="#c9c2b2"/><line x1="50" y1="32" x2="50" y2="70" stroke="#c9c2b2"/><line x1="68" y1="32" x2="68" y2="70" stroke="#c9c2b2"/>
+        <text x="23" y="55" font-size="11" text-anchor="middle" fill="#3fa06a">Am</text><text x="41" y="55" font-size="11" text-anchor="middle" fill="#e7a928">Dm</text>
+        <text x="59" y="55" font-size="11" text-anchor="middle" fill="#db3b2c">G</text><text x="77" y="55" font-size="11" text-anchor="middle" fill="#2a6fd0">C</text></g></svg>` },
 ];
 
 // -- riddle levels: target hidden, the clue decodes to the colour sequence ----

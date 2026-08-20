@@ -4,6 +4,26 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — KullaCoin: a new song off a real GarageBand chord strip (2026-08-19)
+
+### Added
+- New authored KullaCoin level, **"Chord Strip"** (`src/pages/kullacoin.embed.html`,
+  `AUTHORED` array) — cover art shows the four chords, tapping the pads reveals
+  the Rasta Rooster. Inspired by a real GarageBand Chord Strips screenshot: C
+  major's seven diatonic triads (Em Am Dm G C F Bdim) plus a borrowed bVII
+  (Bb) — a classic reggae/gospel vamp move.
+- The game only has 4 pads (C/D/G/A — this predates tonight, it's the same
+  C-D-G-A already in `COLORS`), so the honest version of the tribute is the
+  four strip chords whose root matches a pad — Am, Dm, G, C — read off the
+  strip in its own left-to-right order and played as single notes, not an
+  attempt to cram all 8 chords into a 4-pad engine (that would mean changing
+  the base-4 slot/hash/QR encoding everywhere and risking every existing
+  minted coin — out of scope for "add a song").
+- Verified by actually playing it: built, served, navigated to scene 4/108
+  in a real browser, tapped A-D-G-C, confirmed the reveal and payoff text.
+
+---
+
 ## [Unreleased] — Kingdom loyalty tokens for the Kalapana market booth (2026-08-19)
 
 ### Added — an honest punch card, not currency
