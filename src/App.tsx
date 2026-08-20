@@ -18,6 +18,7 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then(m => ({ 
 const Map = lazy(() => import('./pages/Map').then(m => ({ default: m.Map })));
 const KullaCoin = lazy(() => import('./pages/KullaCoin').then(m => ({ default: m.KullaCoin })));
 const SignatureSong = lazy(() => import('./pages/SignatureSong').then(m => ({ default: m.SignatureSong })));
+const SmartPiano = lazy(() => import('./pages/SmartPiano').then(m => ({ default: m.SmartPiano })));
 
 function PageLoader() {
   return <div style={{ padding: '2rem', textAlign: 'center', color: '#aaa' }}>Loading…</div>;
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="/raffle" element={<Raffle />} />
         <Route path="/kullacoin" element={<Suspense fallback={<PageLoader />}><KullaCoin /></Suspense>} />
         <Route path="/signature" element={<Suspense fallback={<PageLoader />}><SignatureSong /></Suspense>} />
+        <Route path="/piano" element={<Suspense fallback={<PageLoader />}><SmartPiano /></Suspense>} />
         <Route path="/vendor" element={<Suspense fallback={<PageLoader />}><VendorDashboard /></Suspense>} />
         <Route path="/admin" element={<Suspense fallback={<PageLoader />}><AdminDashboard /></Suspense>} />
         <Route path="/map" element={<Suspense fallback={<PageLoader />}><Map /></Suspense>} />
