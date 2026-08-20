@@ -4,6 +4,19 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — KullaCoin: a third new song, "Reprise" (2026-08-19)
+
+### Added
+- New authored level, **"Reprise"** (`src/pages/kullacoin.embed.html`,
+  `AUTHORED` array), seq `C-G-D-A`. Same real chord strip as "Chord Strip,"
+  read from the other end: Bdim Bb F C G Dm Am Em right-to-left gives C, G,
+  Dm, Am — the same four pad-matching roots, different order. Piano-key
+  cover art (ties to the strip's "Grand Piano" instrument), 🎹 reveal.
+- Verified by playing it through in a real browser (scene 6/108, tapped
+  C-G-D-A, confirmed the reveal and payoff text).
+
+---
+
 ## [Unreleased] — KullaCoin: a second new song, "Night Market" (2026-08-19)
 
 ### Added
