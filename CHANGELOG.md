@@ -4,6 +4,158 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — KullaCoin: velocity-sensitive pad taps (2026-08-19)
+
+### Added
+- The 4 scene pads (`src/pages/kullacoin.embed.html`) now respond to *where*
+  you tap, the same touchscreen-velocity technique from a Web Audio
+  reference doc the user shared: `velocityFromEvent()` reads the tap's
+  y-position within the pad (bottom = harder, top = softer, floor at 0.35
+  so a light tap never goes silent) and feeds it into two real, audible
+  changes —
+  - **Gain**: `0.16 × (0.35 + 0.65·v²)`, the same squared response curve
+    from the reference doc, applied on top of the existing base level so
+    non-interactive playback (auto-solve reveal, "Hear it") is unchanged.
+  - **Brightness**: a new shared lowpass filter (`masterOut()`/`setBrightness()`)
+    that every voice now routes through instead of connecting straight to
+    the destination — cutoff scales `200 + v²×11800` Hz, harder hits sound
+    brighter, same as a piano hammer.
+- Scoped to the scene pads specifically (the ones the songs are played on);
+  the separate mint-screen pads (`hitKey`) weren't touched — flagging that
+  as a possible follow-up rather than doing it silently.
+- Verified for real: instrumented `padTone` in a live browser and confirmed
+  a top-tap computes velocity ≈0.36 vs. a bottom-tap ≈0.95, confirmed the
+  master filter's cutoff actually moves (≈1.8kHz soft → ≈10.9kHz hard), and
+  replayed an existing song (Sunrise) end-to-end to confirm no regression.
+
+---
+
+## [Unreleased] — KullaCoin: a third new song, "Reprise" (2026-08-19)
+
+### Added
+- New authored level, **"Reprise"** (`src/pages/kullacoin.embed.html`,
+  `AUTHORED` array), seq `C-G-D-A`. Same real chord strip as "Chord Strip,"
+  read from the other end: Bdim Bb F C G Dm Am Em right-to-left gives C, G,
+  Dm, Am — the same four pad-matching roots, different order. Piano-key
+  cover art (ties to the strip's "Grand Piano" instrument), 🎹 reveal.
+- Verified by playing it through in a real browser (scene 6/108, tapped
+  C-G-D-A, confirmed the reveal and payoff text).
+
+---
+
+## [Unreleased] — KullaCoin: a second new song, "Night Market" (2026-08-19)
+
+### Added
+- New authored level, **"Night Market"** (`src/pages/kullacoin.embed.html`,
+  `AUTHORED` array), seq `D-C-A-G` — string lights fill in one colour at a
+  time as you tap, a lit lantern reveals on solve. Themed to Uncle Robert's
+  Wednesday market, same as "Chord Strip."
+- Verified the same way: built, served, played scene 5/108 through in a
+  real browser (tapped D-C-A-G, confirmed the reveal).
+
+---
+
+## [Unreleased] — KullaCoin: a new song off a real GarageBand chord strip (2026-08-19)
+
+### Added
+- New authored KullaCoin level, **"Chord Strip"** (`src/pages/kullacoin.embed.html`,
+  `AUTHORED` array) — cover art shows the four chords, tapping the pads reveals
+  the Rasta Rooster. Inspired by a real GarageBand Chord Strips screenshot: C
+  major's seven diatonic triads (Em Am Dm G C F Bdim) plus a borrowed bVII
+  (Bb) — a classic reggae/gospel vamp move.
+- The game only has 4 pads (C/D/G/A — this predates tonight, it's the same
+  C-D-G-A already in `COLORS`), so the honest version of the tribute is the
+  four strip chords whose root matches a pad — Am, Dm, G, C — read off the
+  strip in its own left-to-right order and played as single notes, not an
+  attempt to cram all 8 chords into a 4-pad engine (that would mean changing
+  the base-4 slot/hash/QR encoding everywhere and risking every existing
+  minted coin — out of scope for "add a song").
+- Verified by actually playing it: built, served, navigated to scene 4/108
+  in a real browser, tapped A-D-G-C, confirmed the reveal and payoff text.
+
+---
+
+## [Unreleased] — Kingdom loyalty tokens for the Kalapana market booth (2026-08-19)
+
+### Added — an honest punch card, not currency
+- New **`/kingdom-tokens`** page for the weekly booth at Uncle Robert's
+  Wednesday Market, Kalapana: staff log a visit (name, optional phone/email,
+  one of 4 colors — blue/gold/red/purple) with no login needed, and
+  customers look their tokens up later by phone/email to show their
+  collected set at the booth.
+- `kingdom_loyalty_tokens` table (`docs/migrations/phase-5c-kingdom-loyalty-tokens.sql`,
+  applied to the live project) — public insert (staff, no auth, matches the
+  `vendor_applications`/`custom_tee_orders` guest-submit pattern), admin-only
+  update to mark a token redeemed. No public SELECT policy on the table
+  itself — customer lookup goes through a `get_kingdom_tokens(contact)`
+  SQL function instead (same shape as the existing `get_points_balance`
+  RPC), so one customer's phone/email can't be scraped by another.
+  Verified: no new advisor findings beyond the same intentional
+  "anon can call this RPC" note `get_points_balance` already has.
+- Linked from `/rasta-rooster` under a new "Kalapana Market Booth" section.
+- **Deliberately not built:** no blockchain, no hash-chain "backing," no
+  claim the tokens are redeemable for cash or silver, no acoustic/RF
+  payment or telco layer. The copy on the page says plainly: "not
+  currency, no cash value." What a completed set is worth (a free plate,
+  etc.) is entirely the vendor's call, decided and given in person at the
+  booth — the app only tracks who's visited and what they've collected.
+
+### Testing note
+- Couldn't run a live end-to-end submission through a browser or curl this
+  time — this sandbox's network proxy rejects direct connections to the
+  Supabase project from ad-hoc tools (confirmed via the proxy's own status
+  log), and a SQL-level anon-role simulation didn't behave reliably here
+  either. Cross-checked instead: the new table's grants and RLS policy
+  shape are identical to `vendor_applications`, which the live Apply page
+  has been writing to successfully — the same "simulated anon" test fails
+  the same way against that proven table too, confirming it's a sandbox
+  testing limitation, not a bug in the new policy.
+
+---
+
+## [Unreleased] — Email notification for new custom tee requests (2026-08-19)
+
+### Added
+- `supabase/functions/custom-tee-notify/index.ts` — a DB-webhook edge
+  function that fires on `custom_tee_orders` INSERT and emails a summary
+  (garment, print, design notes, customer contact, estimated total) to
+  info@rastarooster.com via Resend. Deployed to the live project
+  (`pqzygehnnojdttmqadrz`), `verify_jwt = false` to match the existing
+  webhook functions (`order-notify`, `vendor-new-order`).
+- Registered in `supabase/config.toml`.
+
+### Still manual (outside what I can do from here)
+- **The Database Webhook itself isn't wired up yet.** Of the five functions
+  under `supabase/functions/`, only one (`rehost-eija-gallery`) was actually
+  deployed before this change — `order-notify` and `vendor-new-order` are
+  checked into the repo but were never deployed or connected to a webhook
+  either, so this isn't a new gap, just the same one this feature now hits
+  too. To activate: Supabase Dashboard → Database → Webhooks → New webhook,
+  table `custom_tee_orders`, event `INSERT`, URL
+  `https://pqzygehnnojdttmqadrz.supabase.co/functions/v1/custom-tee-notify`.
+- **`RESEND_API_KEY` isn't set** as a project secret (can't confirm this
+  from here — no tool exposes secret values, and I don't have a Resend key
+  to set one). Without it the function no-ops (logs and returns 200,
+  doesn't email or error). Set via Dashboard → Edge Functions → Secrets, or
+  `supabase secrets set RESEND_API_KEY=...`.
+- **Whether info@rastarooster.com receives mail at all** is domain/mail-host
+  configuration (Google Workspace, Shopify email forwarding, registrar,
+  etc.) — outside this repo, can't verify from here.
+
+---
+
+## [Unreleased] — Rasta Rooster landing page: link out to rastarooster.com (2026-08-19)
+
+### Added
+- The `/rasta-rooster` hero and footer CTAs now each carry a second button,
+  "Shop rastarooster.com ↗", linking to the existing `merch` Shopify
+  collection (`https://rastarooster.com/collections/merch` — the same
+  collection referenced in `docs/SHOPIFY_SYNC_CHECKLIST.md`, confirmed to
+  already exist rather than guessed). Opens in a new tab with
+  `rel="noopener noreferrer"`.
+
+---
+
 ## [Unreleased] — Rasta Rooster brand landing page + favicon (2026-08-19)
 
 ### Added — a front door for the brand, with its own tab icon

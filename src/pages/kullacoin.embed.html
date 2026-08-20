@@ -491,9 +491,15 @@ function rarityOf(slots){const d=new Set(slots.map(s=>s.c)).size;
 
 let current=null, audioCtx=null, playToken=0, idleStart=performance.now(), idleFrozen=false;
 function ac(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
+// Shared master bus: every voice connects here instead of straight to
+// destination, so one lowpass filter can brighten/darken with tap velocity
+// without threading a filter through each of the five voice generators below.
+function masterOut(){const a=ac();if(!a._kkMaster){const f=a.createBiquadFilter();f.type='lowpass';f.frequency.value=12000;f.connect(a.destination);a._kkMaster=f;}return a._kkMaster;}
+/** Harder hits open the filter (more high-frequency content through), same curve as a hammer strike. */
+function setBrightness(vel){const f=masterOut(),now=ac().currentTime;f.frequency.cancelScheduledValues(now);f.frequency.setTargetAtTime(200+Math.pow(vel,2)*11800,now,0.01);}
 function tone(freq,when,dur,gainv,type){const a=ac();const o=a.createOscillator(),g=a.createGain();o.type=type||'triangle';o.frequency.value=freq;
   g.gain.setValueAtTime(0,when);g.gain.linearRampToValueAtTime(gainv,when+0.012);g.gain.exponentialRampToValueAtTime(0.0001,when+dur);
-  o.connect(g).connect(a.destination);o.start(when);o.stop(when+dur+0.05)}
+  o.connect(g).connect(masterOut());o.start(when);o.stop(when+dur+0.05)}
 
 // ── Hawaiian sound worlds — all synthesized, nothing loaded from outside ─────
 let currentVoice='keiki';
@@ -510,18 +516,18 @@ function pluck(f,when,dur,g){const a=ac(),sr=a.sampleRate,N=Math.max(2,Math.roun
   let idx=0,last=0;for(let i=0;i<len;i++){const cur=ring[idx],out=(cur+last)*0.5*0.996;ring[idx]=out;last=out;data[i]=out;idx=(idx+1)%N;}
   const src=a.createBufferSource();src.buffer=buf;const gain=a.createGain();
   gain.gain.setValueAtTime(0,when);gain.gain.linearRampToValueAtTime(g,when+0.005);gain.gain.exponentialRampToValueAtTime(0.0001,when+dur);
-  src.connect(gain).connect(a.destination);src.start(when);}
+  src.connect(gain).connect(masterOut());src.start(when);}
 // ʻiliʻili — water-worn hula stones, a bright clack
 function stone(when,g){const a=ac(),s=noiseSrc(),bp=a.createBiquadFilter();bp.type='bandpass';bp.frequency.value=2600;bp.Q.value=1.3;
   const gain=a.createGain();gain.gain.setValueAtTime(0,when);gain.gain.linearRampToValueAtTime(g,when+0.002);gain.gain.exponentialRampToValueAtTime(0.0001,when+0.09);
-  s.connect(bp).connect(gain).connect(a.destination);s.start(when);s.stop(when+0.12);}
+  s.connect(bp).connect(gain).connect(masterOut());s.start(when);s.stop(when+0.12);}
 // ipu heke — gourd drum, a deep grounding thump + slap
 function ipu(when,g){const a=ac(),o=a.createOscillator();o.type='sine';o.frequency.setValueAtTime(92,when);o.frequency.exponentialRampToValueAtTime(48,when+0.14);
   const gain=a.createGain();gain.gain.setValueAtTime(0,when);gain.gain.linearRampToValueAtTime(g,when+0.006);gain.gain.exponentialRampToValueAtTime(0.0001,when+0.22);
-  o.connect(gain).connect(a.destination);o.start(when);o.stop(when+0.26);
+  o.connect(gain).connect(masterOut());o.start(when);o.stop(when+0.26);
   const s=noiseSrc(),hp=a.createBiquadFilter();hp.type='highpass';hp.frequency.value=1400;const ng=a.createGain();
   ng.gain.setValueAtTime(0,when);ng.gain.linearRampToValueAtTime(g*0.35,when+0.002);ng.gain.exponentialRampToValueAtTime(0.0001,when+0.05);
-  s.connect(hp).connect(ng).connect(a.destination);s.start(when);s.stop(when+0.07);}
+  s.connect(hp).connect(ng).connect(masterOut());s.start(when);s.stop(when+0.07);}
 // ʻohe hano ihu — bamboo nasal flute, breathy with a gentle vibrato
 function flute(f,when,dur,g){const a=ac();
   const o=a.createOscillator();o.type='sine';o.frequency.value=f;
@@ -530,10 +536,10 @@ function flute(f,when,dur,g){const a=ac();
   lfo.connect(lfg);lfg.connect(o.frequency);lfg.connect(o2.frequency);
   const gain=a.createGain();gain.gain.setValueAtTime(0,when);gain.gain.linearRampToValueAtTime(g,when+0.05);
   gain.gain.setValueAtTime(g,when+dur*0.6);gain.gain.exponentialRampToValueAtTime(0.0001,when+dur);
-  o.connect(gain);og2.connect(gain);gain.connect(a.destination);
+  o.connect(gain);og2.connect(gain);gain.connect(masterOut());
   const s=noiseSrc(),bp=a.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f*2;bp.Q.value=0.7;const ng=a.createGain();
   ng.gain.setValueAtTime(0,when);ng.gain.linearRampToValueAtTime(g*0.10,when+0.05);ng.gain.exponentialRampToValueAtTime(0.0001,when+dur);
-  s.connect(bp).connect(ng).connect(a.destination);
+  s.connect(bp).connect(ng).connect(masterOut());
   o.start(when);o2.start(when);lfo.start(when);s.start(when);
   const end=when+dur+0.05;o.stop(end);o2.stop(end);lfo.stop(end);s.stop(end);}
 // pū — conch shell, a warm brass call
@@ -543,7 +549,7 @@ function conch(f,when,dur,g){const a=ac();
   const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=f*2.4;lp.Q.value=2;
   const gain=a.createGain();gain.gain.setValueAtTime(0,when);gain.gain.linearRampToValueAtTime(g,when+0.06);
   gain.gain.setValueAtTime(g,when+dur*0.5);gain.gain.exponentialRampToValueAtTime(0.0001,when+dur);
-  o.connect(lp);o2.connect(lp);lp.connect(gain).connect(a.destination);
+  o.connect(lp);o2.connect(lp);lp.connect(gain).connect(masterOut());
   o.start(when);o2.start(when);o.stop(when+dur+0.05);o2.stop(when+dur+0.05);}
 
 const VOICES={
@@ -921,6 +927,41 @@ const AUTHORED=[
           <circle cx="7" cy="9" r="5" fill="#e0432f"/><circle cx="-7" cy="9" r="5" fill="#e0432f"/><circle cx="-10" cy="-4" r="5" fill="#e0432f"/>
           <circle r="6" fill="#db3b2c"/><circle r="3" fill="#f2b21b"/></g></g>
       <g class="cover"><ellipse cx="50" cy="72" rx="8" ry="5" fill="#7a5230"/><path d="M50,71 q-2,-7 3,-9" stroke="#3f8f2f" stroke-width="2" fill="none"/></g></svg>` },
+  // Off a real GarageBand chord strip: C major's diatonic triads (Em Am Dm G C F Bdim)
+  // plus a borrowed bVII (Bb) — a classic reggae/gospel vamp move. This game only has
+  // four pads (C/D/G/A), so the tribute is the four strip chords whose ROOT matches a
+  // pad — Am, Dm, G, C — played as single notes in the strip's own left-to-right order.
+  { title:'Chord Strip', clue:"Uncle Robert's Wednesday night — read the changes off the strip.", seq:[3,1,2,0],
+    payoff:{emoji:'🐓', title:'Rasta Vamp!', text:'A · D · G · C — the same four roots off tonight’s chord strip (Am · Dm · G · C), read right to left.'},
+    stage:()=>`<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#1a2e1a"/>
+      <g class="reveal-layer"><text x="50" y="62" font-size="46" text-anchor="middle">🐓</text></g>
+      <g class="cover"><rect x="14" y="32" width="72" height="38" rx="4" fill="#f4f1ea"/>
+        <line x1="32" y1="32" x2="32" y2="70" stroke="#c9c2b2"/><line x1="50" y1="32" x2="50" y2="70" stroke="#c9c2b2"/><line x1="68" y1="32" x2="68" y2="70" stroke="#c9c2b2"/>
+        <text x="23" y="55" font-size="11" text-anchor="middle" fill="#3fa06a">Am</text><text x="41" y="55" font-size="11" text-anchor="middle" fill="#e7a928">Dm</text>
+        <text x="59" y="55" font-size="11" text-anchor="middle" fill="#db3b2c">G</text><text x="77" y="55" font-size="11" text-anchor="middle" fill="#2a6fd0">C</text></g></svg>` },
+  { title:'Night Market', clue:"Uncle Robert's opens — string the lights up.", seq:[1,0,3,2],
+    payoff:{emoji:'🏮', title:'Lights up!', text:'The string lights flick on, one colour at a time — market’s open.'},
+    stage:()=>`<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#14202e"/>
+      <g class="reveal-layer">
+        <circle cx="18" cy="34" r="6" fill="#e7a928"/><circle cx="39" cy="30" r="6" fill="#2a6fd0"/>
+        <circle cx="61" cy="30" r="6" fill="#3fa06a"/><circle cx="82" cy="34" r="6" fill="#db3b2c"/>
+        <text x="50" y="74" font-size="30" text-anchor="middle">🏮</text></g>
+      <g class="cover"><path d="M10,30 Q50,10 90,30" stroke="#5a6b7a" stroke-width="2" fill="none"/>
+        <circle cx="18" cy="32" r="3" fill="#3a4553"/><circle cx="39" cy="24" r="3" fill="#3a4553"/>
+        <circle cx="61" cy="24" r="3" fill="#3a4553"/><circle cx="82" cy="32" r="3" fill="#3a4553"/>
+        <rect x="20" y="60" width="60" height="30" rx="4" fill="#22303f"/></g></svg>` },
+  // Same real chord strip as "Chord Strip", read the other direction: Bdim Bb F C G Dm Am Em
+  // right-to-left gives C, G, Dm, Am — the strip's own bVII hand-off (Autoplay carrying one
+  // key into the next "without breaking tempo") reread from the other end.
+  { title:'Reprise', clue:'Same strip, other direction — let the changes carry through.', seq:[0,2,1,3],
+    payoff:{emoji:'🎹', title:'Reprise!', text:'C · G · D · A — the chord strip again, right to left this time: C, G, Dm, Am.'},
+    stage:()=>`<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#2a2118"/>
+      <g class="reveal-layer"><text x="50" y="60" font-size="42" text-anchor="middle">🎹</text></g>
+      <g class="cover">
+        <rect x="14" y="36" width="72" height="30" fill="#f4f1ea" stroke="#c9c2b2"/>
+        <line x1="32" y1="36" x2="32" y2="66" stroke="#c9c2b2"/><line x1="50" y1="36" x2="50" y2="66" stroke="#c9c2b2"/><line x1="68" y1="36" x2="68" y2="66" stroke="#c9c2b2"/>
+        <rect x="26" y="36" width="7" height="18" fill="#221c14"/><rect x="49" y="36" width="7" height="18" fill="#221c14"/><rect x="67" y="36" width="7" height="18" fill="#221c14"/>
+      </g></svg>` },
 ];
 
 // -- riddle levels: target hidden, the clue decodes to the colour sequence ----
@@ -973,11 +1014,23 @@ function buildLevels(){
 const LEVELS=buildLevels();
 
 function padFreq(ci){ return COLORS[ci].base*Math.pow(2,OCTAVES[1]-4); }
-function padTone(ci){ voiceNote(padFreq(ci), ac().currentTime+0.005, 0.5, 0.16); }
+/** Where on the pad it was hit → velocity. Bottom = harder/brighter, top = softer, same zone
+ *  mapping a touchscreen key uses when there's no pressure sensor: y-position stands in for force. */
+function velocityFromEvent(e,el){
+  const rect=el.getBoundingClientRect();
+  const clientY=(e&&(e.clientY ?? e.touches?.[0]?.clientY)) ?? (rect.top+rect.height/2);
+  const frac=Math.min(1,Math.max(0,(clientY-rect.top)/rect.height));
+  return 0.35+frac*0.65; // floor at 0.35 so even a light top-tap stays audible
+}
+function padTone(ci,vel=1){
+  setBrightness(vel);
+  voiceNote(padFreq(ci), ac().currentTime+0.005, 0.5, 0.16*(0.35+0.65*vel*vel));
+}
 function buildPads(){
   scenePadsEl.innerHTML='';
   COLORS.forEach((n,ci)=>{ const b=document.createElement('button'); b.className='pad'; b.style.background=n.color;
-    b.textContent=n.name; b.setAttribute('aria-label',`${n.label} — note ${n.name}`); b.onclick=()=>playPad(ci); scenePadsEl.appendChild(b); });
+    b.textContent=n.name; b.setAttribute('aria-label',`${n.label} — note ${n.name}`);
+    b.onclick=(e)=>playPad(ci,velocityFromEvent(e,b)); scenePadsEl.appendChild(b); });
 }
 function flashPad(ci){ const b=scenePadsEl.children[ci]; if(b){ b.classList.add('hit'); setTimeout(()=>b.classList.remove('hit'),140); } }
 function renderTargets(){
@@ -998,8 +1051,8 @@ function loadScene(i){
   sceneHintEl.style.visibility='visible'; sceneMsgEl.hidden=true; renderTargets();
   document.getElementById('sceneHear').style.display=L.riddle?'none':''; // don't spoil riddles
 }
-function playPad(ci){
-  if(!scene) return; ac(); padTone(ci); flashPad(ci);
+function playPad(ci,vel=1){
+  if(!scene) return; ac(); padTone(ci,vel); flashPad(ci);
   if(loop.recording && loop.recBuf) loop.recBuf.push({ci, t:loopCaptureT()}); // capture for the looper
   if(scene.solved) return;
   const L=LEVELS[scene.idx];

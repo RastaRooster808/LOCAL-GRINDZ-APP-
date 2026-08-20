@@ -12,3 +12,6 @@ verify_jwt = false
 
 [functions.search]
 verify_jwt = false
+
+[functions.custom-tee-notify]
+verify_jwt = false
