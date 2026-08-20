@@ -4,6 +4,32 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — KullaCoin: velocity-sensitive pad taps (2026-08-19)
+
+### Added
+- The 4 scene pads (`src/pages/kullacoin.embed.html`) now respond to *where*
+  you tap, the same touchscreen-velocity technique from a Web Audio
+  reference doc the user shared: `velocityFromEvent()` reads the tap's
+  y-position within the pad (bottom = harder, top = softer, floor at 0.35
+  so a light tap never goes silent) and feeds it into two real, audible
+  changes —
+  - **Gain**: `0.16 × (0.35 + 0.65·v²)`, the same squared response curve
+    from the reference doc, applied on top of the existing base level so
+    non-interactive playback (auto-solve reveal, "Hear it") is unchanged.
+  - **Brightness**: a new shared lowpass filter (`masterOut()`/`setBrightness()`)
+    that every voice now routes through instead of connecting straight to
+    the destination — cutoff scales `200 + v²×11800` Hz, harder hits sound
+    brighter, same as a piano hammer.
+- Scoped to the scene pads specifically (the ones the songs are played on);
+  the separate mint-screen pads (`hitKey`) weren't touched — flagging that
+  as a possible follow-up rather than doing it silently.
+- Verified for real: instrumented `padTone` in a live browser and confirmed
+  a top-tap computes velocity ≈0.36 vs. a bottom-tap ≈0.95, confirmed the
+  master filter's cutoff actually moves (≈1.8kHz soft → ≈10.9kHz hard), and
+  replayed an existing song (Sunrise) end-to-end to confirm no regression.
+
+---
+
 ## [Unreleased] — KullaCoin: a third new song, "Reprise" (2026-08-19)
 
 ### Added
