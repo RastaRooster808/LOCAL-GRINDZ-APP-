@@ -4,6 +4,44 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Kingdom loyalty tokens for the Kalapana market booth (2026-08-19)
+
+### Added — an honest punch card, not currency
+- New **`/kingdom-tokens`** page for the weekly booth at Uncle Robert's
+  Wednesday Market, Kalapana: staff log a visit (name, optional phone/email,
+  one of 4 colors — blue/gold/red/purple) with no login needed, and
+  customers look their tokens up later by phone/email to show their
+  collected set at the booth.
+- `kingdom_loyalty_tokens` table (`docs/migrations/phase-5c-kingdom-loyalty-tokens.sql`,
+  applied to the live project) — public insert (staff, no auth, matches the
+  `vendor_applications`/`custom_tee_orders` guest-submit pattern), admin-only
+  update to mark a token redeemed. No public SELECT policy on the table
+  itself — customer lookup goes through a `get_kingdom_tokens(contact)`
+  SQL function instead (same shape as the existing `get_points_balance`
+  RPC), so one customer's phone/email can't be scraped by another.
+  Verified: no new advisor findings beyond the same intentional
+  "anon can call this RPC" note `get_points_balance` already has.
+- Linked from `/rasta-rooster` under a new "Kalapana Market Booth" section.
+- **Deliberately not built:** no blockchain, no hash-chain "backing," no
+  claim the tokens are redeemable for cash or silver, no acoustic/RF
+  payment or telco layer. The copy on the page says plainly: "not
+  currency, no cash value." What a completed set is worth (a free plate,
+  etc.) is entirely the vendor's call, decided and given in person at the
+  booth — the app only tracks who's visited and what they've collected.
+
+### Testing note
+- Couldn't run a live end-to-end submission through a browser or curl this
+  time — this sandbox's network proxy rejects direct connections to the
+  Supabase project from ad-hoc tools (confirmed via the proxy's own status
+  log), and a SQL-level anon-role simulation didn't behave reliably here
+  either. Cross-checked instead: the new table's grants and RLS policy
+  shape are identical to `vendor_applications`, which the live Apply page
+  has been writing to successfully — the same "simulated anon" test fails
+  the same way against that proven table too, confirming it's a sandbox
+  testing limitation, not a bug in the new policy.
+
+---
+
 ## [Unreleased] — Email notification for new custom tee requests (2026-08-19)
 
 ### Added

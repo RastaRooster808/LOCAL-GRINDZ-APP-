@@ -73,6 +73,18 @@ export function RastaRooster() {
         </p>
       </section>
 
+      <section className="rr-section">
+        <p className="rr-eyebrow">Kalapana Market Booth</p>
+        <p className="rr-body">
+          We're at Uncle Robert's Wednesday Market in Kalapana every week. Stop by, and
+          collect a Kingdom loyalty token each visit — a thank-you, not currency. Collect
+          all 4 colors for a free plate.
+        </p>
+        <Link className="rr-btn rr-btn-line" to="/kingdom-tokens">
+          Check My Tokens
+        </Link>
+      </section>
+
       <section className="rr-section rr-section--alt">
         <p className="rr-eyebrow">How It Works</p>
         <div className="rr-steps">

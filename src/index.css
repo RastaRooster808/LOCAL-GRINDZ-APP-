@@ -2062,6 +2062,16 @@
 .rr-connect-copy { color: var(--rr-stone); font-size: 0.95rem; max-width: 44ch; margin: 0 auto 1.4rem; }
 .rr-fine { margin-top: 1.6rem; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rr-stone); }
 
+/* ── Kingdom loyalty tokens ───────────────────────────────────────────── */
+.kt-swatch { display: inline-block; width: 2.2rem; height: 2.2rem; border-radius: 50%; border: 2.5px solid; margin: 0 0.25rem; }
+.kt-color-picker { display: flex; gap: 0.6rem; margin-top: 0.4rem; }
+.kt-color-choice { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; }
+.kt-color-choice--active { border-color: var(--rr-ink, #1c2b21); box-shadow: 0 0 0 2px #fff inset; }
+.kt-lookup-form { max-width: 380px; }
+.kt-result { margin-top: 1.5rem; text-align: center; }
+.kt-result-row { margin-bottom: 0.75rem; }
+.kt-complete { color: var(--rr-green, #2c8730); font-weight: 700; }
+
 /* ── Admin raffle view ───────────────────────────────────────────────── */
 .admin-table-wrap { overflow-x: auto; }
 .raffle-winner-box { margin-top: 0.9rem; padding: 0.9rem 1rem; border: 2px solid var(--lava, #a9791f); border-radius: 8px; background: #fffaf0; }
