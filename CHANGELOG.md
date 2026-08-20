@@ -4,6 +4,18 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — KullaCoin: a second new song, "Night Market" (2026-08-19)
+
+### Added
+- New authored level, **"Night Market"** (`src/pages/kullacoin.embed.html`,
+  `AUTHORED` array), seq `D-C-A-G` — string lights fill in one colour at a
+  time as you tap, a lit lantern reveals on solve. Themed to Uncle Robert's
+  Wednesday market, same as "Chord Strip."
+- Verified the same way: built, served, played scene 5/108 through in a
+  real browser (tapped D-C-A-G, confirmed the reveal).
+
+---
+
 ## [Unreleased] — KullaCoin: a new song off a real GarageBand chord strip (2026-08-19)
 
 ### Added
