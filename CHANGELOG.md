@@ -4,6 +4,70 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Smart Piano: chord wheel and the lazy sample loader (2026-08-24)
+
+### Added
+- **`src/lib/sampleLoader.ts`** — a real sample library, fetched a file at a
+  time and only when a note actually needs one. The rule that shapes it is that
+  `acquire()` is *synchronous and never waits*: it returns a decoded recording if
+  one is in hand, otherwise `null` — meaning "synthesize this one" — while the
+  download starts behind it, so the next strike of that key is the real
+  instrument. No spinner, no silence, no all-or-nothing gigabyte.
+  - Neighbouring notes share one recording, pitch-shifted, so 30 files cover all
+    88 keys. `max_stretch_semitones` is a quality floor: past it the loader
+    declines and the note is synthesized rather than sounding like a chipmunk.
+  - A 404 is permanent and never retried; a network error retries three times
+    with backoff. A failed manifest, a dead host or a missing file each mean
+    synthesis for the notes they affect — never a broken page.
+  - `validateManifest()` reports every problem at once rather than failing on
+    the first, and warns about velocity ranges no layer covers.
+- **`tools/piano/make-manifest.mjs`** — builds a manifest by reading a folder of
+  samples. Understands `C4.mp3`, `A#3v12.ogg`, `piano-Db4-v1.wav` and bare MIDI
+  numbers, and *lists* every file whose name it could not read a pitch from
+  rather than dropping it silently.
+- **`public/piano/fluidr3.manifest.json`** — a working instrument with nothing to
+  download or host. FluidR3_GM (MIT, Frank Wen) is served from
+  `raw.githubusercontent.com` with `access-control-allow-origin: *`, verified by
+  request. 30 zones, ~740 KB for the full range, ~250 KB for the chord wheel.
+- **`src/lib/pianoEngine.ts`** — `AudioBufferSourceNode → BiquadFilter → GainNode
+  → master`. Fallback layers are rendered at boot by additive synthesis with
+  inharmonic partials; synthesis is *declared*, not disguised, and no sample
+  library ships inside this repository. `renderLayer()` is the one drop-in point.
+- **`src/lib/smartPiano.ts`** — the pure half: velocity from strike position,
+  squared gain, exponential cutoff (500 Hz → 9 kHz), eight chords voiced into a
+  fixed register, bar/beat quantize, and voice stealing that takes the quietest
+  voice (ties to the oldest) rather than the loudest.
+- **`/#/piano`** — the chord wheel, in the Kula Mele palette read from
+  `src/lib/harmonics.ts`. Strike near the top of a pad for soft, the bottom for
+  hard. An Instrument panel shows notes ready, fetching, unavailable and bytes,
+  and displays the library's attribution line — which is how a CC-BY library
+  stays honestly used.
+- **`docs/SAMPLE_LIBRARY.md`** — start-to-finish instructions for Salamander
+  Grand Piano, the manifest format, and troubleshooting.
+
+### Fixed (found by testing, not by reading)
+- A failed manifest load reported the raw JSON parser exception
+  (`Unexpected token '<'`), because a single-page host answers an unknown path
+  with `index.html`. It now says the server returned a web page, not JSON, and
+  to check the path.
+- A failed load showed an error while the previously-loaded library was still
+  playing, with no indication of that. It now names what is still playing.
+
+### Notes
+- `public/piano/*/` is gitignored: manifests are committed, audio is not.
+- Verified: 84 assertions in Node over the pure logic and the library's async
+  behaviour (laziness, in-flight dedupe, permanent 404s, retry, gap reporting,
+  unload), and 28 in headless Chromium against **real MP3s** with the audio
+  output metered — confirming a synthesized chord makes sound before any file is
+  fetched, that nothing is fetched until Load is pressed, that a soft strike
+  reads velocity 40 against 120 for a hard one, that playing all eight chords
+  after prefetch downloads nothing further, and that the piano keeps playing
+  after a manifest fails.
+- The chord wheel's colours come from `alphabetNodes()`; nothing here computes a
+  colour of its own.
+
+---
+
 ## [Unreleased] — KullaCoin: velocity-sensitive pad taps (2026-08-19)
 
 ### Added
