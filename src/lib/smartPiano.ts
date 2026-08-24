@@ -1,163 +1,198 @@
 /*
- * Smart Piano — pure playing logic.
+ * Smart Piano — chord wheel logic (pure, testable).
  * © 2026 Local Grindz / RastaRooster (rastarooster.com). All rights reserved.
  * Proprietary and confidential — see NOTICE at the repository root.
  */
-// Everything here is a plain function of its inputs: no AudioContext, no DOM.
-// That is deliberate — this is the half that can be tested in Node, so the
-// half that touches Web Audio can stay thin enough to read in one sitting.
+// Everything here is arithmetic: chord voicings, velocity from touch, the DSP
+// mappings, autoplay patterns and voice stealing. No Web Audio, no DOM — so the
+// engine's behaviour can be proven without a browser, and the audio layer stays
+// a thin shell over decisions made here.
 
-// ── Velocity ────────────────────────────────────────────────────────────────
-/** Striking the top of a key is soft; the bottom is hard. */
-export const V_TOP = 40;
-export const V_BOTTOM = 120;
+export type Zone = 'BASS_HEAD' | 'CHORD_BODY';
+export type AutoplayState = 0 | 1 | 2 | 3 | 4;
 
-/** A pointer that reports a radius at or below this is telling us nothing —
- *  a mouse reports width 1 always. Treat it as "no reading", not "feather
- *  touch", or every desktop tap gets silently quietened. */
+export const MAX_POLYPHONY = 32;
+/** Velocity at the top of a strip, and at the bottom. */
+export const V_TOP = 40, V_BOTTOM = 120;
+/** Bass sits C1–C2; chords are voiced C3–C5. */
+/** Below this, a reported contact radius is a default rather than a reading. */
 export const MIN_REAL_RADIUS = 2;
+export const BASS_LOW = 24, BASS_HIGH = 36;
+export const CHORD_LOW = 48, CHORD_HIGH = 72;
 
-/** How much a broad fingertip may add to, or a pinpoint subtract from, the
- *  velocity the key position alone implies. */
-export const RADIUS_SWING = 15;
-/** Contact radius, in CSS px, treated as neutral — neither broad nor pointed. */
-export const NEUTRAL_RADIUS = 12;
-/** Radius beyond which extra contact stops adding force. */
-export const BROAD_RADIUS = 30;
+// ── Chords ──────────────────────────────────────────────────────────────────
+export type Quality = 'maj' | 'min' | 'dim';
+const INTERVALS: Record<Quality, number[]> = {
+  maj: [0, 4, 7],
+  min: [0, 3, 7],
+  dim: [0, 3, 6],
+};
 
-export function clamp(value: number, low: number, high: number): number {
-  return value < low ? low : value > high ? high : value;
-}
+export interface Chord { id: string; label: string; rootPc: number; quality: Quality; }
 
-export interface TouchReading {
-  /** 0 at the top edge of the key, 1 at the bottom edge. */
-  yOffsetNormalized: number;
-  /** Contact radius in CSS px, if the pointer reports one. */
-  radius?: number;
-  /** Pointer pressure, 0–1. Only trusted when the device actually measures it. */
-  pressure?: number;
-  /** True when `pressure` came from real hardware rather than the 0.5 default. */
-  hasPressure?: boolean;
-}
-
-/** Key position sets the velocity; contact radius nudges it; real pressure,
- *  where a device reports it, overrides both because it is a direct reading. */
-export function velocityFromTouch(t: TouchReading): number {
-  const y = clamp(t.yOffsetNormalized, 0, 1);
-  let velocity = V_TOP + (V_BOTTOM - V_TOP) * y;
-
-  if (typeof t.radius === 'number' && t.radius > MIN_REAL_RADIUS) {
-    const r = clamp(t.radius, 0, BROAD_RADIUS);
-    velocity += ((r - NEUTRAL_RADIUS) / (BROAD_RADIUS - NEUTRAL_RADIUS)) * RADIUS_SWING;
-  }
-
-  if (t.hasPressure && typeof t.pressure === 'number') {
-    velocity = V_TOP + (V_BOTTOM - V_TOP) * clamp(t.pressure, 0, 1);
-  }
-
-  return Math.round(clamp(velocity, 1, 127));
-}
-
-// ── Velocity → sound ────────────────────────────────────────────────────────
-/** Perceived loudness is closer to the square of the amplitude ratio than to
- *  the ratio itself, so a linear velocity maps to a squared gain. */
-export function gainFor(velocity: number): number {
-  const x = clamp(velocity, 0, 127) / 127;
-  return x * x;
-}
-
-export const CUTOFF_MIN_HZ = 500;
-export const CUTOFF_MAX_HZ = 9000;
-
-/** A hard strike opens the instrument up. Exponential, because pitch and
- *  brightness are both heard logarithmically. */
-export function cutoffFor(velocity: number): number {
-  const x = clamp(velocity, 0, 127) / 127;
-  return CUTOFF_MIN_HZ * Math.pow(CUTOFF_MAX_HZ / CUTOFF_MIN_HZ, x);
-}
-
-/** Resampling ratio to stretch a sample recorded at `root` up or down to
- *  `target`. Equal temperament, full precision — see src/lib/harmonics.ts. */
-export function playbackRate(target: number, root: number): number {
-  return Math.pow(2, (target - root) / 12);
-}
-
-// ── The chord wheel ─────────────────────────────────────────────────────────
-export const BASS_LOW = 24;
-export const BASS_HIGH = 36;
-export const CHORD_LOW = 48;
-export const CHORD_HIGH = 72;
-
-export interface Chord {
-  name: string;
-  /** Pitch class of the root, 0 = C. */
-  root: number;
-  /** Semitones above the root. */
-  intervals: number[];
-}
-
-/** Eight chords that sit together in one key-neighbourhood, so any order of
- *  presses stays consonant. Minor-leaning, which suits the palette. */
+/** The eight columns, left to right. */
 export const CHORDS: Chord[] = [
-  { name: 'Em',   root: 4,  intervals: [0, 3, 7] },
-  { name: 'Am',   root: 9,  intervals: [0, 3, 7] },
-  { name: 'Dm',   root: 2,  intervals: [0, 3, 7] },
-  { name: 'G',    root: 7,  intervals: [0, 4, 7] },
-  { name: 'C',    root: 0,  intervals: [0, 4, 7] },
-  { name: 'F',    root: 5,  intervals: [0, 4, 7] },
-  { name: 'B♭',   root: 10, intervals: [0, 4, 7] },
-  { name: 'Bdim', root: 11, intervals: [0, 3, 6] },
+  { id: 'Em',   label: 'Em',   rootPc: 4,  quality: 'min' },
+  { id: 'Am',   label: 'Am',   rootPc: 9,  quality: 'min' },
+  { id: 'Dm',   label: 'Dm',   rootPc: 2,  quality: 'min' },
+  { id: 'G',    label: 'G',    rootPc: 7,  quality: 'maj' },
+  { id: 'C',    label: 'C',    rootPc: 0,  quality: 'maj' },
+  { id: 'F',    label: 'F',    rootPc: 5,  quality: 'maj' },
+  { id: 'Bb',   label: 'B♭',   rootPc: 10, quality: 'maj' },
+  { id: 'Bdim', label: 'B°',   rootPc: 11, quality: 'dim' },
 ];
 
-/** Fold a pitch class into a register, so voicings never wander octaves. */
-export function inRegister(pitchClass: number, low: number, high: number): number {
-  let midi = low + (((pitchClass - low) % 12) + 12) % 12;
-  if (midi > high) midi -= 12;
-  return midi;
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+
+/** Lift a pitch class into a register, choosing the lowest fit. */
+function intoRange(pc: number, low: number, high: number): number {
+  let n = pc;
+  while (n < low) n += 12;
+  while (n > high) n -= 12;
+  return clamp(n, low, high);
 }
 
-export function bassNote(chord: Chord): number {
-  return inRegister(chord.root, BASS_LOW, BASS_HIGH);
+/**
+ * The notes a zone sounds for a chord.
+ * Bass gives the root alone in C1–C2; the body gives the full triad in C3–C5,
+ * each voice lifted into the register rather than stacked blindly.
+ */
+export function voicingFor(chord: Chord, zone: Zone): number[] {
+  if (zone === 'BASS_HEAD') return [intoRange(chord.rootPc, BASS_LOW, BASS_HIGH)];
+  const root = intoRange(chord.rootPc, CHORD_LOW, CHORD_LOW + 11);
+  return INTERVALS[chord.quality].map(i => {
+    const n = root + i;
+    return n > CHORD_HIGH ? n - 12 : n;
+  }).sort((a, b) => a - b);
 }
 
-/** The chord's notes, each folded into the chord register. */
-export function voicing(chord: Chord): number[] {
-  return chord.intervals.map(i => inRegister(chord.root + i, CHORD_LOW, CHORD_HIGH));
+// ── Touch → velocity ────────────────────────────────────────────────────────
+export interface TouchInput {
+  /** 0 at the top of the strip, 1 at the bottom. */
+  yOffsetNormalized: number;
+  /** TouchEvent.force, 0–1, when the device reports it. */
+  force?: number;
+  /** Contact radius in px, when force is unavailable. */
+  radius?: number;
 }
 
-// ── Quantize ────────────────────────────────────────────────────────────────
-export type Unit = 'bar' | 'beat' | 'off';
-
-/** The next musical boundary at or after `now`, in the same clock as `now`.
- *  `off` returns `now` — press it and it sounds, no waiting. */
-export function nextBoundary(
-  now: number, startedAt: number, bpm: number, unit: Unit = 'bar', beatsPerBar = 4,
-): number {
-  if (unit === 'off') return now;
-  const beat = 60 / bpm;
-  const grid = unit === 'bar' ? beat * beatsPerBar : beat;
-  const elapsed = now - startedAt;
-  if (elapsed <= 0) return startedAt;
-  return startedAt + Math.ceil(elapsed / grid - 1e-9) * grid;
-}
-
-// ── Voice stealing ──────────────────────────────────────────────────────────
-export interface VoiceRef {
-  id: number;
-  /** Clock time the voice started. */
-  startedAt: number;
-  /** Current gain, 0–1. */
-  gain: number;
-}
-
-/** When every voice is busy, take the quietest; ties go to the oldest. Taking
- *  the loudest is what makes cheap samplers audibly cut themselves off. */
-export function pickVoiceToSteal(voices: VoiceRef[]): VoiceRef | null {
-  let chosen: VoiceRef | null = null;
-  for (const v of voices) {
-    if (!chosen) { chosen = v; continue; }
-    if (v.gain < chosen.gain - 1e-9) { chosen = v; continue; }
-    if (Math.abs(v.gain - chosen.gain) <= 1e-9 && v.startedAt < chosen.startedAt) chosen = v;
+/**
+ * A flat screen has no key sensor, so velocity is computed.
+ *
+ * Position is the primary signal — top of the strip is soft, bottom is hard.
+ * Where the device reports pressure (`force`) or contact area (`radius`) that
+ * modulates the result rather than replacing it, so a firm tap high on the strip
+ * is still louder than a light one, without position losing its meaning.
+ */
+export function velocityFromTouch(t: TouchInput): number {
+  const y = clamp(t.yOffsetNormalized, 0, 1);
+  let v = V_TOP + (V_BOTTOM - V_TOP) * y;
+  if (typeof t.force === 'number' && t.force > 0) {
+    v += (clamp(t.force, 0, 1) - 0.5) * 40;          // ±20 either way
+  } else if (typeof t.radius === 'number' && t.radius > MIN_REAL_RADIUS) {
+    // A mouse reports width/height of 1px — that is a default, not a measurement,
+    // so anything at or below it is ignored rather than read as a feather touch.
+    const norm = clamp((t.radius - 10) / 30, 0, 1);   // ~10px light, ~40px heavy
+    v += (norm - 0.5) * 30;
   }
-  return chosen;
+  return clamp(Math.round(v), 1, 127);
+}
+
+// ── Velocity → DSP ──────────────────────────────────────────────────────────
+/** Exponential gain, so loudness tracks the way hearing does. */
+export function gainFor(velocity: number): number {
+  const v = clamp(velocity, 0, 127) / 127;
+  return v * v;
+}
+
+/** Harder hits open the filter — more overtones, a brighter strike. */
+export const CUTOFF_MIN = 500, CUTOFF_MAX = 9000;
+export function cutoffFor(velocity: number): number {
+  const v = clamp(velocity, 0, 127) / 127;
+  return Math.round(CUTOFF_MIN * Math.pow(CUTOFF_MAX / CUTOFF_MIN, v));
+}
+
+/** Which recorded layer a hit belongs to (soft → hard). */
+export const VELOCITY_LAYERS = 4;
+export function velocityLayer(velocity: number): number {
+  return clamp(Math.floor((clamp(velocity, 0, 127) / 128) * VELOCITY_LAYERS), 0, VELOCITY_LAYERS - 1);
+}
+
+/**
+ * Resampling ratio for a note played from a layer recorded at `rootMidi`.
+ * Every semitone is the twelfth root of two, so a buffer can cover a zone.
+ */
+export function playbackRate(targetMidi: number, rootMidi: number): number {
+  return Math.pow(2, (targetMidi - rootMidi) / 12);
+}
+
+// ── Autoplay ────────────────────────────────────────────────────────────────
+export interface PatternStep { /** 0–15, sixteenths in a bar. */ step: number; /** index into the voicing, -1 = bass */ voice: number; velocity: number; }
+
+/**
+ * Four accompaniment patterns. `voice: -1` is the bass note; 0..n index the
+ * chord tones, so a pattern is chord-agnostic and transposes by itself.
+ */
+export const PATTERNS: Record<Exclude<AutoplayState, 0>, PatternStep[]> = {
+  1: [ // block chords on the beat
+    { step: 0, voice: -1, velocity: 100 }, { step: 0, voice: 0, velocity: 84 },
+    { step: 0, voice: 1, velocity: 80 },   { step: 0, voice: 2, velocity: 80 },
+    { step: 8, voice: -1, velocity: 88 },  { step: 8, voice: 0, velocity: 72 },
+    { step: 8, voice: 1, velocity: 70 },   { step: 8, voice: 2, velocity: 70 },
+  ],
+  2: [ // arpeggio up, eighths
+    { step: 0, voice: -1, velocity: 104 }, { step: 2, voice: 0, velocity: 78 },
+    { step: 4, voice: 1, velocity: 76 },   { step: 6, voice: 2, velocity: 80 },
+    { step: 8, voice: -1, velocity: 92 },  { step: 10, voice: 0, velocity: 74 },
+    { step: 12, voice: 1, velocity: 72 },  { step: 14, voice: 2, velocity: 78 },
+  ],
+  3: [ // up and back down
+    { step: 0, voice: -1, velocity: 106 }, { step: 2, voice: 0, velocity: 80 },
+    { step: 4, voice: 1, velocity: 78 },   { step: 6, voice: 2, velocity: 84 },
+    { step: 8, voice: 1, velocity: 76 },   { step: 10, voice: 0, velocity: 74 },
+    { step: 12, voice: -1, velocity: 90 }, { step: 14, voice: 2, velocity: 70 },
+  ],
+  4: [ // busier sixteenths
+    { step: 0, voice: -1, velocity: 110 }, { step: 1, voice: 0, velocity: 70 },
+    { step: 3, voice: 1, velocity: 68 },   { step: 4, voice: 2, velocity: 82 },
+    { step: 6, voice: 1, velocity: 66 },   { step: 7, voice: 0, velocity: 72 },
+    { step: 8, voice: -1, velocity: 96 },  { step: 9, voice: 2, velocity: 76 },
+    { step: 11, voice: 1, velocity: 68 },  { step: 12, voice: 0, velocity: 74 },
+    { step: 14, voice: 2, velocity: 80 },  { step: 15, voice: 1, velocity: 64 },
+  ],
+};
+
+export const STEPS_PER_BAR = 16;
+export const secondsPerStep = (bpm: number) => (60 / bpm) / 4;   // sixteenths
+export const secondsPerBar = (bpm: number) => (60 / bpm) * 4;
+
+/**
+ * When a newly tapped chord should take effect: the next musical boundary, so a
+ * switch lands in time instead of interrupting. Never returns a time in the past.
+ */
+export function nextBoundary(now: number, startedAt: number, bpm: number, unit: 'bar' | 'beat' = 'bar'): number {
+  const span = unit === 'bar' ? secondsPerBar(bpm) : 60 / bpm;
+  const elapsed = Math.max(0, now - startedAt);
+  return startedAt + Math.ceil((elapsed + 1e-9) / span) * span;
+}
+
+// ── Polyphony ───────────────────────────────────────────────────────────────
+export interface VoiceRef { id: number; midi: number; gain: number; startedAt: number; }
+
+/**
+ * Which voice to steal when the ceiling is reached: the quietest, and among
+ * equals the oldest. Taking the quietest keeps the steal from being heard.
+ */
+export function pickVoiceToSteal(voices: VoiceRef[]): VoiceRef | null {
+  if (!voices.length) return null;
+  return voices.reduce((worst, v) =>
+    v.gain < worst.gain || (v.gain === worst.gain && v.startedAt < worst.startedAt) ? v : worst);
+}
+
+/** Admit a voice, reporting which (if any) must be stopped to make room. */
+export function admitVoice(active: VoiceRef[], incoming: VoiceRef, max = MAX_POLYPHONY):
+  { keep: VoiceRef[]; stolen: VoiceRef | null } {
+  if (active.length < max) return { keep: [...active, incoming], stolen: null };
+  const stolen = pickVoiceToSteal(active);
+  return { keep: [...active.filter(v => v !== stolen), incoming], stolen };
 }

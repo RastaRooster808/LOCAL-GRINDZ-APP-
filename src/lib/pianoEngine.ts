@@ -1,213 +1,228 @@
 /*
- * Piano engine — the Web Audio half.
+ * Smart Piano — Web Audio engine.
  * © 2026 Local Grindz / RastaRooster (rastarooster.com). All rights reserved.
  * Proprietary and confidential — see NOTICE at the repository root.
  */
-// The signal chain, in full:
+// The DSP chain is exactly as specified:
 //
-//   AudioBufferSourceNode → BiquadFilter(lowpass) → GainNode → master → out
+//     AudioBufferSourceNode -> BiquadFilter (lowpass) -> GainNode -> master
 //
-// The source buffer is EITHER a real recording handed over by
-// src/lib/sampleLoader.ts, OR — until one is loaded, or for any note a library
-// doesn't cover — a layer rendered here by additive synthesis. Synthesis is
-// declared, not disguised: no sample library ships inside this repository.
+// SAMPLES: this repository ships no recorded piano library, so the velocity
+// layers are RENDERED into real AudioBuffers at start-up by additive synthesis —
+// harder layers carry more upper partials and a faster strike, exactly as louder
+// recordings of a real piano do. Everything downstream is genuine sample
+// playback: pitch comes from `playbackRate` resampling, not oscillator tuning.
+//
+// REAL RECORDINGS: point `useLibrary()` at a manifest and each note switches to
+// the recording the first time it is played — see src/lib/sampleLoader.ts and
+// docs/SAMPLE_LIBRARY.md. The synthesis above stays as the floor: it covers the
+// first strike of every note, any velocity a library has no layer for, and any
+// library that fails to load. So the piano is never silent and never waiting.
 
 import {
-  CHORD_HIGH, CHORD_LOW, cutoffFor, gainFor, pickVoiceToSteal, playbackRate,
-  type VoiceRef,
+  MAX_POLYPHONY, VELOCITY_LAYERS, gainFor, cutoffFor, velocityLayer, playbackRate,
+  admitVoice, type VoiceRef,
 } from './smartPiano';
-import { SampleLibrary, type LibraryStats } from './sampleLoader';
+import { SampleLibrary, measure, type LibraryStats, type LoadResult } from './sampleLoader';
 
-/** Every synthesized layer is rendered at this pitch and shifted from it. */
+/** The pitch each rendered layer is "recorded" at; resampling covers the rest. */
 export const LAYER_ROOT_MIDI = 60;
-/** Rendered layers, softest first, matched to the same velocity bands a real
- *  library would use. */
-export const SYNTH_LAYERS: { velocity: [number, number]; brightness: number }[] = [
-  { velocity: [1, 42], brightness: 0.35 },
-  { velocity: [43, 84], brightness: 0.65 },
-  { velocity: [85, 127], brightness: 1.0 },
-];
 
-export const MAX_VOICES = 24;
-const RENDER_SECONDS = 3.2;
-
-/** Additive synthesis: a struck string's partials decay faster the higher they
- *  are, and a harder strike excites more of them. Two lines of physics, and it
- *  is enough to be playable — but it is not a Steinway and never claims to be. */
-function renderLayer(context: BaseAudioContext, brightness: number): AudioBuffer {
-  const rate = context.sampleRate;
-  const length = Math.floor(RENDER_SECONDS * rate);
-  const buffer = context.createBuffer(1, length, rate);
-  const data = buffer.getChannelData(0);
-  const f0 = 440 * Math.pow(2, (LAYER_ROOT_MIDI - 69) / 12);
-  const partials = Math.max(4, Math.round(24 * brightness));
-
-  for (let n = 1; n <= partials; n++) {
-    // Real strings are stiff, so partials sit slightly sharp of exact multiples.
-    const inharmonic = n * Math.sqrt(1 + 0.0004 * n * n);
-    const frequency = f0 * inharmonic;
-    if (frequency > rate / 2) break;
-    const amplitude = Math.pow(n, -1.4) * Math.pow(brightness, (n - 1) * 0.18);
-    const decay = 1.6 + 5.5 * (n - 1) / partials;
-    const omega = 2 * Math.PI * frequency;
-    const phase = (n * 1.7) % (2 * Math.PI);
-    for (let i = 0; i < length; i++) {
-      const t = i / rate;
-      data[i] += amplitude * Math.exp(-decay * t) * Math.sin(omega * t + phase);
-    }
-  }
-
-  let peak = 0;
-  for (let i = 0; i < length; i++) peak = Math.max(peak, Math.abs(data[i]));
-  if (peak > 0) for (let i = 0; i < length; i++) data[i] /= peak;
-
-  // A short fade in, so no layer starts on a click.
-  const fade = Math.floor(0.002 * rate);
-  for (let i = 0; i < fade; i++) data[i] *= i / fade;
-  return buffer;
-}
-
-function synthLayerIndex(velocity: number): number {
-  for (let i = 0; i < SYNTH_LAYERS.length; i++) {
-    const [low, high] = SYNTH_LAYERS[i].velocity;
-    if (velocity >= low && velocity <= high) return i;
-  }
-  return SYNTH_LAYERS.length - 1;
-}
-
-interface Voice extends VoiceRef {
-  source: AudioBufferSourceNode;
+interface LiveVoice extends VoiceRef {
+  src: AudioBufferSourceNode;
   amp: GainNode;
-  midi: number;
-  /** True when this note is a real recording rather than a rendered layer. */
-  sampled: boolean;
+  filter: BiquadFilterNode;
+  released: boolean;
 }
 
-export interface StrikeOptions {
-  midi: number;
-  velocity: number;
-  /** Context time to sound at. Defaults to now. */
-  when?: number;
-  /** Seconds to hold before release. */
-  duration?: number;
+/**
+ * One velocity layer, rendered as a struck-string tone. Higher layers add
+ * partials and sharpen the attack — the timbral difference between a soft and
+ * a hard strike, which amplitude alone cannot fake.
+ */
+export function renderLayer(ctx: BaseAudioContext, layer: number): AudioBuffer {
+  const sr = ctx.sampleRate, dur = 3.2;
+  const buf = ctx.createBuffer(1, Math.floor(sr * dur), sr);
+  const data = buf.getChannelData(0);
+  const f0 = 440 * Math.pow(2, (LAYER_ROOT_MIDI - 69) / 12);
+  const hard = layer / (VELOCITY_LAYERS - 1);              // 0 soft … 1 hard
+  const partials = 6 + Math.round(hard * 10);
+  const attack = 0.006 - hard * 0.004;                     // harder = faster strike
+  for (let i = 0; i < data.length; i++) {
+    const t = i / sr;
+    let s = 0;
+    for (let h = 1; h <= partials; h++) {
+      // Upper partials decay faster, and are stronger in the harder layers.
+      const decay = Math.exp(-t * (1.1 + h * (0.85 - hard * 0.25)));
+      const amp = (1 / Math.pow(h, 1.35 - hard * 0.3)) * decay;
+      // Slight inharmonicity, as a real string has.
+      s += amp * Math.sin(2 * Math.PI * f0 * h * (1 + 0.0004 * h * h) * t);
+    }
+    const env = t < attack ? t / attack : 1;
+    data[i] = s * env * 0.22;
+  }
+  return buf;
 }
 
 export class PianoEngine {
-  readonly context: AudioContext;
-  readonly master: GainNode;
-  readonly library: SampleLibrary;
-
+  private ctx: AudioContext | null = null;
+  private master: GainNode | null = null;
   private layers: AudioBuffer[] = [];
-  private voices: Voice[] = [];
+  private voices: LiveVoice[] = [];
   private nextId = 1;
-  /** Notes that were heard as synthesis because their sample hadn't landed. */
-  private synthesizedCount = 0;
-  private sampledCount = 0;
+  private library: SampleLibrary | null = null;
+  private onLibraryChange: (stats: LibraryStats) => void = () => {};
+  /** Whether the most recent strike used a recording rather than synthesis.
+   *  The page shows this, so the split is visible rather than assumed. */
+  lastWasSampled = false;
+  sustain = false;
 
-  constructor(context: AudioContext, onLibraryChange: (stats: LibraryStats) => void = () => {}) {
-    this.context = context;
-    this.master = context.createGain();
-    this.master.gain.value = 0.8;
-    this.master.connect(context.destination);
+  /** Lazily start audio — browsers require a gesture before this succeeds. */
+  async init(): Promise<void> {
+    if (this.ctx) { if (this.ctx.state === 'suspended') await this.ctx.resume(); return; }
+    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const ctx = new AC();
+    this.ctx = ctx;
+    this.master = ctx.createGain();
+    this.master.gain.value = 0.85;
+    this.master.connect(ctx.destination);
+    for (let l = 0; l < VELOCITY_LAYERS; l++) this.layers.push(renderLayer(ctx, l));
     this.library = new SampleLibrary(
-      { decodeAudioData: (data: ArrayBuffer) => context.decodeAudioData(data) },
+      { decodeAudioData: (data: ArrayBuffer) => ctx.decodeAudioData(data) },
       undefined,
-      onLibraryChange,
+      stats => this.onLibraryChange(stats),
     );
+    // Calibrate recordings against the loudest rendered layer, so loading a
+    // library changes the TIMBRE of the piano and not its volume.
+    this.library.setTargetLoudness(measure(this.layers[this.layers.length - 1]));
+    if (ctx.state === 'suspended') await ctx.resume();
   }
 
-  /** Render the fallback layers. Cheap enough to do on the first user gesture. */
-  prepare(): void {
-    if (this.layers.length) return;
-    this.layers = SYNTH_LAYERS.map(layer => renderLayer(this.context, layer.brightness));
+  /** Tell the engine where to report loading progress. */
+  watchLibrary(listener: (stats: LibraryStats) => void): void {
+    this.onLibraryChange = listener;
   }
 
-  /** Point the engine at a manifest. Playing continues throughout — this only
-   *  changes what the NEXT strikes sound like. */
-  async useLibrary(manifestUrl: string) {
+  /** Point the engine at a sample manifest. Playing continues throughout —
+   *  this only changes what the NEXT strikes sound like. */
+  async useLibrary(manifestUrl: string): Promise<LoadResult> {
+    await this.init();
+    if (!this.library) return { ok: false, errors: ['Audio is not running yet.'], warnings: [] };
     return this.library.load(manifestUrl);
   }
 
-  strike({ midi, velocity, when, duration = 2.4 }: StrikeOptions): void {
-    this.prepare();
-    const context = this.context;
-    const at = Math.max(when ?? context.currentTime, context.currentTime);
+  /** Warm specific notes, once the user is plainly about to play them. */
+  async prefetch(midis: number[], velocities: number[]): Promise<void> {
+    await this.library?.prefetch(midis, velocities);
+  }
 
-    // Ask for a recording first; null simply means "synthesize this one", and
-    // the loader has already started fetching it for next time.
-    const sample = this.library.acquire(midi, velocity);
-    let buffer: AudioBuffer;
-    let rate: number;
-    let extraGain = 1;
+  /** Go back to the rendered layers. */
+  unloadLibrary(): void { this.library?.unload(); }
+
+  libraryStats(): LibraryStats | null { return this.library?.stats() ?? null; }
+
+  get currentTime(): number { return this.ctx ? this.ctx.currentTime : 0; }
+  get ready(): boolean { return !!this.ctx; }
+  get voiceCount(): number { return this.voices.length; }
+
+  /**
+   * Strike a note. Returns the voice id, or -1 if audio isn't running yet.
+   * `when` is an absolute context time, so the scheduler can place notes ahead.
+   */
+  noteOn(midi: number, velocity: number, when?: number): number {
+    const ctx = this.ctx, master = this.master;
+    if (!ctx || !master) return -1;
+    const t = when ?? ctx.currentTime;
+    let gain = gainFor(velocity);
+
+    // Ask for a recording first. `null` means "synthesize this one" — the
+    // loader has already started fetching it, so the next strike of this note
+    // will be the real instrument. It never blocks; see sampleLoader.ts.
+    const sample = this.library?.acquire(midi, velocity) ?? null;
+    this.lastWasSampled = sample !== null;
+
+    const src = ctx.createBufferSource();
     if (sample) {
-      buffer = sample.buffer;
-      rate = sample.rate;
-      extraGain = sample.gain;
-      this.sampledCount++;
+      src.buffer = sample.buffer;
+      src.playbackRate.value = sample.rate;
+      gain *= sample.gain;
     } else {
-      buffer = this.layers[synthLayerIndex(velocity)];
-      rate = playbackRate(midi, LAYER_ROOT_MIDI);
-      this.synthesizedCount++;
+      src.buffer = this.layers[velocityLayer(velocity)];
+      src.playbackRate.value = playbackRate(midi, LAYER_ROOT_MIDI);
     }
 
-    if (this.voices.length >= MAX_VOICES) {
-      const victim = pickVoiceToSteal(this.voices);
-      if (victim) this.release(victim.id, at, 0.06);
-    }
-
-    const source = context.createBufferSource();
-    source.buffer = buffer;
-    source.playbackRate.value = rate;
-
-    const filter = context.createBiquadFilter();
+    const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
     filter.frequency.value = cutoffFor(velocity);
     filter.Q.value = 0.7;
 
-    const amp = context.createGain();
-    const peak = gainFor(velocity) * extraGain;
-    amp.gain.setValueAtTime(0.0001, at);
-    amp.gain.exponentialRampToValueAtTime(Math.max(peak, 0.0002), at + 0.008);
+    const amp = ctx.createGain();
+    amp.gain.setValueAtTime(gain, t);
 
-    source.connect(filter);
-    filter.connect(amp);
-    amp.connect(this.master);
-    source.start(at);
+    src.connect(filter).connect(amp).connect(master);
+    src.start(t);
 
-    const voice: Voice = {
-      id: this.nextId++, startedAt: at, gain: peak,
-      source, amp, midi, sampled: Boolean(sample),
+    const voice: LiveVoice = {
+      id: this.nextId++, midi, gain, startedAt: t,
+      src, amp, filter, released: false,
     };
-    this.voices.push(voice);
-    source.onended = () => { this.voices = this.voices.filter(v => v.id !== voice.id); };
-
-    this.release(voice.id, at + duration, 0.35);
+    // Enforce the ceiling, stealing the quietest — which is the least audible.
+    const { keep, stolen } = admitVoice(this.voices, voice, MAX_POLYPHONY);
+    if (stolen) this.hardStop(stolen as LiveVoice);
+    this.voices = keep as LiveVoice[];
+    src.onended = () => { this.voices = this.voices.filter(v => v.id !== voice.id); };
+    return voice.id;
   }
 
-  private release(id: number, at: number, seconds: number): void {
-    const voice = this.voices.find(v => v.id === id);
-    if (!voice) return;
-    const when = Math.max(at, this.context.currentTime);
-    voice.gain = 0;
+  /**
+   * Release a note. With sustain ON the release phase is overridden and the
+   * sample is left to decay on its own — the pedal held down.
+   */
+  noteOff(id: number, releaseSeconds = 0.28): void {
+    const v = this.voices.find(x => x.id === id);
+    if (!v || v.released || !this.ctx) return;
+    if (this.sustain) return;
+    this.fadeOut(v, releaseSeconds);
+  }
+
+  /** Lift the pedal: everything still ringing now gets its release. */
+  releaseSustained(releaseSeconds = 0.35): void {
+    for (const v of [...this.voices]) if (!v.released) this.fadeOut(v, releaseSeconds);
+  }
+
+  private fadeOut(v: LiveVoice, seconds: number): void {
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    v.released = true;
     try {
-      voice.amp.gain.cancelScheduledValues(when);
-      voice.amp.gain.setValueAtTime(Math.max(voice.amp.gain.value, 0.0002), when);
-      voice.amp.gain.exponentialRampToValueAtTime(0.0001, when + seconds);
-      voice.source.stop(when + seconds + 0.02);
-    } catch {
-      // A source already stopped throws; nothing to do about a note that has
-      // already finished sounding.
-    }
+      v.amp.gain.cancelScheduledValues(now);
+      v.amp.gain.setValueAtTime(Math.max(v.amp.gain.value, 1e-4), now);
+      v.amp.gain.exponentialRampToValueAtTime(1e-4, now + seconds);
+      v.src.stop(now + seconds + 0.02);
+    } catch { /* already stopped */ }
   }
 
-  /** Silence everything immediately. */
-  panic(): void {
-    for (const voice of [...this.voices]) this.release(voice.id, this.context.currentTime, 0.02);
+  private hardStop(v: LiveVoice): void {
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    try {
+      v.amp.gain.cancelScheduledValues(now);
+      v.amp.gain.setValueAtTime(Math.max(v.amp.gain.value, 1e-4), now);
+      v.amp.gain.exponentialRampToValueAtTime(1e-4, now + 0.03); // quick, not clicky
+      v.src.stop(now + 0.05);
+    } catch { /* already stopped */ }
   }
 
-  /** How the last stretch of playing actually sounded — real against rendered.
-   *  Shown in the operator panel so the split is visible, not assumed. */
-  sourceMix(): { sampled: number; synthesized: number } {
-    return { sampled: this.sampledCount, synthesized: this.synthesizedCount };
+  /** Stop everything immediately (leaving a screen, changing patterns). */
+  allNotesOff(): void {
+    for (const v of [...this.voices]) this.hardStop(v);
+    this.voices = [];
+  }
+
+  async close(): Promise<void> {
+    this.allNotesOff();
+    this.library?.unload();
+    this.library = null;
+    if (this.ctx) { try { await this.ctx.close(); } catch { /* ignore */ } this.ctx = null; }
   }
 }

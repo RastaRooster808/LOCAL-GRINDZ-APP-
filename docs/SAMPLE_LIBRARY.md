@@ -149,6 +149,21 @@ that the very first strike of each note is synthesized — which is why the app
 calls `prefetch()` on the chord wheel's notes the moment a library loads, when
 you are plainly about to play.
 
+**Levels are matched for you.** Libraries are mastered to wildly different
+levels — FluidR3's notes peak near 0.09, some 14–24 dB below the engine's
+rendered layers. Without correction, loading a real piano would make the
+instrument almost inaudible, which reads as "it broke". So each recording is
+scaled on decode to the same **loudness** as the synthesized layer it replaces,
+and held under a ceiling so a boosted note cannot clip.
+
+Loudness is matched on RMS, not peak. A struck string is a sharp transient over
+a quiet decay while a rendered layer is a dense sum of partials; match their
+peaks and the recording still sounds about 10 dB softer. Matching is per file,
+which does flatten the recorded loudness difference between velocity layers —
+but that difference is already supplied by `gainFor(velocity)`, and applying both
+would double-count it. What survives is the part synthesis cannot fake: the
+*timbre* of a hard strike. Use a layer's `gain_db` if you want manual trim on top.
+
 Other behaviour worth knowing:
 
 - **Neighbours share a file.** MIDI 59, 60 and 61 all resolve to the C4 recording,
@@ -235,7 +250,14 @@ the bytes for no audible gain over a phone speaker. Trim the layer count too:
 
 ## Testing
 
-Pure logic — validation, selection, stretch limits, caching, retry, dedupe — is
-covered in Node with a fake fetch and decoder, and the page is exercised in
-headless Chromium against real MP3s with the audio output metered. See
-`CHANGELOG.md` for what those runs currently report.
+- **Pure logic** — validation, selection, stretch limits, caching, retry,
+  dedupe, gap reporting, level normalization — runs in Node against a fake fetch
+  and decoder.
+- **Level matching** decodes all 30 real MP3s offline and checks every one lands
+  within 2× of the synthesized layer's loudness, and that none can clip. Offline,
+  so the answer is the same every run.
+- **The page** is driven in headless Chromium against real MP3s with the audio
+  output metered by a node that sees every sample — polling an `AnalyserNode`
+  on a timer misses a 5 ms piano transient and produces flaky numbers.
+
+See `CHANGELOG.md` for what those runs currently report.

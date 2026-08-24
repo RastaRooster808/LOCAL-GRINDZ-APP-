@@ -219,6 +219,68 @@ export function gainFromDb(db: number | undefined): number {
   return db === undefined ? 1 : Math.pow(10, db / 20);
 }
 
+/** Seconds of a note used to judge its loudness — the attack and early decay,
+ *  which is the part you actually hear. */
+export const LOUDNESS_WINDOW_SECONDS = 0.3;
+
+export interface Loudness { peak: number; rms: number; }
+
+/** Peak, and RMS over the opening of the note. */
+export function measure(
+  buffer: Pick<AudioBuffer, 'numberOfChannels' | 'getChannelData' | 'sampleRate' | 'length'>,
+  seconds = LOUDNESS_WINDOW_SECONDS,
+): Loudness {
+  const window = Math.min(buffer.length, Math.max(1, Math.floor(seconds * buffer.sampleRate)));
+  let peak = 0, sum = 0, count = 0;
+  for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+    const data = buffer.getChannelData(channel);
+    for (let i = 0; i < data.length; i++) {
+      const v = data[i] < 0 ? -data[i] : data[i];
+      if (v > peak) peak = v;
+      if (i < window) { sum += data[i] * data[i]; count++; }
+    }
+  }
+  return { peak, rms: count ? Math.sqrt(sum / count) : 0 };
+}
+
+/** Loudest absolute sample across every channel. */
+export function peakOf(buffer: Pick<AudioBuffer, 'numberOfChannels' | 'getChannelData' | 'sampleRate' | 'length'>): number {
+  return measure(buffer).peak;
+}
+
+/** The headroom a normalized note is allowed. Below 1 so several notes can
+ *  sound at once without the sum clipping. */
+export const NORMALIZE_CEILING = 0.9;
+
+/** How much to scale a recording so it arrives at the same LOUDNESS as
+ *  everything else. Libraries are mastered to wildly different levels —
+ *  FluidR3's notes peak near 0.09, roughly 20 dB below the engine's rendered
+ *  layers — so without this, loading a real piano makes it almost inaudible.
+ *
+ *  Loudness is matched on RMS, not peak. A struck string is a sharp transient
+ *  over a quiet decay, while a rendered layer is a dense sum of partials;
+ *  matching their peaks leaves the recording sounding roughly 10 dB softer even
+ *  though the two peaks agree. RMS is what the ear is actually reporting.
+ *  The result is then held under NORMALIZE_CEILING so a boosted note cannot clip.
+ *
+ *  This is deliberately per-FILE. It does flatten the recorded loudness
+ *  difference between velocity layers, but that difference is already supplied
+ *  by gainFor(velocity) in the engine, and applying both would double-count it.
+ *  What normalizing cannot flatten — and what synthesis cannot fake — is the
+ *  TIMBRE of a hard strike, and that is exactly what survives.
+ *  A manifest's `gain_db` still applies on top, for manual trim. */
+export function normalizeGain(measured: Loudness, target: Loudness): number {
+  if (!(measured.rms > 1e-9) || !(target.rms > 1e-9)) return 1;
+  const gain = target.rms / measured.rms;
+  const ceiling = measured.peak > 1e-9 ? NORMALIZE_CEILING / measured.peak : gain;
+  return clampGain(Math.min(gain, ceiling));
+}
+
+/** Never boost by more than 40 dB — past that a file is broken, not quiet. */
+function clampGain(gain: number): number {
+  return gain > 100 ? 100 : gain < 0.001 ? 0.001 : gain;
+}
+
 /** What the engine should do for one note at one velocity, decided without
  *  touching the network — so it can be asserted in a test. */
 export interface Selection {
@@ -309,6 +371,10 @@ const RETRY_BASE_MS = 400;
 export class SampleLibrary {
   private manifest: SampleManifest | null = null;
   private buffers = new Map<string, AudioBuffer>();
+  private normalized = new Map<string, number>();
+  /** The level recordings are matched to. The engine calibrates this from its
+   *  own rendered layers, so samples and synthesis sit at the same loudness. */
+  private target: Loudness = { peak: 0.5, rms: 0.08 };
   private inflight = new Map<string, Promise<void>>();
   private failed = new Set<string>();
   private bytes = 0;
@@ -369,10 +435,18 @@ export class SampleLibrary {
 
   get loaded(): boolean { return this.manifest !== null; }
 
+  /** Match recordings to this loudness. Call it once, measured from the
+   *  engine's own synthesized layers, so switching between the two is inaudible
+   *  in level and audible only in timbre. */
+  setTargetLoudness(target: Loudness): void {
+    if (target.rms > 1e-9) this.target = target;
+  }
+
   /** Forget everything and go back to pure synthesis. */
   unload(): void {
     this.manifest = null;
     this.buffers.clear();
+    this.normalized.clear();
     this.inflight.clear();
     this.failed.clear();
     this.bytes = 0;
@@ -391,7 +465,13 @@ export class SampleLibrary {
 
     const key = cacheKey(selection);
     const buffer = this.buffers.get(key);
-    if (buffer) return { buffer, rate: selection.rate, gain: selection.layerGain };
+    if (buffer) {
+      return {
+        buffer,
+        rate: selection.rate,
+        gain: selection.layerGain * (this.normalized.get(key) ?? 1),
+      };
+    }
 
     if (!this.failed.has(key)) void this.fetchZone(key, selection.url);
     return null;
@@ -433,6 +513,7 @@ export class SampleLibrary {
           const size = data.byteLength;
           const decoded = await this.decoder.decodeAudioData(data);
           this.buffers.set(key, decoded);
+          this.normalized.set(key, normalizeGain(measure(decoded), this.target));
           this.bytes += size;
           return;
         } catch {

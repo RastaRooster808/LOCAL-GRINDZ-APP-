@@ -28,7 +28,8 @@ export type EventName =
   | 'protea_tier_reserve'
   | 'protea_print_buy'
   | 'field_report_join'
-  | 'signature_unlock';
+  | 'signature_unlock'
+  | 'piano_library_loaded';
 
 export interface EventPayload {
   label?: string;

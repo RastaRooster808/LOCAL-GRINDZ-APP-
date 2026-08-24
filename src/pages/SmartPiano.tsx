@@ -1,23 +1,21 @@
 /*
- * Smart Piano — the chord wheel.
+ * Smart Piano — chord wheel UI.
  * © 2026 Local Grindz / RastaRooster (rastarooster.com). All rights reserved.
  * Proprietary and confidential — see NOTICE at the repository root.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  CHORDS, bassNote, voicing, velocityFromTouch, nextBoundary, clamp,
-  type Chord, type Unit,
-} from '../lib/smartPiano';
+import { trackEvent } from '../lib/analytics';
 import { PianoEngine } from '../lib/pianoEngine';
 import type { LibraryStats } from '../lib/sampleLoader';
-import { alphabetNodes } from '../lib/harmonics';
+import {
+  CHORDS, PATTERNS, STEPS_PER_BAR, MAX_POLYPHONY,
+  voicingFor, velocityFromTouch, nextBoundary, secondsPerStep, secondsPerBar,
+  type AutoplayState, type Zone, type Chord,
+} from '../lib/smartPiano';
 
-/** The pads borrow the Kula Mele palette, so the whole app speaks one colour
- *  language. Nothing here invents a colour — see src/lib/harmonics.ts. */
-const PAD_COLORS = alphabetNodes().slice(0, CHORDS.length).map(n => n.color.hex);
-
-const BUILT_IN_MANIFEST = `${import.meta.env.BASE_URL}piano/fluidr3.manifest.json`;
+const NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+const noteName = (m: number) => `${NAMES[((m % 12) + 12) % 12]}${Math.floor(m / 12) - 1}`;
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -25,147 +23,281 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+/** How far down its strip a pointer landed, 0 at the top and 1 at the bottom. */
+function offsetIn(el: HTMLElement, clientY: number): number {
+  const r = el.getBoundingClientRect();
+  return r.height ? (clientY - r.top) / r.height : 0.5;
+}
+
 export function SmartPiano() {
-  const engineRef = useRef<PianoEngine | null>(null);
-  const startedAtRef = useRef(0);
-
+  const engine = useRef<PianoEngine | null>(null);
   const [ready, setReady] = useState(false);
-  const [unit, setUnit] = useState<Unit>('off');
   const [bpm, setBpm] = useState(96);
-  const [lastHit, setLastHit] = useState<{ chord: string; velocity: number; sampled: boolean } | null>(null);
+  const [sustain, setSustain] = useState(false);
+  const [autoplay, setAutoplay] = useState<AutoplayState>(0);
+  const [active, setActive] = useState<string | null>(null);
+  const [pending, setPending] = useState<string | null>(null);
+  const [lastHit, setLastHit] = useState<{ chord: string; zone: Zone; velocity: number; notes: number[] } | null>(null);
+  const [voices, setVoices] = useState(0);
 
-  const [stats, setStats] = useState<LibraryStats | null>(null);
-  const [libraryUrl, setLibraryUrl] = useState(BUILT_IN_MANIFEST);
-  const [libraryState, setLibraryState] = useState<'idle' | 'loading' | 'on' | 'error'>('idle');
-  const [messages, setMessages] = useState<string[]>([]);
+  // ── The instrument itself: synthesis, or real recordings ─────────────────
+  const [libStats, setLibStats] = useState<LibraryStats | null>(null);
+  const [libUrl, setLibUrl] = useState(`${import.meta.env.BASE_URL}piano/fluidr3.manifest.json`);
+  const [libState, setLibState] = useState<'idle' | 'loading' | 'on' | 'error'>('idle');
+  const [libMessages, setLibMessages] = useState<string[]>([]);
+  const [sampled, setSampled] = useState(false);
 
-  useEffect(() => () => { engineRef.current?.panic(); }, []);
+  // Scheduler state lives in refs — it runs on a timer, not on renders.
+  const held = useRef<Map<string, number[]>>(new Map());
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const loopStart = useRef(0);
+  const nextStep = useRef(0);
+  const activeChord = useRef<Chord | null>(null);
+  const queued = useRef<{ chord: Chord; at: number } | null>(null);
+  const autoRef = useRef<AutoplayState>(0);
+  const bpmRef = useRef(96);
 
-  /** The AudioContext may only be created inside a user gesture. */
+  useEffect(() => { trackEvent('page_view', { section: 'smart-piano' }); }, []);
+  useEffect(() => { autoRef.current = autoplay; }, [autoplay]);
+  useEffect(() => { bpmRef.current = bpm; }, [bpm]);
+
   const boot = useCallback(async () => {
-    if (!engineRef.current) {
-      const context = new (window.AudioContext
-        || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-      engineRef.current = new PianoEngine(context, setStats);
-      startedAtRef.current = context.currentTime;
+    if (!engine.current) {
+      engine.current = new PianoEngine();
+      engine.current.watchLibrary(setLibStats);
     }
-    const engine = engineRef.current;
-    if (engine.context.state === 'suspended') await engine.context.resume();
-    engine.prepare();
-    setReady(true);
-    return engine;
+    await engine.current.init();
+    setReady(engine.current.ready);
   }, []);
 
   const loadLibrary = useCallback(async (url: string) => {
-    const engine = await boot();
-    setLibraryState('loading');
-    setMessages([]);
-    const result = await engine.useLibrary(url);
+    await boot();
+    const e = engine.current; if (!e) return;
+    setLibState('loading');
+    setLibMessages([]);
+    const result = await e.useLibrary(url);
     if (!result.ok) {
-      setLibraryState('error');
+      setLibState('error');
       // Say plainly what is still playing. A failed load changes nothing about
       // the instrument you already had.
-      setMessages([...result.errors, engine.library.loaded
-        ? `Still playing ${engine.library.stats().name}.`
+      const stats = e.libraryStats();
+      setLibMessages([...result.errors, stats?.loaded
+        ? `Still playing ${stats.name}.`
         : 'Still playing the synthesized piano.']);
       return;
     }
-    setLibraryState('on');
-    setMessages(result.warnings);
-    setStats(engine.library.stats());
-    // Warm the notes this wheel will actually reach for, now that the context
-    // is alive and the user is plainly about to play.
-    const notes = CHORDS.flatMap(c => [bassNote(c), ...voicing(c)]);
-    void engine.library.prefetch([...new Set(notes)], [30, 70, 110])
-      .then(() => setStats(engine.library.stats()));
+    setLibState('on');
+    setLibMessages(result.warnings);
+    setLibStats(e.libraryStats());
+    trackEvent('piano_library_loaded', { name: result.manifest?.name ?? 'unknown' });
+    // Warm every note this wheel can reach, now that the context is alive and
+    // the user is plainly about to play.
+    const notes = new Set<number>();
+    for (const chord of CHORDS) {
+      for (const zone of ['BASS_HEAD', 'CHORD_BODY'] as Zone[]) {
+        for (const n of voicingFor(chord, zone)) notes.add(n);
+      }
+    }
+    void e.prefetch([...notes], [30, 70, 110]).then(() => setLibStats(e.libraryStats()));
   }, [boot]);
 
-  const unloadLibrary = useCallback(() => {
-    engineRef.current?.library.unload();
-    setLibraryState('idle');
-    setMessages([]);
+  const dropLibrary = useCallback(() => {
+    engine.current?.unloadLibrary();
+    setLibState('idle');
+    setLibMessages([]);
+    setLibStats(engine.current?.libraryStats() ?? null);
   }, []);
 
-  const strike = useCallback(async (chord: Chord, ev: React.PointerEvent<HTMLButtonElement>) => {
-    // Read the event SYNCHRONOUSLY. React clears `currentTarget` once the
-    // handler returns, so anything measured after an `await` is measured off
-    // null and every tap throws.
-    const el = ev.currentTarget;
-    const box = el.getBoundingClientRect();
+  useEffect(() => () => { engine.current?.close(); if (timer.current) clearInterval(timer.current); }, []);
+
+  useEffect(() => {
+    const e = engine.current; if (!e) return;
+    e.sustain = sustain;
+    if (!sustain) e.releaseSustained();
+  }, [sustain]);
+
+  // ── Manual play ───────────────────────────────────────────────────────────
+  const strike = useCallback(async (chord: Chord, zone: Zone, ev: React.PointerEvent<HTMLElement>) => {
+    // Read the event SYNCHRONOUSLY. React clears `currentTarget` once the handler
+    // returns, so anything measured after an await is measured off null.
+    const el = ev.currentTarget as HTMLElement;
     const velocity = velocityFromTouch({
-      yOffsetNormalized: box.height ? (ev.clientY - box.top) / box.height : 0.5,
-      radius: typeof ev.width === 'number' ? Math.max(ev.width, ev.height ?? 0) : undefined,
-      pressure: ev.pressure,
-      hasPressure: ev.pointerType === 'pen' || (ev.pressure > 0 && ev.pressure !== 0.5),
+      yOffsetNormalized: offsetIn(el, ev.clientY),
+      // Pointer Events expose pressure; width/height give the contact patch.
+      force: ev.pressure > 0 && ev.pressure !== 0.5 ? ev.pressure : undefined,
+      radius: ev.width ? Math.max(ev.width, ev.height) / 2 : undefined,
     });
-    try { el.setPointerCapture(ev.pointerId); } catch { /* not every pointer can be captured */ }
+    try { el.setPointerCapture(ev.pointerId); } catch { /* not capturable */ }
 
-    const engine = await boot();
-    const at = nextBoundary(engine.context.currentTime, startedAtRef.current, bpm, unit);
+    await boot();
+    const e = engine.current; if (!e) return;
+    const notes = voicingFor(chord, zone);
+    const ids = notes.map(n => e.noteOn(n, velocity));
+    held.current.set(`${chord.id}:${zone}`, ids);
+    setLastHit({ chord: chord.id, zone, velocity, notes });
+    setSampled(e.lastWasSampled);
+    setVoices(e.voiceCount);
 
-    engine.strike({ midi: bassNote(chord), velocity: clamp(velocity - 10, 1, 127), when: at, duration: 3 });
-    voicing(chord).forEach((midi, i) => {
-      engine.strike({ midi, velocity, when: at + i * 0.012, duration: 2.6 });
-    });
+    if (autoRef.current !== 0) queueChord(chord);
+  }, [boot]);
 
-    const sampled = engine.library.acquire(voicing(chord)[0], velocity) !== null;
-    setLastHit({ chord: chord.name, velocity, sampled });
-  }, [boot, bpm, unit]);
+  const lift = useCallback((chord: Chord, zone: Zone) => {
+    const e = engine.current; if (!e) return;
+    const key = `${chord.id}:${zone}`;
+    for (const id of held.current.get(key) ?? []) e.noteOff(id);
+    held.current.delete(key);
+    setVoices(e.voiceCount);
+  }, []);
+
+  // ── Autoplay ──────────────────────────────────────────────────────────────
+  /** A tapped chord takes effect at the next bar, so the loop never breaks. */
+  const queueChord = useCallback((chord: Chord) => {
+    const e = engine.current; if (!e) return;
+    if (!activeChord.current) { activeChord.current = chord; setActive(chord.id); return; }
+    const at = nextBoundary(e.currentTime, loopStart.current, bpmRef.current, 'bar');
+    queued.current = { chord, at };
+    setPending(chord.id);
+  }, []);
+
+  const startLoop = useCallback(async (chord?: Chord) => {
+    await boot();
+    const e = engine.current; if (!e) return;
+    if (chord) { activeChord.current = chord; setActive(chord.id); }
+    if (!activeChord.current) { activeChord.current = CHORDS[4]; setActive(CHORDS[4].id); }
+    loopStart.current = e.currentTime + 0.08;
+    nextStep.current = 0;
+    if (timer.current) clearInterval(timer.current);
+    // Look ahead and schedule; a 25ms tick is far finer than a sixteenth.
+    timer.current = setInterval(() => {
+      const eng = engine.current; if (!eng) return;
+      const pattern = PATTERNS[(autoRef.current || 1) as 1 | 2 | 3 | 4];
+      const stepDur = secondsPerStep(bpmRef.current);
+      const horizon = eng.currentTime + 0.12;
+      while (loopStart.current + nextStep.current * stepDur < horizon) {
+        const when = loopStart.current + nextStep.current * stepDur;
+        const stepInBar = nextStep.current % STEPS_PER_BAR;
+        // Swap chords exactly on the boundary we promised.
+        if (queued.current && when >= queued.current.at - 1e-6) {
+          activeChord.current = queued.current.chord;
+          setActive(queued.current.chord.id);
+          queued.current = null;
+          setPending(null);
+        }
+        const ch = activeChord.current;
+        if (ch) {
+          const body = voicingFor(ch, 'CHORD_BODY');
+          const bass = voicingFor(ch, 'BASS_HEAD')[0];
+          for (const s of pattern) {
+            if (s.step !== stepInBar) continue;
+            const midi = s.voice < 0 ? bass : body[s.voice % body.length];
+            eng.noteOn(midi, s.velocity, when);
+          }
+        }
+        nextStep.current++;
+      }
+      setVoices(eng.voiceCount);
+    }, 25);
+  }, [boot]);
+
+  const stopLoop = useCallback(() => {
+    if (timer.current) { clearInterval(timer.current); timer.current = null; }
+    queued.current = null; setPending(null);
+    engine.current?.allNotesOff();
+    setVoices(0);
+  }, []);
+
+  const setDial = useCallback(async (state: AutoplayState) => {
+    setAutoplay(state);
+    autoRef.current = state;
+    if (state === 0) stopLoop(); else await startLoop(activeChord.current ?? undefined);
+  }, [startLoop, stopLoop]);
+
+  const barSeconds = secondsPerBar(bpm);
 
   return (
     <div className="sp-shell">
       <header className="sp-bar">
         <Link to="/" className="kc-back" aria-label="Back to Local Grindz">← Local Grindz</Link>
-        <span className="sp-bar-title">Smart Piano</span>
-        <Link to="/signature" className="sp-bar-link">Kula Mele →</Link>
+        <span className="sp-title">Smart Piano</span>
+        <Link to="/signature" className="sp-link">Kula Mele →</Link>
       </header>
 
-      <p className="sp-hint" aria-live="polite">
-        {/* This line always occupies its row. If it appeared and vanished on
-            boot, every pad would jump 20px out from under a playing finger. */}
-        {ready
-          ? 'Strike near the top of a pad for a soft chord, near the bottom for a hard one.'
-          : 'Touch a chord to start.'}
-      </p>
-
-      <div className="sp-wheel" role="group" aria-label="Chord wheel">
-        {CHORDS.map((chord, i) => (
-          <button
-            key={chord.name}
-            type="button"
-            className="sp-pad"
-            style={{ '--pad': PAD_COLORS[i] } as React.CSSProperties}
-            onPointerDown={ev => { ev.preventDefault(); void strike(chord, ev); }}
-            aria-label={`Play ${chord.name}`}
-          >
-            <span className="sp-pad-name">{chord.name}</span>
-            <span className="sp-pad-soft" aria-hidden="true">soft</span>
-            <span className="sp-pad-hard" aria-hidden="true">hard</span>
-          </button>
-        ))}
-      </div>
-
       <div className="sp-controls">
-        <label className="sp-control">
-          <span>Quantize</span>
-          <select value={unit} onChange={e => setUnit(e.target.value as Unit)}>
-            <option value="off">Off — sounds instantly</option>
-            <option value="beat">To the beat</option>
-            <option value="bar">To the bar</option>
-          </select>
+        <label className="sp-ctl">
+          <span>Tempo</span>
+          <input type="range" min={60} max={160} value={bpm} onChange={e => setBpm(+e.target.value)}
+            aria-label="Tempo in beats per minute" />
+          <b>{bpm} bpm</b>
         </label>
-        <label className="sp-control">
-          <span>Tempo — {bpm} BPM</span>
-          <input type="range" min={60} max={140} value={bpm}
-            onChange={e => setBpm(Number(e.target.value))} />
-        </label>
+
+        <button className={'sp-toggle' + (sustain ? ' on' : '')} onClick={() => setSustain(s => !s)}
+          aria-pressed={sustain}>Sustain {sustain ? 'on' : 'off'}</button>
+
+        <div className="sp-dial" role="group" aria-label="Autoplay">
+          <span>Autoplay</span>
+          {([0, 1, 2, 3, 4] as AutoplayState[]).map(s => (
+            <button key={s} className={'sp-dialbtn' + (autoplay === s ? ' on' : '')}
+              onClick={() => setDial(s)} aria-pressed={autoplay === s}>
+              {s === 0 ? 'off' : s}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <p className="sp-last" aria-live="polite">
-        {lastHit
-          ? `${lastHit.chord} · velocity ${lastHit.velocity} · ${lastHit.sampled ? 'recorded piano' : 'synthesized'}`
-          : ' '}
-      </p>
+      {/* Always occupies its space — if this appeared and vanished, every key
+          would jump under the player's finger the moment audio started. */}
+      <p className="sp-hint" aria-hidden={ready}>{ready ? '\u00a0' : 'Touch a chord to start the sound.'}</p>
+
+      <div className="sp-grid" role="group" aria-label="Chord columns">
+        {CHORDS.map(chord => {
+          const isActive = active === chord.id, isPending = pending === chord.id;
+          return (
+            <div key={chord.id} className={'sp-col' + (isActive ? ' active' : '') + (isPending ? ' pending' : '')}>
+              <div className="sp-label">{chord.label}</div>
+              {/* Bass head — a single root note, low. */}
+              <div className="sp-zone sp-bass"
+                onPointerDown={e => strike(chord, 'BASS_HEAD', e)}
+                onPointerUp={() => lift(chord, 'BASS_HEAD')}
+                onPointerCancel={() => lift(chord, 'BASS_HEAD')}
+                role="button" tabIndex={0}
+                aria-label={`${chord.label} bass`}>
+                <span>bass</span>
+              </div>
+              {/* Chord body — the triad. Softer at the top, harder at the bottom. */}
+              <div className="sp-zone sp-body"
+                onPointerDown={e => strike(chord, 'CHORD_BODY', e)}
+                onPointerUp={() => lift(chord, 'CHORD_BODY')}
+                onPointerCancel={() => lift(chord, 'CHORD_BODY')}
+                role="button" tabIndex={0}
+                aria-label={`${chord.label} chord`}>
+                <i className="sp-soft">soft</i>
+                <i className="sp-hard">hard</i>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="sp-readout" aria-live="polite">
+        {lastHit ? (
+          <>
+            <b>{lastHit.chord}</b>
+            <span>{lastHit.zone === 'BASS_HEAD' ? 'bass' : 'chord'}</span>
+            <span>vel {lastHit.velocity}</span>
+            <span>{lastHit.notes.map(noteName).join(' · ')}</span>
+            <span>{sampled ? 'recorded piano' : 'synthesized'}</span>
+          </>
+        ) : <span className="sp-muted">Tap a column — lower on the strip plays harder.</span>}
+        <span className="sp-voices">{voices}/{MAX_POLYPHONY} voices</span>
+      </div>
+
+      {autoplay !== 0 && (
+        <p className="sp-muted sp-small">
+          Pattern {autoplay} at {bpm} bpm — a bar is {barSeconds.toFixed(2)}s. Tapping another chord
+          switches on the next bar{pending ? `, queued: ${pending}` : ''}.
+        </p>
+      )}
+
 
       <section className="sp-library">
         <h2 className="sp-lib-title">Instrument</h2>
@@ -179,44 +311,41 @@ export function SmartPiano() {
           <input
             className="sp-lib-url"
             type="url"
-            value={libraryUrl}
-            onChange={e => setLibraryUrl(e.target.value)}
+            value={libUrl}
+            onChange={e => setLibUrl(e.target.value)}
             aria-label="Sample manifest URL"
             spellCheck={false}
           />
           <button type="button" className="sp-lib-btn"
-            onClick={() => void loadLibrary(libraryUrl)}
-            disabled={libraryState === 'loading'}>
-            {libraryState === 'loading' ? 'Loading…' : 'Load'}
+            onClick={() => void loadLibrary(libUrl)}
+            disabled={libState === 'loading'}>
+            {libState === 'loading' ? 'Loading…' : 'Load'}
           </button>
-          {libraryState === 'on' && (
-            <button type="button" className="sp-lib-btn sp-lib-btn-quiet" onClick={unloadLibrary}>
+          {libStats?.loaded && (
+            <button type="button" className="sp-lib-btn sp-lib-btn-quiet" onClick={dropLibrary}>
               Use synthesis
             </button>
           )}
         </div>
 
-        {messages.length > 0 && (
-          <ul className={`sp-lib-msgs ${libraryState === 'error' ? 'is-error' : ''}`}>
-            {messages.map((m, i) => <li key={i}>{m}</li>)}
+        {libMessages.length > 0 && (
+          <ul className={`sp-lib-msgs ${libState === 'error' ? 'is-error' : ''}`}>
+            {libMessages.map((m, i) => <li key={i}>{m}</li>)}
           </ul>
         )}
 
-        {stats?.loaded && (
-          <dl className="sp-lib-stats">
-            <div><dt>Library</dt><dd>{stats.name}</dd></div>
-            <div><dt>Licence</dt><dd>{stats.license}</dd></div>
-            <div><dt>Notes ready</dt><dd>{stats.ready}</dd></div>
-            <div><dt>Fetching</dt><dd>{stats.pending}</dd></div>
-            <div><dt>Unavailable</dt><dd>{stats.failed}</dd></div>
-            <div><dt>Downloaded</dt><dd>{formatBytes(stats.bytes)}</dd></div>
-          </dl>
-        )}
-
-        {stats?.attribution && (
-          <p className="sp-lib-credit">
-            {stats.attribution}
-          </p>
+        {libStats?.loaded && (
+          <>
+            <dl className="sp-lib-stats">
+              <div><dt>Library</dt><dd>{libStats.name}</dd></div>
+              <div><dt>Licence</dt><dd>{libStats.license}</dd></div>
+              <div><dt>Notes ready</dt><dd>{libStats.ready}</dd></div>
+              <div><dt>Fetching</dt><dd>{libStats.pending}</dd></div>
+              <div><dt>Unavailable</dt><dd>{libStats.failed}</dd></div>
+              <div><dt>Downloaded</dt><dd>{formatBytes(libStats.bytes)}</dd></div>
+            </dl>
+            <p className="sp-lib-credit">{libStats.attribution}</p>
+          </>
         )}
 
         <details className="sp-tech">
@@ -235,12 +364,21 @@ export function SmartPiano() {
             rather than breaking the page.
           </p>
           <p>
-            Build a manifest for a library you have downloaded with{' '}
-            <code>node tools/piano/make-manifest.mjs &lt;folder&gt;</code>. See{' '}
+            To use a library you have downloaded, build its manifest with{' '}
+            <code>node tools/piano/make-manifest.mjs &lt;folder&gt;</code> — see{' '}
             <code>docs/SAMPLE_LIBRARY.md</code>.
           </p>
         </details>
       </section>
+
+      <p className="sp-note">
+        Velocity is computed, not sensed: position down the strip sets it, and where a device reports
+        pressure or contact size that nudges it. Louder hits are also brighter — gain rises as
+        (velocity/127)² and the low-pass opens with it, so a hard strike gains overtones rather than
+        just volume.
+      </p>
     </div>
   );
 }
+
+export default SmartPiano;

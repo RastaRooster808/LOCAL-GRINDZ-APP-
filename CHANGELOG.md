@@ -4,11 +4,15 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
-## [Unreleased] — Smart Piano: chord wheel and the lazy sample loader (2026-08-24)
+## [Unreleased] — Smart Piano: real recordings, fetched a note at a time (2026-08-24)
+
+Brings the Smart Piano chord wheel onto the current branch and gives it a path
+to real instruments. The wheel itself is unchanged — eight columns, bass head and
+chord body, computed velocity, four autoplay patterns.
 
 ### Added
-- **`src/lib/sampleLoader.ts`** — a real sample library, fetched a file at a
-  time and only when a note actually needs one. The rule that shapes it is that
+- **`src/lib/sampleLoader.ts`** — a sample library fetched a file at a time and
+  only when a note actually needs one. The rule that shapes it is that
   `acquire()` is *synchronous and never waits*: it returns a decoded recording if
   one is in hand, otherwise `null` — meaning "synthesize this one" — while the
   download starts behind it, so the next strike of that key is the real
@@ -16,6 +20,9 @@ All notable changes to Local Grindz are documented here.
   - Neighbouring notes share one recording, pitch-shifted, so 30 files cover all
     88 keys. `max_stretch_semitones` is a quality floor: past it the loader
     declines and the note is synthesized rather than sounding like a chipmunk.
+  - Recordings are level-matched to the engine's own rendered layer on decode.
+    FluidR3's notes sit 14–24 dB below it, so without this, loading a real piano
+    would make the instrument almost inaudible.
   - A 404 is permanent and never retried; a network error retries three times
     with backoff. A failed manifest, a dead host or a missing file each mean
     synthesis for the notes they affect — never a broken page.
@@ -29,42 +36,46 @@ All notable changes to Local Grindz are documented here.
   download or host. FluidR3_GM (MIT, Frank Wen) is served from
   `raw.githubusercontent.com` with `access-control-allow-origin: *`, verified by
   request. 30 zones, ~740 KB for the full range, ~250 KB for the chord wheel.
-- **`src/lib/pianoEngine.ts`** — `AudioBufferSourceNode → BiquadFilter → GainNode
-  → master`. Fallback layers are rendered at boot by additive synthesis with
-  inharmonic partials; synthesis is *declared*, not disguised, and no sample
-  library ships inside this repository. `renderLayer()` is the one drop-in point.
-- **`src/lib/smartPiano.ts`** — the pure half: velocity from strike position,
-  squared gain, exponential cutoff (500 Hz → 9 kHz), eight chords voiced into a
-  fixed register, bar/beat quantize, and voice stealing that takes the quietest
-  voice (ties to the oldest) rather than the loudest.
-- **`/#/piano`** — the chord wheel, in the Kula Mele palette read from
-  `src/lib/harmonics.ts`. Strike near the top of a pad for soft, the bottom for
-  hard. An Instrument panel shows notes ready, fetching, unavailable and bytes,
-  and displays the library's attribution line — which is how a CC-BY library
-  stays honestly used.
+- **An Instrument panel** on `/#/piano` showing notes ready, fetching,
+  unavailable and bytes, and displaying the library's attribution line — which is
+  how a CC-BY library stays honestly used. "Use synthesis" goes back at any time.
 - **`docs/SAMPLE_LIBRARY.md`** — start-to-finish instructions for Salamander
-  Grand Piano, the manifest format, and troubleshooting.
+  Grand Piano, the manifest format, level matching, and troubleshooting.
+
+### Changed
+- `PianoEngine.noteOn` asks the library before falling back to its rendered
+  layers, and reports which it used. `renderLayer` is now a module-level export,
+  because its loudness is the reference every recording is matched to and that
+  deserves to be measurable in a test.
 
 ### Fixed (found by testing, not by reading)
+- **Loading a real library made the piano nearly inaudible.** FluidR3's files
+  peak near 0.09 against the rendered layer's 0.45 — measured, not assumed. Fixed
+  by matching loudness on decode. Matching *peak* was tried first and still left
+  recordings ~10 dB soft: a struck string is a sharp transient over a quiet
+  decay, so RMS is what the ear is actually reporting.
 - A failed manifest load reported the raw JSON parser exception
   (`Unexpected token '<'`), because a single-page host answers an unknown path
-  with `index.html`. It now says the server returned a web page, not JSON, and
-  to check the path.
+  with `index.html`. It now says the server returned a web page, not JSON.
 - A failed load showed an error while the previously-loaded library was still
   playing, with no indication of that. It now names what is still playing.
 
 ### Notes
 - `public/piano/*/` is gitignored: manifests are committed, audio is not.
-- Verified: 84 assertions in Node over the pure logic and the library's async
-  behaviour (laziness, in-flight dedupe, permanent 404s, retry, gap reporting,
-  unload), and 28 in headless Chromium against **real MP3s** with the audio
-  output metered — confirming a synthesized chord makes sound before any file is
-  fetched, that nothing is fetched until Load is pressed, that a soft strike
-  reads velocity 40 against 120 for a hard one, that playing all eight chords
-  after prefetch downloads nothing further, and that the piano keeps playing
-  after a manifest fails.
-- The chord wheel's colours come from `alphabetNodes()`; nothing here computes a
-  colour of its own.
+- Verified with 131 assertions: 60 in Node over the pure logic (validation,
+  selection, stretch limits, chord voicings, autoplay patterns, polyphony), 35
+  over the library's async behaviour (laziness, in-flight dedupe, permanent 404s,
+  retry, gap reporting, unload, normalization), 4 decoding all 30 real MP3s
+  offline to confirm every note lands within 2× of the synthesized layer's
+  loudness and none can clip, and 32 in headless Chromium against real MP3s —
+  confirming a synthesized chord sounds before any file is fetched, that nothing
+  is fetched until Load is pressed, that a soft strike reads velocity 40 against
+  120 for a hard one, that playing all eight chords after prefetch downloads
+  nothing further, and that the piano keeps playing after a manifest fails.
+- One test finding was a *measurement* fault rather than a code fault: polling an
+  `AnalyserNode` on a 20 ms timer misses a 5 ms piano transient under automation,
+  giving peaks that swung 4× between runs. The meter now sees every sample, and
+  the level claim is asserted offline where timing cannot affect it.
 
 ---
 
