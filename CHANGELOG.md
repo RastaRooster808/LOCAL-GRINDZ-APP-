@@ -4,6 +4,50 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Vendor: Inoch's Ital (2026-08-26)
+
+### Added
+- **Inoch's Ital** — a Caribbean ital (plant-based) mobile kitchen — as a full
+  vendor: a `vendors` row with three menu items and a location, plus a featured
+  card under Food Trucks in `src/lib/marketplace.ts`.
+  - Menu read off the truck's own hand-painted board: Veggie Burger $9,
+    Breadfruit Fries $7, Red Lentil Curry Soup $8.
+  - The card carries no photograph. The only image available is someone else's
+    Facebook photo, so the truck's red/gold/green paint is rendered as the
+    card's gradient instead.
+- `docs/migrations/phase-5d-seed-inochs-ital.sql` — idempotent seed, following
+  the `phase-4-1-seed-vendors.sql` pattern. Verified idempotent by running it
+  twice against the live database: no duplicate rows.
+- `'caribbean'` added to the Food Trucks category matches, so Caribbean vendors
+  are found by cuisine alone. Deliberately **not** `'ital'` — as an `ilike`
+  substring it would also match "Italian" and "digital".
+
+### Not recorded, because nobody has confirmed it
+Neighborhood, street address, hours, phone, contact email, socials and payment
+handles are all left NULL rather than guessed, and the location is seeded
+`closed` rather than asserting the truck is open somewhere. The source is a
+Facebook post from July 2025 — over a year old — and Inoch has not been
+contacted. Fill these in and flip the location to `open` before promoting it.
+
+### Notes
+- `menu_items.category` is stored **singular** (`main`, `side`, `soup`):
+  `src/pages/Storefront.tsx` renders `{category}s`, so `Mains` would display as
+  "Mainss". Caught in the browser, not by reading — the first insert used plural
+  categories and rendered MAINSS / SIDESS / SOUPSS.
+  The same quirk affects two existing vendors (Ala's `Burgers` → "Burgerss",
+  Golden Shot `Wellness` → "Wellnesss"). Left alone: their menu labels are not
+  mine to rename.
+- Verified with 10 assertions in headless Chromium against the real rows —
+  the featured card renders under Food Trucks with its tagline and badges, the
+  storefront loads the vendor with all three items at the right prices, the
+  menu headings read Mains / Sides / Soups, and no invented address or hours
+  appear anywhere on the page.
+- Anon-role read confirmed in SQL: RLS exposes the vendor, its 3 menu items and
+  its location. Category matching confirmed against the exact `ilike` set the
+  Directory sends — matches on `vegan` and `caribbean`.
+
+---
+
 ## [Unreleased] — Smart Piano: real recordings, fetched a note at a time (2026-08-24)
 
 Brings the Smart Piano chord wheel onto the current branch and gives it a path

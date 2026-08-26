@@ -27,7 +27,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
   { slug: 'all', label: 'All', icon: '🌈', matches: [] },
   {
     slug: 'foodtrucks', label: 'Food Trucks', icon: '🚚',
-    matches: ['burger', 'plate', 'seafood', 'vegan', 'coffee', 'dessert', 'bbq', 'restaurant', 'food', 'truck', 'smash'],
+    matches: ['burger', 'plate', 'seafood', 'vegan', 'caribbean', 'coffee', 'dessert', 'bbq', 'restaurant', 'food', 'truck', 'smash'],
   },
   {
     slug: 'bakery', label: 'Bakery', icon: '🍞',
@@ -116,6 +116,23 @@ export const FEATURED_VENDORS: FeaturedVendor[] = [
     emoji: '🍔',
     theme: { banner: 'linear-gradient(135deg, #2b1d16 0%, #6e2b1e 45%, #E63946 100%)', accent: '#E63946' },
     menuSlug: 'alas-kitchen',
+    shopLabel: 'View Menu',
+    rating: 'New',
+  },
+  {
+    id: 'inochs-ital',
+    name: "Inoch's Ital",
+    categorySlug: 'foodtrucks',
+    categoryLabel: 'Featured Food Truck',
+    tagline: 'Caribbean Ital, Hawaiian Style',
+    description:
+      'Caribbean ital cooking out of a hand-painted mobile kitchen — veggie burgers, breadfruit fries, and red lentil curry soup, all plant-based.',
+    badges: ['Ital Vegan', 'Caribbean', 'Mobile Kitchen'],
+    // No photo yet: the only image we have is someone else's Facebook post, so
+    // the red/gold/green of the truck itself carries the card instead.
+    emoji: '🥥',
+    theme: { banner: 'linear-gradient(135deg, #1e7a3c 0%, #f2c200 55%, #d81f1f 100%)', accent: '#1e7a3c' },
+    menuSlug: 'inochs-ital',
     shopLabel: 'View Menu',
     rating: 'New',
   },
