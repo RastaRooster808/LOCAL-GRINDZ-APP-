@@ -4,6 +4,49 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Correction: the tuner was not making octave errors (2026-08-27)
+
+The previous entry diagnosed ~9% harmonic errors in two acapella takes as a YIN
+octave-error bug caused by too short an analysis window. **That diagnosis was
+wrong.** The recordings are choir songs.
+
+### What is actually true
+- **The detector is monophonic.** YIN finds one period. Given many voices at
+  different pitches it tracks whichever part dominates and switches between them
+  — which reads as octave and fifth jumps. That is the algorithm working as
+  designed, not failing.
+- The evidence was already in the suite and was overlooked: synthesized solo
+  voices from E2 to C4 resolved perfectly at the *old* 2048 window. A solo voice
+  produces 0–1% harmonic slips at either size.
+- What polyphony destroys is consistency, and the interval decides how badly.
+  Frames agreeing with their neighbours: solo tenor 86%, two voices an octave
+  apart 78%, two voices **a fifth apart 13%**, four-part chord 63%. An octave
+  pair stays periodic at the lower fundamental so YIN copes; a fifth is periodic
+  at neither, so it thrashes.
+- **Analysing a choir needs polyphonic multi-F0 detection** — a substantially
+  harder problem, and not something the tuner should be stretched to cover. The
+  signature sign-in is one person singing alone, which is the case it is for.
+
+### What still stands
+- **The FFT difference function.** O(W log W) instead of O(W²), 0.94ms per
+  4096-sample frame against 6.6ms, checked against the direct computation to a
+  relative error under 1e-9. That is a real speedup regardless of window size.
+- **The 4096-sample window** — kept, but for *stability*, not for octave errors.
+  A longer window averages more periods, which a real voice needs. Solo-voice
+  frames agreeing with their neighbours: 65% → 89% under heavy noise and
+  vibrato, 84% → 92% when quiet, 74% → 82% down at E2.
+  It is **not** strictly better: with very heavy vibrato the longer window
+  smears the pitch and harmonic slips rose from 0% to 5%. Latency doubles to
+  93ms. If the tuner ever feels slow to bloom, 2048 is the trade to make.
+
+### Added
+- Tests pinning the monophonic limit in place, so it is not re-diagnosed as a
+  bug: a solo voice tracks consistently and slips <2%; two voices a fifth apart
+  break tracking outright. The octave-pair case is deliberately *not* used as
+  the demonstration, because YIN handles it correctly.
+
+---
+
 ## [Unreleased] — YIN was making octave errors on low voices (2026-08-27)
 
 Two real acapella takes exposed something the synthesized validation could not.

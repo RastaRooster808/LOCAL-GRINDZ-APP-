@@ -357,11 +357,23 @@ export function SignatureSong() {
       const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
       const src = ctx.createMediaStreamSource(stream);
       const analyser = ctx.createAnalyser();
-      // 4096, not 2048. At 2048 YIN sees under two periods of a low voice and
-      // starts picking harmonics: measured on a real vocal take, 8.7% of frames
-      // landed an exact octave or fifth away from their neighbours, against
-      // 4.6% at this size. Affordable now that the difference function goes
+      // 4096, not 2048 — for stability, not for octave errors. A longer window
+      // averages more periods, which is what a real voice needs: measured on a
+      // synthesized solo voice, frames agreeing with their neighbours went from
+      // 65% to 89% with heavy noise and vibrato, 84% to 92% when quiet, and 74%
+      // to 82% down at E2. Affordable now that the difference function goes
       // through an FFT — 0.94ms a frame instead of 6.6ms.
+      //
+      // It is NOT strictly better: with very heavy vibrato a longer window
+      // smears the pitch, and harmonic slips rose from 0% to 5% in that one
+      // case. If the tuner ever feels unresponsive, 2048 is the trade to make.
+      //
+      // NOTE: this detector is MONOPHONIC. It finds one period, so it can only
+      // ever follow one voice. Given a choir it will track whichever part
+      // dominates and switch between them — which reads as octave and fifth
+      // jumps, and is the detector working as designed, not failing. The
+      // signature sign-in is one person singing alone, which is the case it is
+      // built for.
       analyser.fftSize = 4096;
       src.connect(analyser);
       const buf = new Float32Array(analyser.fftSize);
