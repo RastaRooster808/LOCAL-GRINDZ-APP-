@@ -22,6 +22,14 @@ const VOICE_TRIGGERS = [
   { id: 'chord', name: 'Chord', say: 'try a sharp "tss"' },
 ] as const;
 const VOICE_MIN_TAKES = 3;
+/** Below this, leave-one-out on the trained takes says the two sounds are being
+ *  confused often enough to be worth saying so. Calibrated against four real
+ *  beatbox takes: the pairs that actually performed worst (55% and 67% on
+ *  held-out hits) scored 45% and 44% here, while the best (93%, 88%) scored 63%
+ *  and 76%. The measure reads low in absolute terms — leave-one-out on a
+ *  handful of takes is pessimistic by construction — so it is used as a
+ *  threshold, not shown as a number. */
+const VOICE_SEPARABLE_MIN = 0.55;
 
 const NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
 const noteName = (m: number) => `${NAMES[((m % 12) + 12) % 12]}${Math.floor(m / 12) - 1}`;
@@ -67,6 +75,7 @@ export function SmartPiano() {
   const [learning, setLearning] = useState<string | null>(null);
   const [takes, setTakes] = useState<Record<string, number>>({});
   const [lastTrigger, setLastTrigger] = useState<{ label: string; confidence: number; velocity: number } | null>(null);
+  const [separable, setSeparable] = useState<{ accuracy: number; samples: number } | null>(null);
 
   // Scheduler state lives in refs — it runs on a timer, not on renders.
   const held = useRef<Map<string, number[]>>(new Map());
@@ -126,6 +135,7 @@ export function SmartPiano() {
     const model = voice.current?.model;
     if (!model) return;
     setTakes(Object.fromEntries(model.labels.map(l => [l, model.takeCount(l)])));
+    setSeparable(model.crossValidate());
   }, []);
 
   const enableVoice = useCallback(async () => {
@@ -459,6 +469,14 @@ export function SmartPiano() {
                   ? `Ready — beatbox away. Voice hits play ${lastTouched.current.label}; tap another chord to move the harmony.`
                   : `Record at least ${VOICE_MIN_TAKES} takes of each sound to start playing.`}
             </p>
+
+            {separable && (
+              <p className={'sp-voice-verdict' + (separable.accuracy < VOICE_SEPARABLE_MIN ? ' is-poor' : '')}>
+                {separable.accuracy < VOICE_SEPARABLE_MIN
+                  ? 'These two sounds are hard to tell apart. Try making them more different from each other — a low, closed sound against a bright, open one — and record fresh takes.'
+                  : 'These two sounds are easy to tell apart.'}
+              </p>
+            )}
 
             <p className="sp-voice-last" aria-live="polite">
               {lastTrigger

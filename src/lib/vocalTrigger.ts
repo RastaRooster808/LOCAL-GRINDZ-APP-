@@ -309,6 +309,43 @@ export class TriggerModel {
     return { label: best, confidence: Math.max(0, Math.min(1, confidence)), distance: bestD };
   }
 
+  /**
+   * How reliably can these trained sounds actually be told apart?
+   *
+   * Leave-one-out: drop each take, refit on the rest, and see whether the take
+   * is still called correctly. This measures the thing that matters directly,
+   * using only takes the person already recorded — no extra recording, and no
+   * guessing from a confidence number. (Mean confidence was tried as a proxy on
+   * real takes and correlated only 0.49 with accuracy, with a pair scoring the
+   * HIGHEST confidence and among the worst accuracy. It is not a substitute.)
+   *
+   * Returns null until there are at least two labels with two takes each.
+   */
+  crossValidate(): { accuracy: number; samples: number } | null {
+    const labels = [...this.takes.keys()];
+    if (labels.length < 2 || labels.some(l => (this.takes.get(l)?.length ?? 0) < 2)) return null;
+
+    const original = new Map([...this.takes].map(([l, list]) => [l, [...list]]));
+    let right = 0, total = 0;
+    try {
+      for (const label of labels) {
+        const list = original.get(label)!;
+        for (let i = 0; i < list.length; i++) {
+          this.takes = new Map([...original].map(([l, xs]) =>
+            [l, l === label ? xs.filter((_, k) => k !== i) : xs]));
+          this.fit();
+          const match = this.classify(list[i]);
+          total++;
+          if (match?.label === label) right++;
+        }
+      }
+    } finally {
+      this.takes = original;
+      this.fit();
+    }
+    return total ? { accuracy: right / total, samples: total } : null;
+  }
+
   /** Everything the model knows, for saving to localStorage or a file. */
   toJSON(): Record<string, Features[]> {
     return Object.fromEntries(this.takes);

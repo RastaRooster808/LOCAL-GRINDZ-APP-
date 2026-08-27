@@ -116,6 +116,53 @@ to 19%**. Pitch varies a lot *within* one sound (295–384 Hz across takes of th
 same sound), so it inflates within-class spread without separating the classes.
 Not adopted.
 
+## Four real takes: what separates and what doesn't
+
+Four beatbox recordings, each one sound, run through the real engine. Trained on
+alternate takes and scored on the rest:
+
+| pair | held-out accuracy |
+|---|---|
+| take 1 vs take 3 | **93%** |
+| take 1 vs take 4 | 88% |
+| take 2 vs take 3 | 80% |
+| take 2 vs take 4 | 73% |
+| take 1 vs take 2 | 67% |
+| take 3 vs take 4 | **55% — a coin flip** |
+
+**Two triggers work; four do not.** All four at once scored 42% against 25%
+chance: take 1 was identified 9/10, and takes 2–4 were barely distinguished from
+each other. They overlap in every feature — pitch 83–190Hz, centroid 200–470Hz,
+no high-frequency content at all. The sample is small (10–16 scored hits per
+pair) so treat the exact percentages loosely; the ordering is the useful part.
+
+The lesson is not to add features. It is to **pick two sounds that genuinely
+differ**. Two attempts at fixing it with features were measured and rejected:
+
+- **Pitch.** Every hit had one and the classifier ignored it. Accuracy unchanged,
+  mean confidence fell 32% → 19%: pitch varies more *within* one sound than
+  between sounds.
+- **Attack and decay envelope.** Net gain about 1%, but it *hurt* the pairs that
+  already worked — 93% → 87% and 88% → 75% — while helping the worst pair. A
+  bad trade.
+
+## Is my pair any good?
+
+The panel answers this at training time rather than leaving it to be discovered
+mid-performance. `TriggerModel.crossValidate()` holds out each recorded take in
+turn, refits on the rest, and checks whether the take is still called correctly.
+
+That is measured on takes already recorded — no extra effort — and it predicts
+real performance far better than the alternative: across the six pairs above it
+correlated **0.80** with held-out accuracy, where mean confidence managed only
+0.49. Confidence is actively misleading at the top: the pair with the *highest*
+mean confidence (35%) was among the worst performers (67%).
+
+It reads low in absolute terms — leave-one-out on a handful of takes is
+pessimistic by construction — so it drives a threshold rather than being shown
+as a number. Below 55% the panel says the two sounds are hard to tell apart and
+suggests making them more different.
+
 ## Known limits
 
 - A sound already in progress when the stream opens can only be noticed one

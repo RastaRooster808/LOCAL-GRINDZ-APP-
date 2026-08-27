@@ -4,6 +4,47 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Four beatbox takes: two triggers work, four don't (2026-08-27)
+
+### Added
+- **`TriggerModel.crossValidate()`** and a verdict line in the voice panel. It
+  holds out each recorded take, refits on the rest, and checks whether the take
+  is still called correctly — then says plainly whether the two trained sounds
+  are easy or hard to tell apart, at training time rather than mid-performance.
+  Measured against four real takes it correlates **0.80** with held-out accuracy;
+  mean confidence, the obvious alternative, manages 0.49 and is actively
+  misleading at the top — the pair with the highest confidence (35%) was among
+  the worst performers (67%). Threshold set at 55%, calibrated on those takes.
+
+### Measured
+Four beatbox recordings, one sound each, trained on alternate takes:
+
+| pair | held-out accuracy |
+|---|---|
+| 1 vs 3 | 93% |
+| 1 vs 4 | 88% |
+| 2 vs 3 | 80% |
+| 2 vs 4 | 73% |
+| 1 vs 2 | 67% |
+| 3 vs 4 | 55% |
+
+All four at once: 42%, against 25% chance. Take 1 was identified 9/10; takes
+2–4 were barely told apart from each other, overlapping in every feature —
+pitch 83–190Hz, centroid 200–470Hz, no high-frequency content. Small samples
+(10–16 scored hits per pair), so the ordering matters more than the exact
+figures.
+
+### Not adopted
+- **Attack/decay envelope features.** The obvious next idea after pitch failed:
+  a single 46ms snapshot cannot see how a sound starts or evolves. Net gain
+  about 1%, but it *hurt* the pairs that already worked (93% → 87%, 88% → 75%)
+  to help the worst one. Rejected.
+- Together with the pitch attempt recorded earlier, that is two feature ideas
+  tested and dropped on evidence. The answer to "these two sounds get confused"
+  is to pick more distinct sounds, which is what the app now says.
+
+---
+
 ## [Unreleased] — Correction: the tuner was not making octave errors (2026-08-27)
 
 The previous entry diagnosed ~9% harmonic errors in two acapella takes as a YIN
