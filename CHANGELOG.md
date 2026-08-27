@@ -4,6 +4,49 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Vendor: Uncle Robert's, and venues without menus (2026-08-26)
+
+### Added
+- **Uncle Robert's Awa Bar & Farmers Market** (Kalapana) as a `vendors` row in
+  the Markets category, plus a featured card linking out to
+  uncleroberts.website. Matches the category on both `market` and `farm`.
+- `docs/migrations/phase-5e-seed-uncle-roberts.sql` — idempotent seed, verified
+  by running it twice against the live database with no duplicate rows.
+
+### Changed
+- **`src/pages/Storefront.tsx` hides the Menu and Place Order sections, and
+  their nav links, when a vendor has no menu items.** Uncle Robert's is a venue
+  that hosts food vendors, not a kitchen with a menu of its own; before this it
+  would have rendered an empty Menu and a working "Place Order" form, inviting
+  an order nobody could fill. The guard is general, so any future venue listing
+  gets the same treatment.
+
+### Not recorded, because it could not be confirmed
+`uncleroberts.website` is blocked by this environment's network egress proxy —
+via WebFetch and curl alike — so nothing was read from it. Street address,
+market nights, hours, phone, contact email and socials are all left NULL rather
+than written from memory, and the location is seeded `closed` rather than
+asserting the market is on tonight. The description carries only what is
+long-established about the place. Confirm with the ʻohana before promoting it.
+
+### Notes
+- The card's button uses `https://uncleroberts.website/`. The `#google_vignette`
+  fragment on the shared link is Google's ad interstitial, not part of the
+  address, so it is stripped.
+- No photograph on the card — none available that is ours to use — so a lava-and-
+  ocean gradient carries it, as with Inoch's Ital.
+- Verified with 20 assertions in headless Chromium against the real rows: the
+  card renders under Markets with its tagline and badges, its button points at
+  their own site and opens in a new tab, the venue storefront shows Location,
+  Specials and Reviews with **no** Menu or Order section and no Place Order
+  button, and — the regression that mattered, since this touched shared code —
+  Inoch's Ital still renders its full menu, its Order section and its nav links
+  unchanged.
+- Anon-role read confirmed in SQL: the vendor and its location are visible, with
+  zero menu items.
+
+---
+
 ## [Unreleased] — Vendor: Inoch's Ital (2026-08-26)
 
 ### Added
