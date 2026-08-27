@@ -410,3 +410,41 @@ is the ensemble's cue that identity mode has ended and direction mode begun.
 **Safety, carried over from the source document:** a signature used to sign in is
 a credential. It should not be called aloud in a public set, and a performance
 word should differ from a sign-in word. The app states this in the codex panel.
+
+## Pitch detection — measured against real vocals
+
+Two acapella takes (47s and 54s) were run through the tuner's own detector. The
+result was not what the synthesized validation suggested.
+
+At the window the tuner used (2048 samples, 46ms), roughly **9% of frames landed
+an exact octave, fifth or twelfth away from their neighbours** — YIN choosing a
+harmonic instead of the fundamental. The pitch track was otherwise very steady
+(median frame-to-frame movement 0.11 semitones), so this was not a noisy signal:
+it was clean tracking of the wrong partial, about one frame in eleven. Errors
+clustered at the low end — around 194Hz where correct frames sat at 254Hz.
+
+The cause is window length. At 2048 samples YIN's comparison window is 1024
+samples, which is under two periods of an 80Hz voice — too little to tell a
+period from half a period. The 13 colour-keys never exposed this because they
+live at C4–A5 (262–880Hz), where 1024 samples is 12 to 40 periods.
+
+| window | latency | frames agreeing with neighbours | harmonic errors |
+|---|---|---|---|
+| 2048 | 46ms | 80.9% / 66.1% | 8.7% / 9.0% |
+| **4096** | **93ms** | **89.8% / 80.6%** | **4.6% / 5.2%** |
+| 8192 | 186ms | 95.5% / 93.0% | 2.3% / 2.1% |
+
+*(two figures per cell: acapella 1 / acapella 2)*
+
+The tuner now uses **4096** — errors roughly halved for 93ms of latency. 8192 is
+better again and is now affordable, but 186ms is enough lag to make the flower
+feel slow to bloom; it is the right choice only if the tuner is ever retargeted
+at sustained notes alone.
+
+This was only affordable because the difference function moved to an FFT.
+Computing d(tau) directly is O(W²), which is what pinned the window at 2048 in
+the first place. Via `src/lib/fft.ts` it is O(W log W): **0.94ms per 4096-sample
+frame instead of 6.6ms**, comfortably inside a 512-sample hop. The FFT path is
+checked against the direct computation to a relative error under 1e-9, and
+`differenceFunctionDirect` is kept in the source as that reference.
+

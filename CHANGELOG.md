@@ -4,6 +4,55 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — YIN was making octave errors on low voices (2026-08-27)
+
+Two real acapella takes exposed something the synthesized validation could not.
+
+### Fixed
+- **~9% of pitch frames were landing an exact octave, fifth or twelfth from
+  their neighbours** — YIN locking onto a harmonic rather than the fundamental.
+  The track was otherwise very steady (median frame-to-frame movement 0.11
+  semitones), so this was clean tracking of the wrong partial, about one frame
+  in eleven, clustered at the low end of the voice.
+  The cause was window length: at the tuner's 2048 samples, YIN's comparison
+  window is 1024 samples — under two periods of an 80Hz voice. The thirteen
+  colour-keys never exposed it because they sit at C4–A5, where the same window
+  holds 12 to 40 periods.
+- **`src/pages/SignatureSong.tsx` now analyses 4096 samples**, halving the error
+  rate (8.7% → 4.6% and 9.0% → 5.2% across the two takes) for 93ms of latency.
+
+### Changed
+- **YIN's difference function now goes through an FFT.** Computing d(tau)
+  directly is O(W²), which is what pinned the window at 2048 in the first place;
+  via FFT it is O(W log W) — **0.94ms per 4096-sample frame instead of 6.6ms**,
+  comfortably inside a 512-sample hop. This is what made the larger window
+  affordable at all.
+  `differenceFunctionDirect` is kept in the source as the reference the fast
+  path is checked against, to a relative error under 1e-9.
+- **`src/lib/fft.ts`** — the FFT and Hann window lifted out of
+  `vocalTrigger.ts` so the pitch detector can share them. `fft` now accepts
+  `Float64Array`, because d(tau) = P₁ + P₂ − 2r cancels large sums and float32
+  handles that poorly.
+
+### Measured
+| window | latency | frames agreeing | harmonic errors |
+|---|---|---|---|
+| 2048 | 46ms | 80.9% / 66.1% | 8.7% / 9.0% |
+| 4096 | 93ms | 89.8% / 80.6% | 4.6% / 5.2% |
+| 8192 | 186ms | 95.5% / 93.0% | 2.3% / 2.1% |
+
+8192 is better again and now affordable, but 186ms is enough lag to make the
+flower feel slow to bloom. Left at 4096.
+
+### Notes
+- The thirteen colour-keys still resolve 13/13 at both 2048 and 4096 — the
+  change does not disturb what was already validated. E2–C4 (MIDI 40–60), the
+  range where the errors lived, now resolves fully at both sizes too.
+- Verified with 8 new assertions in Node plus all eight existing suites re-run
+  green (225 assertions total).
+
+---
+
 ## [Unreleased] — Voice triggers measured against a real voice (2026-08-27)
 
 ### Fixed
