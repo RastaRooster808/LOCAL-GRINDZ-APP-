@@ -29,7 +29,8 @@ export type EventName =
   | 'protea_print_buy'
   | 'field_report_join'
   | 'signature_unlock'
-  | 'piano_library_loaded';
+  | 'piano_library_loaded'
+  | 'piano_voice_enabled';
 
 export interface EventPayload {
   label?: string;

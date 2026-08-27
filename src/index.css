@@ -2557,10 +2557,10 @@
 .sp-lib-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
 .sp-lib-url { flex: 1 1 320px; min-width: 0; font: inherit; font-size: 0.82rem; padding: 0.45rem 0.6rem;
   border: 1px solid #c8d2c4; border-radius: 8px; background: #fbfcfa; }
-.sp-lib-btn { font: inherit; font-size: 0.85rem; padding: 0.45rem 0.95rem; border-radius: 8px;
+.sp-btn { font: inherit; font-size: 0.85rem; padding: 0.45rem 0.95rem; border-radius: 8px;
   border: 1px solid #2f6f4e; background: #2f6f4e; color: #fff; cursor: pointer; }
-.sp-lib-btn[disabled] { opacity: 0.6; cursor: default; }
-.sp-lib-btn-quiet { background: transparent; color: #2f6f4e; }
+.sp-btn[disabled] { opacity: 0.6; cursor: default; }
+.sp-btn-quiet { background: transparent; color: #2f6f4e; }
 .sp-lib-msgs { margin: 0.7rem 0 0; padding-left: 1.1rem; font-size: 0.82rem; color: #6a6033; }
 .sp-lib-msgs.is-error { color: #9e3b2f; }
 .sp-lib-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
@@ -2573,3 +2573,25 @@
 .sp-tech summary { cursor: pointer; color: #2f6f9e; }
 .sp-tech p { max-width: 64ch; }
 .sp-tech code { background: #eef2ec; padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.92em; }
+
+/* Voice triggers — beatbox into the chord wheel. */
+.sp-voice { border-top: 1px solid #d8dfd4; margin-top: 1.6rem; padding-top: 1.2rem; }
+.sp-voice-error { margin: 0.7rem 0 0; font-size: 0.85rem; color: #9e3b2f; max-width: 62ch; }
+.sp-voice-train { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.6rem; margin: 0.9rem 0 0.2rem; }
+.sp-voice-slot { display: flex; flex-direction: column; gap: 0.15rem; text-align: left;
+  padding: 0.7rem 0.8rem; border: 1px solid #c8d2c4; border-radius: 12px;
+  background: #fbfcfa; cursor: pointer; font: inherit; color: inherit; }
+.sp-voice-slot.is-ready { border-color: #2f6f4e; }
+.sp-voice-slot.is-learning { border-color: #d81f1f; background: #fff4f2;
+  box-shadow: 0 0 0 3px rgba(216, 31, 31, 0.12); }
+.sp-voice-slot:focus-visible { outline: 3px solid #213021; outline-offset: 2px; }
+.sp-voice-name { font-family: Georgia, serif; font-weight: 700; font-size: 1.05rem; }
+.sp-voice-say { font-size: 0.8rem; color: #6a756a; font-style: italic; }
+.sp-voice-count { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: #7a857a; font-variant-numeric: tabular-nums; }
+.sp-voice-action { margin-top: 0.25rem; font-size: 0.78rem; color: #2f6f4e; }
+.sp-voice-slot.is-learning .sp-voice-action { color: #d81f1f; font-weight: 600; }
+.sp-voice-status { margin: 0.6rem 0 0; font-size: 0.85rem; color: #4a5a4a; max-width: 62ch; }
+.sp-voice-last { min-height: 1.5em; margin: 0.3rem 0 0; font-size: 0.85rem;
+  color: #4a5a4a; font-variant-numeric: tabular-nums; }

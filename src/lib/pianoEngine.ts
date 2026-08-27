@@ -122,6 +122,9 @@ export class PianoEngine {
   libraryStats(): LibraryStats | null { return this.library?.stats() ?? null; }
 
   get currentTime(): number { return this.ctx ? this.ctx.currentTime : 0; }
+  /** The live context, so the microphone path can share one audio clock —
+   *  two AudioContexts on a page drift against each other. */
+  get audioContext(): AudioContext | null { return this.ctx; }
   get ready(): boolean { return !!this.ctx; }
   get voiceCount(): number { return this.voices.length; }
 

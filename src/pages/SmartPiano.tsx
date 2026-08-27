@@ -8,11 +8,20 @@ import { Link } from 'react-router-dom';
 import { trackEvent } from '../lib/analytics';
 import { PianoEngine } from '../lib/pianoEngine';
 import type { LibraryStats } from '../lib/sampleLoader';
+import { VocalInput, saveModel, loadTakes, clearSaved, type Hit } from '../lib/vocalInput';
 import {
   CHORDS, PATTERNS, STEPS_PER_BAR, MAX_POLYPHONY,
   voicingFor, velocityFromTouch, nextBoundary, secondsPerStep, secondsPerBar,
   type AutoplayState, type Zone, type Chord,
 } from '../lib/smartPiano';
+
+/** The two things a voice can play here. Named for what they do in the music,
+ *  not for drum-kit pieces — the wheel supplies pitch, the voice supplies time. */
+const VOICE_TRIGGERS = [
+  { id: 'bass',  name: 'Bass',  say: 'puh' },
+  { id: 'chord', name: 'Chord', say: 'tss' },
+] as const;
+const VOICE_MIN_TAKES = 3;
 
 const NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
 const noteName = (m: number) => `${NAMES[((m % 12) + 12) % 12]}${Math.floor(m / 12) - 1}`;
@@ -46,6 +55,18 @@ export function SmartPiano() {
   const [libState, setLibState] = useState<'idle' | 'loading' | 'on' | 'error'>('idle');
   const [libMessages, setLibMessages] = useState<string[]>([]);
   const [sampled, setSampled] = useState(false);
+
+  // ── Voice triggers ───────────────────────────────────────────────────────
+  // Your voice plays the RHYTHM; the wheel still chooses the harmony. Train a
+  // sound for the bass and a sound for the chord, then beatbox the groove while
+  // your hand picks chords.
+  const voice = useRef<VocalInput | null>(null);
+  const lastTouched = useRef<Chord>(CHORDS[4]);
+  const [voiceOn, setVoiceOn] = useState(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [learning, setLearning] = useState<string | null>(null);
+  const [takes, setTakes] = useState<Record<string, number>>({});
+  const [lastTrigger, setLastTrigger] = useState<{ label: string; confidence: number; velocity: number } | null>(null);
 
   // Scheduler state lives in refs — it runs on a timer, not on renders.
   const held = useRef<Map<string, number[]>>(new Map());
@@ -101,6 +122,77 @@ export function SmartPiano() {
     void e.prefetch([...notes], [30, 70, 110]).then(() => setLibStats(e.libraryStats()));
   }, [boot]);
 
+  const refreshTakes = useCallback(() => {
+    const model = voice.current?.model;
+    if (!model) return;
+    setTakes(Object.fromEntries(model.labels.map(l => [l, model.takeCount(l)])));
+  }, []);
+
+  const enableVoice = useCallback(async () => {
+    setVoiceError(null);
+    await boot();
+    const e = engine.current;
+    const ctx = e?.audioContext;
+    if (!e || !ctx) { setVoiceError('Audio is not running yet — tap a chord first.'); return; }
+
+    if (!voice.current) {
+      const input = new VocalInput(ctx);
+      // Training costs someone a minute of their time; restore it if it's there.
+      const saved = loadTakes();
+      if (saved) {
+        for (const [label, list] of Object.entries(saved)) {
+          for (const f of list) input.model.learn(label, f);
+        }
+      }
+      input.onHit((hit: Hit) => {
+        if (input.learningLabel) { refreshTakes(); return; }
+        if (!hit.match || hit.match.confidence < 0.08) return;   // too close to call
+        setLastTrigger({ label: hit.match.label, confidence: hit.match.confidence, velocity: hit.velocity });
+        const chord = lastTouched.current;
+        const zone: Zone = hit.match.label === 'bass' ? 'BASS_HEAD' : 'CHORD_BODY';
+        for (const n of voicingFor(chord, zone)) e.noteOn(n, hit.velocity);
+        setVoices(e.voiceCount);
+      });
+      voice.current = input;
+    }
+
+    try {
+      await voice.current.start();
+      setVoiceOn(true);
+      refreshTakes();
+      trackEvent('piano_voice_enabled');
+    } catch (err) {
+      setVoiceError((err as Error).name === 'NotAllowedError'
+        ? 'Microphone permission was declined, so voice triggers stay off.'
+        : `Could not open the microphone: ${(err as Error).message}`);
+    }
+  }, [boot, refreshTakes]);
+
+  const disableVoice = useCallback(() => {
+    voice.current?.stop();
+    voice.current?.learn(null);
+    setVoiceOn(false);
+    setLearning(null);
+  }, []);
+
+  const toggleLearn = useCallback((label: string) => {
+    const input = voice.current;
+    if (!input) return;
+    const next = input.learningLabel === label ? null : label;
+    input.learn(next);
+    setLearning(next);
+    if (!next && input.model.trained) saveModel(input.model);
+  }, []);
+
+  const resetTriggers = useCallback(() => {
+    voice.current?.model.clear();
+    voice.current?.learn(null);
+    clearSaved();
+    setLearning(null);
+    setTakes({});
+    setLastTrigger(null);
+  }, []);
+
   const dropLibrary = useCallback(() => {
     engine.current?.unloadLibrary();
     setLibState('idle');
@@ -134,6 +226,7 @@ export function SmartPiano() {
     const notes = voicingFor(chord, zone);
     const ids = notes.map(n => e.noteOn(n, velocity));
     held.current.set(`${chord.id}:${zone}`, ids);
+    lastTouched.current = chord;
     setLastHit({ chord: chord.id, zone, velocity, notes });
     setSampled(e.lastWasSampled);
     setVoices(e.voiceCount);
@@ -299,6 +392,99 @@ export function SmartPiano() {
       )}
 
 
+
+      <section className="sp-voice">
+        <h2 className="sp-lib-title">Voice triggers</h2>
+        <p className="sp-lib-lede">
+          Your voice plays the rhythm; the wheel still picks the harmony. Train one
+          sound for the bass and one for the chord, then beatbox the groove while
+          your hand moves across the chords. It learns <em>your</em> mouth — nothing
+          is pretrained, because a stranger&rsquo;s kick drum is not yours.
+        </p>
+
+        <div className="sp-lib-row">
+          {!voiceOn
+            ? <button type="button" className="sp-btn" onClick={() => void enableVoice()}>
+                Enable microphone
+              </button>
+            : <button type="button" className="sp-btn sp-btn-quiet" onClick={disableVoice}>
+                Turn microphone off
+              </button>}
+          {voiceOn && Object.keys(takes).length > 0 && (
+            <button type="button" className="sp-btn sp-btn-quiet" onClick={resetTriggers}>
+              Forget training
+            </button>
+          )}
+        </div>
+
+        {voiceError && <p className="sp-voice-error" role="alert">{voiceError}</p>}
+
+        {voiceOn && (
+          <>
+            <div className="sp-voice-train">
+              {VOICE_TRIGGERS.map(t => {
+                const count = takes[t.id] ?? 0;
+                const active = learning === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    className={'sp-voice-slot' + (active ? ' is-learning' : '') + (count >= VOICE_MIN_TAKES ? ' is-ready' : '')}
+                    onClick={() => toggleLearn(t.id)}
+                    aria-pressed={active}
+                  >
+                    <span className="sp-voice-name">{t.name}</span>
+                    <span className="sp-voice-say">say &ldquo;{t.say}&rdquo;</span>
+                    <span className="sp-voice-count">
+                      {count} / {VOICE_MIN_TAKES} takes
+                    </span>
+                    <span className="sp-voice-action">
+                      {active ? 'Listening — make the sound' : count >= VOICE_MIN_TAKES ? 'Add another take' : 'Record takes'}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <p className="sp-voice-status" aria-live="polite">
+              {learning
+                ? 'Every sound you make now is recorded as a take. Press the same button again when you are done.'
+                : VOICE_TRIGGERS.every(t => (takes[t.id] ?? 0) >= VOICE_MIN_TAKES)
+                  ? `Ready — beatbox away. Voice hits play ${lastTouched.current.label}; tap another chord to move the harmony.`
+                  : `Record at least ${VOICE_MIN_TAKES} takes of each sound to start playing.`}
+            </p>
+
+            <p className="sp-voice-last" aria-live="polite">
+              {lastTrigger
+                ? `${lastTrigger.label} · vel ${lastTrigger.velocity} · ${Math.round(lastTrigger.confidence * 100)}% sure`
+                : ' '}
+            </p>
+          </>
+        )}
+
+        <details className="sp-tech">
+          <summary>How it hears you</summary>
+          <p>
+            Two questions, answered separately. <strong>Did a sound just start?</strong>
+            — rectified spectral flux against an adaptive threshold, with a re-arm
+            rule so a kick&rsquo;s falling pitch isn&rsquo;t counted twice as it
+            decays. <strong>Which sound was it?</strong> — spectral centroid,
+            zero-crossing rate, flatness and band ratios, matched to the nearest
+            centroid of what you trained.
+          </p>
+          <p>
+            Loudness is deliberately left out of the matching and used only for
+            velocity: how hard you hit is not part of what makes a kick a kick, and
+            folding it in makes a quiet kick classify as a hi-hat.
+          </p>
+          <p>
+            Pitch is a separate question again, answered by YIN in{' '}
+            <code>src/lib/pitch.ts</code> — the same detector the Kula Mele tuner
+            uses. Humming a melody and beatboxing a rhythm are different problems.
+          </p>
+        </details>
+      </section>
+
       <section className="sp-library">
         <h2 className="sp-lib-title">Instrument</h2>
         <p className="sp-lib-lede">
@@ -316,13 +502,13 @@ export function SmartPiano() {
             aria-label="Sample manifest URL"
             spellCheck={false}
           />
-          <button type="button" className="sp-lib-btn"
+          <button type="button" className="sp-btn"
             onClick={() => void loadLibrary(libUrl)}
             disabled={libState === 'loading'}>
             {libState === 'loading' ? 'Loading…' : 'Load'}
           </button>
           {libStats?.loaded && (
-            <button type="button" className="sp-lib-btn sp-lib-btn-quiet" onClick={dropLibrary}>
+            <button type="button" className="sp-btn sp-btn-quiet" onClick={dropLibrary}>
               Use synthesis
             </button>
           )}

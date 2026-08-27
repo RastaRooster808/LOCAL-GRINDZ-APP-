@@ -4,6 +4,78 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Voice triggers: beatboxing into the chord wheel (2026-08-27)
+
+Dubler does two separable things, and only one of them was missing. YIN already
+answered *what note is this* for the Kula Mele tuner. What it could not do is
+beatboxing, because a kick and a hi-hat have **no pitch to find** — what
+separates them is when they start and what their noise looks like.
+
+### Added
+- **`src/lib/vocalTrigger.ts`** — the percussive half. A dependency-free radix-2
+  FFT, rectified spectral flux onset detection against an adaptive threshold,
+  six spectral features, and a nearest-centroid classifier trained on your own
+  takes. Nothing is pretrained: a stranger's kick drum is not yours.
+- **`src/lib/vocalInput.ts`** — microphone plumbing. Requests
+  `echoCancellation`, `noiseSuppression` and `autoGainControl` all **off**: they
+  flatten exactly the transients this depends on, and AGC would erase the
+  loudness that becomes velocity. Exposes `pushBlock()` so the whole listener
+  can be driven from a file or a test without a browser.
+- **`src/lib/pitch.ts`** — YIN moved out of `src/pages/SignatureSong.tsx`
+  verbatim, so the tuner and the trigger engine share one detector instead of
+  drifting apart.
+- **Voice triggers on `/#/piano`** — your voice plays the rhythm, the wheel
+  still picks the harmony. Train a bass sound and a chord sound, then beatbox
+  the groove while your hand moves across the chords; the two targets map onto
+  the `BASS_HEAD` / `CHORD_BODY` zones the wheel already had. Training persists
+  in `localStorage`.
+- **`docs/VOCAL_TRIGGERS.md`** — what it does, how it hears you, and its limits.
+
+### Fixed (all found by testing, none by reading)
+- **A lone hit fired zero times.** The onset detector skipped its first four
+  frames as warm-up, which silently ate any sound made in the first ~50ms after
+  the mic opened — including, reliably, the first hit of a count-in. The
+  adaptive threshold's `floor` already guarded an empty history, so the extra
+  frames bought nothing.
+- **A deep "puh" measured a 4kHz spectral centroid** — brighter than the hi-hat
+  it has to be told apart from. A magnitude-weighted centroid is dominated by
+  the broadband noise floor every real microphone carries: spread across a
+  thousand bins, even a quiet one outweighs a single loud low partial. Weighting
+  by power instead, the same kick measures **88Hz**, its actual fundamental.
+- **Kicks double-triggered.** A real kick sweeps downward in pitch, which keeps
+  lighting up new bins as it falls, and rectified flux reads that as a second
+  onset. Fixed with re-arm hysteresis — flux must subside below 60% of the
+  threshold before another onset can fire. 17 detections for 16 hits → 16.
+- **Onsets were reported up to 44ms early**, because the frame's *start* was
+  reported rather than the first sample that frame added. Timing error across a
+  16-hit bar went from −34…−44ms to **−8.6…+2.0ms**.
+- **A shared button class wore the wrong name.** The voice panel reused
+  `.sp-lib-btn`, so "Enable microphone" and "Load" became indistinguishable —
+  which broke the sample-loader suite. Renamed to `.sp-btn` / `.sp-btn-quiet`,
+  and both suites now scope their selectors to their own panel.
+
+### Notes
+- Loudness is deliberately excluded from classification and used only for
+  velocity: how hard you hit is not part of what makes a kick a kick, and
+  folding it in makes a quiet kick classify as a hi-hat. Verified — a kick at
+  0.02 gain and the same kick at 1.4 gain both still classify as a kick.
+- Nearest-centroid rather than a neural net, on purpose: with a dozen takes it
+  trains instantly in the browser, cannot overfit a handful of examples, and
+  when it is wrong the feature table shows why.
+- Verified with 64 new assertions — 33 over the DSP in Node (FFT against a
+  direct DFT; **90/90 held-out takes** classified correctly, trained on seeds
+  1–8 and scored on 100–129), 15 driving the real listener through a stub
+  AudioContext (**32/32** of a four-bar groove fired and identified correctly),
+  and 16 in headless Chromium against a **fake microphone** playing a real WAV,
+  where takes accumulated from live audio, survived a reload, and a trigger
+  fired and made sound. All seven existing suites re-run green.
+- One test-side fault worth naming: the hi-hat synthesizer used for training
+  data fed its high-pass back off its own *output* rather than its input, so the
+  "hi-hat" came out no brighter than the snare. That was the test's fault, not
+  the engine's.
+
+---
+
 ## [Unreleased] — Vendor: Uncle Robert's, and venues without menus (2026-08-26)
 
 ### Added
