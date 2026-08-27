@@ -87,6 +87,35 @@ Confidence is the margin to the runner-up, so a sound sitting between two
 trained triggers reports low confidence rather than guessing confidently. Hits
 below 8% confidence are dropped rather than played.
 
+## Measured against a real voice
+
+A 5.7s beatbox take, run through the real engine (`tools`-side harness, not a
+reimplementation):
+
+- **23 onsets detected**; 21 loud enough to pass the rms gate. The two the gate
+  discarded were trailing sounds at velocity 1.
+- The sounds **do separate**: k-means over the same z-scored features gives a
+  silhouette of **0.51** at k=3, 0.46 at k=2 — clearly grouped, not a smear.
+- Trained on the front of each sound and scored on held-out hits the app would
+  actually play: **5/5 correct**, mean confidence 32%. A small sample, but every
+  audible held-out hit was right.
+
+Two things that take contradicted, which are worth recording:
+
+**Real beatboxing here was voiced, not sibilant.** 66% of the energy sat in
+300–1000 Hz, most hits had a detectable pitch (280–600 Hz) and near-zero
+flatness. The recording is not band-limited — energy runs to 16kHz — the voice
+simply put nothing up there. `highRatio` was 0.00–0.12 on every single hit. So
+the "say tss" advice in the UI is a suggestion, not a requirement, and the panel
+now says so: any two sounds work provided they differ from each other.
+
+**Adding pitch as a feature made things worse.** It looked like the obvious win
+— every hit had a pitch, and the classifier was ignoring it. Measured on the
+same held-out hits: accuracy unchanged at 5/5, mean confidence **down from 32%
+to 19%**. Pitch varies a lot *within* one sound (295–384 Hz across takes of the
+same sound), so it inflates within-class spread without separating the classes.
+Not adopted.
+
 ## Known limits
 
 - A sound already in progress when the stream opens can only be noticed one
@@ -112,3 +141,6 @@ below 8% confidence are dropped rather than played.
 - **The page** — 16 assertions in headless Chromium with a *fake microphone*
   playing a real WAV of kicks: the mic opens, takes accumulate from live audio,
   training survives a reload, and a trigger fires and makes sound.
+
+The phantom-onset regression (below) is covered by a test that was checked
+against the bug: with the fix reverted, six sounds produce twelve hits.

@@ -128,6 +128,14 @@ export class VocalInput {
     this.filled = Math.min(FRAME, this.filled + block.length);
     if (this.filled < FRAME) return;
 
+    // Feed the detector EVERY frame, even while settling. Skipping frames here
+    // leaves its reference spectrum stale, so when it resumes it compares a
+    // frame from before the sound against one after it and reads that jump as a
+    // fresh onset — a phantom hit on silence, one settle-window after every
+    // real one. The rms gate hid those, but they still burned the refractory
+    // window, and on a noisy tail they would have fired for real.
+    const onset = this.detector.push(this.ring, HOP);
+
     if (this.pendingHops >= 0) {
       // An onset fired recently; wait for the sound's body to fill the window.
       if (this.pendingHops === 0) { this.measure(); this.pendingHops = -1; }
@@ -135,7 +143,6 @@ export class VocalInput {
       return;
     }
 
-    const onset = this.detector.push(this.ring, HOP);
     if (onset) {
       this.onsetAt = this.context.currentTime;
       this.pendingHops = SETTLE_HOPS;

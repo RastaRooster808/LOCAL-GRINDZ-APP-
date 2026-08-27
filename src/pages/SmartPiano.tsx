@@ -18,8 +18,8 @@ import {
 /** The two things a voice can play here. Named for what they do in the music,
  *  not for drum-kit pieces — the wheel supplies pitch, the voice supplies time. */
 const VOICE_TRIGGERS = [
-  { id: 'bass',  name: 'Bass',  say: 'puh' },
-  { id: 'chord', name: 'Chord', say: 'tss' },
+  { id: 'bass',  name: 'Bass',  say: 'try a low "puh"' },
+  { id: 'chord', name: 'Chord', say: 'try a sharp "tss"' },
 ] as const;
 const VOICE_MIN_TAKES = 3;
 
@@ -401,6 +401,12 @@ export function SmartPiano() {
           your hand moves across the chords. It learns <em>your</em> mouth — nothing
           is pretrained, because a stranger&rsquo;s kick drum is not yours.
         </p>
+        <p className="sp-lib-lede">
+          The suggestions below are only suggestions. Any two sounds work, including
+          hummed or voiced ones — what matters is that they are clearly different
+          from <em>each other</em>, and that you make each one the same way every
+          time.
+        </p>
 
         <div className="sp-lib-row">
           {!voiceOn
@@ -434,7 +440,7 @@ export function SmartPiano() {
                     aria-pressed={active}
                   >
                     <span className="sp-voice-name">{t.name}</span>
-                    <span className="sp-voice-say">say &ldquo;{t.say}&rdquo;</span>
+                    <span className="sp-voice-say">{t.say}</span>
                     <span className="sp-voice-count">
                       {count} / {VOICE_MIN_TAKES} takes
                     </span>

@@ -4,6 +4,45 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Voice triggers measured against a real voice (2026-08-27)
+
+### Fixed
+- **A phantom onset fired one settle-window after every real hit.**
+  `VocalInput` stopped feeding the onset detector while waiting for a sound's
+  body to fill the window, so its reference spectrum went stale; when it
+  resumed it compared a frame from *before* the sound against one *after* and
+  read that jump as a fresh onset. The rms gate hid these — they arrived with
+  every feature zero — but they still burned the refractory window, and on a
+  noisy tail they would have fired for real. Found by running a real recording
+  through the engine, not by reading the code.
+  Covered by a regression test checked against the bug: with the fix reverted,
+  six sounds produce **twelve** hits.
+
+### Changed
+- The voice panel no longer prescribes "puh" and "tss" as though they were
+  required. Real beatboxing turned out to be voiced and mid-band rather than
+  sibilant, so the panel now says plainly that any two sounds work as long as
+  they differ from each other and are made the same way each time.
+
+### Measured
+A 5.7s beatbox take run through the real engine:
+- 23 onsets, 21 above the gate; the two discarded were trailing velocity-1 sounds.
+- The sounds separate — k-means silhouette **0.51** at k=3, 0.46 at k=2.
+- Trained on the front of each sound, scored on held-out audible hits:
+  **5/5 correct**, mean confidence 32%.
+- 66% of the energy sat in 300–1000 Hz, with `highRatio` 0.00–0.12 on every hit.
+  Not band-limiting — energy runs to 16kHz — the voice simply put nothing there.
+
+### Not adopted
+- **Adding pitch to the feature vector.** It looked like the obvious win: every
+  hit had a detectable pitch and the classifier ignored it. Measured on the same
+  held-out hits, accuracy was unchanged (5/5) and mean confidence **fell from
+  32% to 19%** — pitch varies more *within* one sound (295–384 Hz across takes)
+  than it does between sounds, so it inflates within-class spread. Recorded here
+  because the idea is tempting enough that someone will try it again.
+
+---
+
 ## [Unreleased] — Voice triggers: beatboxing into the chord wheel (2026-08-27)
 
 Dubler does two separable things, and only one of them was missing. YIN already
