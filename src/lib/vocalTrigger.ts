@@ -346,6 +346,19 @@ export class TriggerModel {
     return total ? { accuracy: right / total, samples: total } : null;
   }
 
+  /** Mean brightness of each trained sound, as spectral centroid in Hz.
+   *  Brightness is the axis that actually decided things on real takes: a pair
+   *  measuring 891Hz against 3194Hz was told apart 9 times in 10, while two
+   *  sounds both sitting at 200–470Hz with no high-frequency content at all
+   *  were a coin flip. So when a pair scores badly, this is the number worth
+   *  putting in front of someone. */
+  brightness(): { label: string; centroidHz: number }[] {
+    return [...this.takes].map(([label, list]) => ({
+      label,
+      centroidHz: list.reduce((s, f) => s + f.centroidHz, 0) / list.length,
+    }));
+  }
+
   /** Everything the model knows, for saving to localStorage or a file. */
   toJSON(): Record<string, Features[]> {
     return Object.fromEntries(this.takes);

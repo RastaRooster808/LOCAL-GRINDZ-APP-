@@ -146,6 +146,26 @@ differ**. Two attempts at fixing it with features were measured and rejected:
   already worked — 93% → 87% and 88% → 75% — while helping the worst pair. A
   bad trade.
 
+### What a good pair looks like
+
+A fifth take — a real groove rather than isolated takes — settled what "different
+enough" means. Its onsets fall into two interleaved groups:
+
+| group | hits | centroid | high-frequency share | velocity |
+|---|---|---|---|---|
+| bright | 7 | **3194 Hz** | 0.32 | 95 |
+| dark | 15 | **891 Hz** | 0.06 | 119 |
+
+A 3.6× gap in brightness, and the groups hold together: **9 of 10** held-out
+hits stay on the right side. Compare the pair that behaved like a coin flip —
+both sounds sat at 200–470 Hz with *no* high-frequency content at all.
+
+**Brightness is the axis that decides it.** That is why the panel, when a pair
+scores badly, names the actual number rather than saying "make them more
+different": *"both are about equally bright (310Hz and 405Hz)"*. Two sounds
+within 2× of each other in spectral centroid are, in practice, one sound to the
+classifier.
+
 ## Is my pair any good?
 
 The panel answers this at training time rather than leaving it to be discovered

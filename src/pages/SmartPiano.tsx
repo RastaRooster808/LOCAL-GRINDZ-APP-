@@ -30,6 +30,19 @@ const VOICE_MIN_TAKES = 3;
  *  handful of takes is pessimistic by construction — so it is used as a
  *  threshold, not shown as a number. */
 const VOICE_SEPARABLE_MIN = 0.55;
+/** Two sounds within this ratio of each other in brightness are, in practice,
+ *  the same sound to the classifier. A pair at 891Hz vs 3194Hz — a ratio of
+ *  3.6 — was told apart 9 times in 10 on real takes. */
+const VOICE_BRIGHTNESS_RATIO = 2;
+
+/** Name the actual problem when a pair scores badly, rather than leaving
+ *  "make them more different" to be interpreted. */
+function describeBrightness(rows: { label: string; centroidHz: number }[]): string {
+  if (rows.length !== 2) return '';
+  const [a, b] = [...rows].sort((x, y) => x.centroidHz - y.centroidHz);
+  if (a.centroidHz < 1 || b.centroidHz / a.centroidHz >= VOICE_BRIGHTNESS_RATIO) return '';
+  return ` — both are about equally bright (${Math.round(a.centroidHz)}Hz and ${Math.round(b.centroidHz)}Hz)`;
+}
 
 const NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
 const noteName = (m: number) => `${NAMES[((m % 12) + 12) % 12]}${Math.floor(m / 12) - 1}`;
@@ -76,6 +89,7 @@ export function SmartPiano() {
   const [takes, setTakes] = useState<Record<string, number>>({});
   const [lastTrigger, setLastTrigger] = useState<{ label: string; confidence: number; velocity: number } | null>(null);
   const [separable, setSeparable] = useState<{ accuracy: number; samples: number } | null>(null);
+  const [brightness, setBrightness] = useState<{ label: string; centroidHz: number }[]>([]);
 
   // Scheduler state lives in refs — it runs on a timer, not on renders.
   const held = useRef<Map<string, number[]>>(new Map());
@@ -136,6 +150,7 @@ export function SmartPiano() {
     if (!model) return;
     setTakes(Object.fromEntries(model.labels.map(l => [l, model.takeCount(l)])));
     setSeparable(model.crossValidate());
+    setBrightness(model.brightness());
   }, []);
 
   const enableVoice = useCallback(async () => {
@@ -473,7 +488,7 @@ export function SmartPiano() {
             {separable && (
               <p className={'sp-voice-verdict' + (separable.accuracy < VOICE_SEPARABLE_MIN ? ' is-poor' : '')}>
                 {separable.accuracy < VOICE_SEPARABLE_MIN
-                  ? 'These two sounds are hard to tell apart. Try making them more different from each other — a low, closed sound against a bright, open one — and record fresh takes.'
+                  ? `These two sounds are hard to tell apart${describeBrightness(brightness)}. Record fresh takes with one of them brighter — a sharp, hissy sound against a low, closed one.`
                   : 'These two sounds are easy to tell apart.'}
               </p>
             )}

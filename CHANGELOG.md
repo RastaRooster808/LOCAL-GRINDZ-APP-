@@ -4,6 +4,41 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Brightness is the axis that decides it (2026-08-27)
+
+A fifth take — a real groove rather than isolated takes — settled what "make the
+two sounds different" actually means.
+
+### Measured
+The groove's onsets fall into two interleaved groups:
+
+| group | hits | centroid | high-frequency share | velocity |
+|---|---|---|---|---|
+| bright | 7 | 3194 Hz | 0.32 | 95 |
+| dark | 15 | 891 Hz | 0.06 | 119 |
+
+A **3.6× brightness gap**, and the groups hold together — 9 of 10 held-out hits
+stay on the right side. Against that, the pair that behaved like a coin flip had
+both sounds at 200–470 Hz with no high-frequency content whatsoever. This take
+is also the first to contain genuinely bright sounds at all: high-frequency
+share reaches 0.32 here against 0.00–0.12 across every earlier take.
+
+### Added
+- **`TriggerModel.brightness()`** — mean spectral centroid per trained sound.
+- The panel now **names the problem** when a pair scores badly: *"both are about
+  equally bright (310Hz and 405Hz)"*, rather than leaving "make them more
+  different" to be interpreted. Two sounds within 2× of each other in centroid
+  are, in practice, one sound to the classifier.
+
+### Notes
+- This vindicates the original "low puh against sharp tss" advice that was
+  softened earlier. Softening it was right on the evidence then available — the
+  first take contained no bright sounds at all — but the underlying instinct was
+  sound: bright against dark is the pair that works.
+- Verified with 4 new assertions plus all nine suites re-run green.
+
+---
+
 ## [Unreleased] — Four beatbox takes: two triggers work, four don't (2026-08-27)
 
 ### Added
