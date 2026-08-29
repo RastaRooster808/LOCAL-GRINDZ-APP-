@@ -335,6 +335,7 @@ export function Landing() {
           <Link to="/apply">Apply</Link>
           <Link to="/vendor">Vendor Login</Link>
           <Link to="/custom-tee">Custom Tees</Link>
+          <Link to="/uncle-roberts">Uncle Robert's</Link>
         </nav>
       </footer>
     </div>

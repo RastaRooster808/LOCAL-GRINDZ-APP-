@@ -2067,6 +2067,51 @@
 .kt-color-picker { display: flex; gap: 0.6rem; margin-top: 0.4rem; }
 .kt-color-choice { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; }
 .kt-color-choice--active { border-color: var(--rr-ink, #1c2b21); box-shadow: 0 0 0 2px #fff inset; }
+
+/* ── Uncle Robert's community landing page ───────────────────────────── */
+.ur-page {
+  --ur-sand: #fbf3e7; --ur-ink: #2a1f14; --ur-lava: #1c1410; --ur-sunset: #e0692a;
+  --ur-gold: #c98a1f; --ur-sea: #1f6f6b; --ur-stone: #6b5c4c; --ur-rule: #e6d5bd;
+  background: var(--ur-sand); color: var(--ur-ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.6; max-width: 640px; margin: 0 auto; min-height: 100vh;
+}
+@media (prefers-color-scheme: dark) {
+  .ur-page { --ur-sand: #17120d; --ur-ink: #f3e9da; --ur-rule: #332417; --ur-stone: #b6a68f; }
+}
+.ur-page h1, .ur-page h2, .ur-page h3 { font-weight: 800; }
+
+.ur-hero { text-align: center; padding: 2rem 1.5rem 2.5rem; position: relative; }
+.ur-mast { position: absolute; top: 1.2rem; left: 1.5rem; }
+.ur-home { color: var(--ur-stone); text-decoration: none; font-size: 0.85rem; }
+.ur-home:hover { text-decoration: underline; }
+.ur-kicker { font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ur-sea); font-weight: 700; margin: 2.5rem 0 0.6rem; }
+.ur-title { font-size: 2rem; margin-bottom: 0.6rem; }
+.ur-lede { font-size: 1.02rem; color: var(--ur-stone); max-width: 42ch; margin: 0 auto 1.5rem; text-wrap: balance; }
+
+.ur-hero-btns, .ur-connect-btns { display: flex; gap: 0.7rem; justify-content: center; flex-wrap: wrap; }
+.ur-btn { display: inline-block; font-weight: 700; font-size: 0.95rem; text-decoration: none;
+  padding: 0.75rem 1.4rem; border-radius: 6px; }
+.ur-btn:hover { opacity: 0.88; }
+.ur-btn-primary { background: var(--ur-sunset); color: #fff; }
+.ur-btn-line { background: transparent; border: 1.5px solid var(--ur-sunset); color: var(--ur-sunset); }
+
+.ur-section { padding: 2.2rem 1.5rem; border-bottom: 1px solid var(--ur-rule); }
+.ur-section--alt { background: rgba(0,0,0,0.03); }
+@media (prefers-color-scheme: dark) { .ur-section--alt { background: rgba(255,255,255,0.03); } }
+.ur-eyebrow { font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ur-gold); font-weight: 700; margin-bottom: 1rem; }
+.ur-body { font-size: 0.98rem; color: var(--ur-ink); margin-bottom: 1rem; max-width: 56ch; }
+.ur-body-lg { font-size: 1.08rem; font-weight: 600; }
+.ur-fine-note { font-size: 0.85rem; color: var(--ur-stone); font-style: italic; }
+
+.ur-highlights { display: grid; gap: 1.4rem; }
+.ur-highlight h3 { font-size: 1.02rem; margin-bottom: 0.3rem; color: var(--ur-sea); }
+.ur-highlight p { font-size: 0.92rem; color: var(--ur-stone); max-width: 50ch; }
+
+.ur-connect { padding: 2.6rem 1.5rem 3rem; text-align: center; }
+.ur-connect h2 { font-size: 1.4rem; margin-bottom: 0.6rem; }
+.ur-connect-copy { color: var(--ur-stone); font-size: 0.95rem; max-width: 44ch; margin: 0 auto 1.4rem; }
+.ur-fine { margin-top: 1.6rem; font-size: 0.72rem; letter-spacing: 0.03em; color: var(--ur-stone); max-width: 46ch; margin-left: auto; margin-right: auto; }
 .kt-lookup-form { max-width: 380px; }
 .kt-result { margin-top: 1.5rem; text-align: center; }
 .kt-result-row { margin-bottom: 0.75rem; }
