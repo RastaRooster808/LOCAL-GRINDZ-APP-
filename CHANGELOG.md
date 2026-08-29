@@ -4,6 +4,19 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Uncle Robert's landing page: real market detail (2026-08-29)
+
+### Changed
+- `src/pages/UncleRoberts.tsx`: filled in details confirmed from photos the user
+  shared of the market — full name "Awa Bar & Farmers Market," the sign at
+  Uncle's Awa Club (Kingdom of Hawaiʻi seal, motto *Ua Mau ke Ea o ka ʻĀina i ka
+  Pono*), the multicultural food lineup (Filipino, Japanese, Korean, Chinese,
+  Thai, Mexican, Hawaiian), and the Kalapana Poke Plate as a standout dish.
+  Skipped incorporating a personal family Facebook post from the same source —
+  not appropriate for a page about a real private individual's family.
+
+---
+
 ## [Unreleased] — Uncle Robert's community landing page (2026-08-29)
 
 ### Added

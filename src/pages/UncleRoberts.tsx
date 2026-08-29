@@ -16,7 +16,7 @@ const HIGHLIGHTS = [
   },
   {
     title: 'Local Food & Farmers Market',
-    body: 'Food trucks, plate lunch, and Puna-grown produce and crafts from neighbors and small vendors.',
+    body: "A one-of-a-kind mix of vendors — Filipino, Japanese, Korean, Chinese, Thai, Mexican, and Hawaiian plates alongside Puna-grown produce and crafts. Don't sleep on the Kalapana Poke Plate.",
   },
   {
     title: 'Lava Coast Sunset',
@@ -34,9 +34,10 @@ export function UncleRoberts() {
         <p className="ur-kicker">Kalapana · Puna, Hawaiʻi Island</p>
         <h1 className="ur-title">Uncle Robert's</h1>
         <p className="ur-lede">
-          The Wednesday Night Market and awa bar that's been Kalapana's community living
-          room for generations — live music, local food, and neighbors talking story on
-          the lava coast.
+          Awa Bar & Farmers Market — the Wednesday Night Market that's been
+          Kalapana's community living room for generations. Live music, a
+          one-of-a-kind mix of local food, and neighbors talking story on the
+          lava coast.
         </p>
         <div className="ur-hero-btns">
           <a
@@ -84,9 +85,9 @@ export function UncleRoberts() {
         <p className="ur-body">
           It's still run the same way: local musicians bring their own instruments,
           local vendors bring their own food and crafts, and everyone's welcome to
-          pull up a chair. Look up and you'll spot the Kingdom of Hawaiʻi flag flying
-          over the awa bar — the same spirit behind Local Grindz's "Kingdom" loyalty
-          tokens for the booth here.
+          pull up a chair. Look up at Uncle's Awa Club and you'll see the Kingdom of
+          Hawaiʻi seal — <em>Ua Mau ke Ea o ka ʻĀina i ka Pono</em> — the same spirit
+          behind Local Grindz's "Kingdom" loyalty tokens for the booth here.
         </p>
       </section>
 
