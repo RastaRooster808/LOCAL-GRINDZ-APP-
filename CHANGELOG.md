@@ -4,6 +4,31 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Uncle Robert's community landing page (2026-08-29)
+
+### Added
+- New **`/uncle-roberts`** page (`src/pages/UncleRoberts.tsx`) — a landing page for
+  Uncle Robert's Awa Bar & Farmers Market in Kalapana so the community has one link
+  to reach: the Wednesday Night Market, directions (Google Maps to 12-5038
+  Kalapana-Kapoho Beach Rd), a link to their Facebook page, the market's story, and
+  cross-links to the Rasta Rooster booth and Kingdom loyalty tokens already run
+  there. Explicitly labeled as a Local Grindz community info page, not Uncle
+  Robert's official site.
+- New `.ur-*` styles in `src/index.css`, light/dark aware, matching the structural
+  pattern of the existing `.rr-*` (Rasta Rooster) page styles but with its own
+  lava-coast/sunset palette.
+- Linked from the homepage footer nav (`src/pages/Landing.tsx`) so it's actually
+  reachable, not just a direct URL.
+- Address, market hours, and Facebook link verified via web search rather than
+  invented, since this is public-facing info for a real community gathering place;
+  flagged in-page that hours can shift and to check Facebook for the current week.
+
+### Governance
+- Solomon/Sentinel checkpoint: build verified clean (`npm run build`), no payment/
+  legal/vendor-data changes, no fabricated contact info — real address and
+  Facebook link sourced from public listings, with an honest disclaimer that this
+  isn't Uncle Robert's own site.
+
 ## [Unreleased] — KullaCoin: velocity-sensitive pad taps (2026-08-19)
 
 ### Added
