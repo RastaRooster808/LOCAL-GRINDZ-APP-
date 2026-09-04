@@ -4,6 +4,43 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Carrier colour derived from the harmonic series (2026-09-04)
+
+### Added
+- **`src/lib/carrierColor.ts`** — a carrier's colour is calculated from where
+  its harmonic falls, not assigned by index. Hue is the pitch class
+  (frac(log₂ k)), lightness is the octave (⌊log₂ k⌋) across the engine's
+  existing band, chroma is whatever survives gamut mapping. `harmonics.ts`
+  remains the only thing that turns a number into a colour; this only decides
+  what to ask it for.
+- **`docs/carrier-palette-64.{json,css,svg}`** — the 64-carrier palette as data,
+  CSS custom properties, and a drop-in 8×8 grid with an interval legend.
+- **`docs/HARMONIC_COLOR_CODE.md`** — the rule and what follows from it.
+
+### Why
+The Blazek Grid v4 diagram colours carriers in four index blocks (H1–H8 cyan …
+H33–H64 magenta). H1, H2, H4, H8, H16, H32 and H64 are **the same note seven
+octaves apart** — that scheme spreads them across all four blocks, and splits
+H3/H6/H12/H24/H48, a single pitch class, across three colours. The mapping was
+positional wearing a harmonic name.
+
+Derived, the families are the intervals: 0° is the fundamental and its octaves,
+211° the perfect fifth (H3, H6, H12, H24, H48), 116° the major third
+(H5, H10, H20, H40), 291° the harmonic seventh (H7, H14, H28, H56).
+
+### Notes
+- Frequencies use true ratios, not equal temperament, so the palette is as out
+  of tune with a piano as the harmonic series genuinely is: H3 at 702 cents not
+  700, H7 31 cents flat of the tempered seventh, H11 48.7 cents off — the
+  "alphorn fa" sitting between F and F♯. `centsFromEqual` carries that per
+  carrier rather than hiding it.
+- Verified with 22 assertions: octave relatives share a hue and separate by
+  lightness, lightness stays inside `LIGHTNESS_BAND`, all 64 stay in gamut and
+  visually distinct, the just intervals land on their exact cent values, and
+  a fractional or zero harmonic is refused.
+
+---
+
 ## [Unreleased] — Brightness is the axis that decides it (2026-08-27)
 
 A fifth take — a real groove rather than isolated takes — settled what "make the
