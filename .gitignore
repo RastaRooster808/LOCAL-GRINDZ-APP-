@@ -82,3 +82,8 @@ build/
 .env
 .env.local
 .env.*.local
+
+# Sample libraries — real recordings are hundreds of megabytes and belong on a
+# static host, not in git history. Manifests ARE committed; audio is not.
+public/piano/*/
+!public/piano/*.json

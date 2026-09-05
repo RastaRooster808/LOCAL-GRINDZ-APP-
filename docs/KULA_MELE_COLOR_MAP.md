@@ -410,3 +410,66 @@ is the ensemble's cue that identity mode has ended and direction mode begun.
 **Safety, carried over from the source document:** a signature used to sign in is
 a credential. It should not be called aloud in a public set, and a performance
 word should differ from a sign-in word. The app states this in the codex panel.
+
+## Pitch detection — what the detector can and cannot do
+
+**This detector is monophonic.** YIN finds *one* period. Given more than one
+voice at a time it tracks whichever part dominates and switches between them —
+which shows up as octave, fifth and twelfth jumps. That is the algorithm working
+as designed, not failing. The signature sign-in is one person singing alone,
+which is the case it is built for.
+
+This was learned the hard way. Two acapella takes were run through the tuner and
+~9% of frames landed an exact octave, fifth or twelfth from their neighbours.
+That looked like the classic YIN octave error, and it was first written up as
+one — a window too short to resolve low voices. It was not. The recordings were
+**choir songs**: many voices, different pitches, often doubled at the octave.
+The jumps were harmony, not error.
+
+The giveaway was already in the test suite: synthesized solo voices from E2 to
+C4 resolved perfectly at the *old* 2048-sample window. A solo voice essentially
+never produces harmonic slips — 0–1% at either window size.
+
+What polyphony actually destroys is *consistency*, and the interval matters:
+
+| input | frames agreeing with neighbours |
+|---|---|
+| solo tenor C3 | 86% |
+| two voices an octave apart | 78% |
+| two voices **a fifth apart** | **13%** |
+| four-part chord | 63% |
+
+Two voices an octave apart stay periodic at the lower fundamental, so YIN
+handles them fine. Two voices a *fifth* apart are periodic at neither, the
+detector has no single right answer, and it thrashes. A choir is full of both —
+plus parts entering and dropping out, which shifts which voice dominates from
+one moment to the next. That is where the octave and fifth jumps in those two
+takes came from.
+
+**To analyse a choir you need polyphonic pitch detection** — simultaneous
+multi-F0 estimation, a substantially harder problem than YIN solves and not
+something the tuner should be stretched to cover.
+
+### Window size
+
+The tuner analyses **4096 samples**, raised from 2048 — for *stability*, not to
+fix octave errors. A longer window averages more periods, which is what a real
+voice needs. Frames agreeing with their neighbours, synthesized solo voice:
+
+| condition | 2048 | 4096 |
+|---|---|---|
+| heavy noise + vibrato | 65% | **89%** |
+| quiet singing | 84% | **92%** |
+| low voice (E2) | 74% | **82%** |
+| tenor (C3) | 86% | 88% |
+
+It is not strictly better: with very heavy vibrato the longer window smears the
+pitch, and harmonic slips rose from 0% to 5% in that one case. Latency goes from
+46ms to 93ms. If the tuner ever feels slow to bloom, 2048 is the trade to make.
+
+This was only affordable because the difference function moved to an FFT.
+Computing d(tau) directly is O(W²); via `src/lib/fft.ts` it is O(W log W) —
+**0.94ms per 4096-sample frame instead of 6.6ms**, comfortably inside a
+512-sample hop. The FFT path is checked against the direct computation to a
+relative error under 1e-9, and `differenceFunctionDirect` is kept in the source
+as that reference. That speedup stands regardless of window size.

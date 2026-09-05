@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "name": "FluidR3 Acoustic Grand",
+  "license": "MIT",
+  "attribution": "FluidR3_GM soundfont by Frank Wen (MIT). Note renders via gleitz/midi-js-soundfonts.",
+  "attribution_url": "https://github.com/gleitz/midi-js-soundfonts",
+  "base_url": "https://raw.githubusercontent.com/gleitz/midi-js-soundfonts/gh-pages/FluidR3_GM/acoustic_grand_piano-mp3/",
+  "max_stretch_semitones": 2,
+  "layers": [
+    {
+      "velocity": [
+        1,
+        127
+      ],
+      "zones": [
+        {
+          "root": 21,
+          "file": "A0.mp3"
+        },
+        {
+          "root": 24,
+          "file": "C1.mp3"
+        },
+        {
+          "root": 27,
+          "file": "Eb1.mp3"
+        },
+        {
+          "root": 30,
+          "file": "Gb1.mp3"
+        },
+        {
+          "root": 33,
+          "file": "A1.mp3"
+        },
+        {
+          "root": 36,
+          "file": "C2.mp3"
+        },
+        {
+          "root": 39,
+          "file": "Eb2.mp3"
+        },
+        {
+          "root": 42,
+          "file": "Gb2.mp3"
+        },
+        {
+          "root": 45,
+          "file": "A2.mp3"
+        },
+        {
+          "root": 48,
+          "file": "C3.mp3"
+        },
+        {
+          "root": 51,
+          "file": "Eb3.mp3"
+        },
+        {
+          "root": 54,
+          "file": "Gb3.mp3"
+        },
+        {
+          "root": 57,
+          "file": "A3.mp3"
+        },
+        {
+          "root": 60,
+          "file": "C4.mp3"
+        },
+        {
+          "root": 63,
+          "file": "Eb4.mp3"
+        },
+        {
+          "root": 66,
+          "file": "Gb4.mp3"
+        },
+        {
+          "root": 69,
+          "file": "A4.mp3"
+        },
+        {
+          "root": 72,
+          "file": "C5.mp3"
+        },
+        {
+          "root": 75,
+          "file": "Eb5.mp3"
+        },
+        {
+          "root": 78,
+          "file": "Gb5.mp3"
+        },
+        {
+          "root": 81,
+          "file": "A5.mp3"
+        },
+        {
+          "root": 84,
+          "file": "C6.mp3"
+        },
+        {
+          "root": 87,
+          "file": "Eb6.mp3"
+        },
+        {
+          "root": 90,
+          "file": "Gb6.mp3"
+        },
+        {
+          "root": 93,
+          "file": "A6.mp3"
+        },
+        {
+          "root": 96,
+          "file": "C7.mp3"
+        },
+        {
+          "root": 99,
+          "file": "Eb7.mp3"
+        },
+        {
+          "root": 102,
+          "file": "Gb7.mp3"
+        },
+        {
+          "root": 105,
+          "file": "A7.mp3"
+        },
+        {
+          "root": 108,
+          "file": "C8.mp3"
+        }
+      ]
+    }
+  ]
+}
