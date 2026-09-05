@@ -13,6 +13,7 @@ import { Raffle } from './pages/Raffle';
 import { CustomTee } from './pages/CustomTee';
 import { RastaRooster } from './pages/RastaRooster';
 import { KingdomTokens } from './pages/KingdomTokens';
+import { UncleRoberts } from './pages/UncleRoberts';
 import { ToastContainer } from './components/ui/Toast';
 
 // Heavy pages: code-split to keep initial bundle lean
@@ -45,6 +46,7 @@ export default function App() {
         <Route path="/custom-tee" element={<CustomTee />} />
         <Route path="/rasta-rooster" element={<RastaRooster />} />
         <Route path="/kingdom-tokens" element={<KingdomTokens />} />
+        <Route path="/uncle-roberts" element={<UncleRoberts />} />
         <Route path="/kullacoin" element={<Suspense fallback={<PageLoader />}><KullaCoin /></Suspense>} />
         <Route path="/piano" element={<Suspense fallback={<PageLoader />}><SmartPiano /></Suspense>} />
         <Route path="/signature" element={<Suspense fallback={<PageLoader />}><SignatureSong /></Suspense>} />

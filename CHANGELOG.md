@@ -4,6 +4,31 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Merge main: Uncle Robert's keeps one front door (2026-09-04)
+
+`main` gained a dedicated Uncle Robert's landing page (PR #39) while this branch
+carried a featured marketplace card for the same venue. Two front doors to one
+place is worse than either alone, so **the featured card is removed** and the
+landing page stands.
+
+### Changed
+- Removed the Uncle Robert's entry from `FEATURED_VENDORS`. The vendor row stays,
+  so they still appear in the Markets category and the directory — it is only the
+  premium card that goes.
+- The browser suite now asserts the venue is *listed* and that no featured card
+  exists for it, rather than asserting the card renders.
+
+### Notes
+- `CHANGELOG.md` was the only merge conflict; `src/App.tsx` and `src/index.css`
+  merged cleanly and the `/uncle-roberts` route is not duplicated.
+- The landing page carries the address, Facebook link and Wednesday-market
+  details that this branch had deliberately left NULL. The vendor row's own
+  fields are untouched here — worth filling in from the page later, with the
+  location status left `closed` because a Wednesday-night market is not open
+  continuously and that badge means "open right now".
+
+---
+
 ## [Unreleased] — Carrier colour derived from the harmonic series (2026-09-04)
 
 ### Added
@@ -481,6 +506,43 @@ chord body, computed velocity, four autoplay patterns.
   the level claim is asserted offline where timing cannot affect it.
 
 ---
+## [Unreleased] — Uncle Robert's landing page: real market detail (2026-08-29)
+
+### Changed
+- `src/pages/UncleRoberts.tsx`: filled in details confirmed from photos the user
+  shared of the market — full name "Awa Bar & Farmers Market," the sign at
+  Uncle's Awa Club (Kingdom of Hawaiʻi seal, motto *Ua Mau ke Ea o ka ʻĀina i ka
+  Pono*), the multicultural food lineup (Filipino, Japanese, Korean, Chinese,
+  Thai, Mexican, Hawaiian), and the Kalapana Poke Plate as a standout dish.
+  Skipped incorporating a personal family Facebook post from the same source —
+  not appropriate for a page about a real private individual's family.
+
+---
+
+## [Unreleased] — Uncle Robert's community landing page (2026-08-29)
+
+### Added
+- New **`/uncle-roberts`** page (`src/pages/UncleRoberts.tsx`) — a landing page for
+  Uncle Robert's Awa Bar & Farmers Market in Kalapana so the community has one link
+  to reach: the Wednesday Night Market, directions (Google Maps to 12-5038
+  Kalapana-Kapoho Beach Rd), a link to their Facebook page, the market's story, and
+  cross-links to the Rasta Rooster booth and Kingdom loyalty tokens already run
+  there. Explicitly labeled as a Local Grindz community info page, not Uncle
+  Robert's official site.
+- New `.ur-*` styles in `src/index.css`, light/dark aware, matching the structural
+  pattern of the existing `.rr-*` (Rasta Rooster) page styles but with its own
+  lava-coast/sunset palette.
+- Linked from the homepage footer nav (`src/pages/Landing.tsx`) so it's actually
+  reachable, not just a direct URL.
+- Address, market hours, and Facebook link verified via web search rather than
+  invented, since this is public-facing info for a real community gathering place;
+  flagged in-page that hours can shift and to check Facebook for the current week.
+
+### Governance
+- Solomon/Sentinel checkpoint: build verified clean (`npm run build`), no payment/
+  legal/vendor-data changes, no fabricated contact info — real address and
+  Facebook link sourced from public listings, with an honest disclaimer that this
+  isn't Uncle Robert's own site.
 
 ## [Unreleased] — KullaCoin: velocity-sensitive pad taps (2026-08-19)
 

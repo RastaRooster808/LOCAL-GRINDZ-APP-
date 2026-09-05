@@ -167,24 +167,6 @@ export const FEATURED_VENDORS: FeaturedVendor[] = [
     rating: 'New',
   },
   {
-    id: 'uncle-roberts',
-    name: "Uncle Robert's Awa Bar & Farmers Market",
-    categorySlug: 'markets',
-    categoryLabel: 'Featured Market',
-    tagline: 'The Gathering Place on the Red Road',
-    description:
-      "A Kalapana institution — the Keliʻihoʻomalu ʻohana's awa bar, night market and gathering place, with local food vendors, crafts, and live music.",
-    badges: ['Awa Bar', 'Live Music', 'Local Vendors'],
-    emoji: '🧺',
-    theme: { banner: 'linear-gradient(135deg, #14100c 0%, #1f4f3a 55%, #4d8f6a 100%)', accent: '#2d6a4f' },
-    // A venue, not a kitchen — the button goes to their own site rather than a
-    // menu. `#google_vignette` in the shared link is Google's ad interstitial,
-    // not part of the address.
-    shopUrl: 'https://uncleroberts.website/',
-    shopLabel: "Visit Uncle Robert's",
-    rating: 'New',
-  },
-  {
     id: 'topp',
     name: 'TOPP',
     categorySlug: 'flowers',
