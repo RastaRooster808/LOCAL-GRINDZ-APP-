@@ -4,6 +4,61 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Vendor: Violet Love Designs, with her own dashboard (2026-09-18)
+
+### Added
+- **Violet Love Designs** (Pāhoa) under Artists & Makers — coconut and lauhala
+  weaving, fine art, prints and island jewelry, with a featured card linking to
+  violetlovedesign.com. `cuisine_type` is `Art & Lauhala Weaving`, which matches
+  the `makers` category on `art` and nothing else.
+- `docs/migrations/phase-5f-seed-violet-love-designs.sql` — idempotent seed.
+- `docs/VIOLET_LOVE_DESIGNS.md` — the listing, the cooperative notes, and the
+  login steps.
+
+### Changed — the email convention, deliberately
+Every prior vendor uses a `bankspham5+slug@gmail.com` alias, which keeps the
+dashboard with the operator. **This row carries the artist's own address**,
+`violetpainstheworld@gmail.com`, because vendor RLS matches on
+`vendors.email = auth.email()` and `vendors.user_id` backfills from it. That is
+what gives her the `/vendor` dashboard.
+
+**The login is not created here and cannot be.** The app uses
+`signInWithPassword`, so a vendor login is an auth user with a password,
+provisioned through the Supabase Auth admin — committing one would mean
+committing a credential. Steps are in `docs/VIOLET_LOVE_DESIGNS.md`.
+
+### Cooperative efforts — the reason this one is different
+- **Lau Hui** — the shop frames its trade as supporting the Big Island community
+  of weavers through a collective, not a single maker.
+- **Violet Loves Art Gallery** at Puna Kai exists to give artists "an opportunity
+  to build collaborative wealth in a healthy and supportive space" — it shows and
+  sells other artists' work, runs workshops and hosts seasonal shows.
+- **The craft is taught**: lauhala Saturdays, coconut Sundays, beginner acrylics.
+
+This is the only listing that is a business *and* a venue for other makers — the
+closest thing in the directory to Local Grindz's own model. Uncle Robert's plays
+that role for food; this plays it for art.
+
+### Not confirmed
+Street address and phone come from directory listings read **through search**:
+violetlovedesign.com and the Puna Kai tenant page are both blocked by this
+environment's egress proxy, so neither was read first-hand. Gallery hours are
+unknown and the location is seeded `closed`. No prices are recorded, so no
+`menu_items` — the storefront hides Menu and Place Order for a vendor with none.
+
+### Notes
+- **The database write is still pending.** The Supabase MCP connector is failing
+  auth (`28P01: password authentication failed for user "postgres"`) on even a
+  plain `SELECT`, so the seed has not been applied. Run
+  `phase-5f-seed-violet-love-designs.sql` when the connector recovers.
+- Verified with 21 assertions: 9 in Node (the cuisine matches `makers` and only
+  `makers`, the card is filed correctly, points at their site, and doesn't leak
+  into other categories) and 12 in headless Chromium (card renders with tagline
+  and badges, link opens in a new tab, storefront shows the gallery address and
+  class days with **no** Menu, no Place Order, and no invented price anywhere).
+
+---
+
 ## [Unreleased] — Merge main: Uncle Robert's keeps one front door (2026-09-04)
 
 `main` gained a dedicated Uncle Robert's landing page (PR #39) while this branch

@@ -105,6 +105,23 @@ export const FEATURED_VENDORS: FeaturedVendor[] = [
     rating: 'New',
   },
   {
+    id: 'violet-love-designs',
+    name: 'Violet Love Designs',
+    categorySlug: 'makers',
+    categoryLabel: 'Featured Maker',
+    tagline: 'Coconut & Lauhala, Woven on the Big Island',
+    description:
+      'Contemporary art and Hawaiian craft from Pāhoa — coconut and lauhala weaving handmade on the Big Island, fine art, prints and island jewelry. Weaving classes run most weekends at Violet Loves Art Gallery in Puna Kai.',
+    badges: ['Lauhala & Coconut Weaving', 'Weaving Classes', 'Artist Gallery'],
+    // Lauhala straw against the violet the shop is named for. No photograph:
+    // nothing available that is ours to publish.
+    emoji: '🎨',
+    theme: { banner: 'linear-gradient(135deg, #2b1a3d 0%, #7a4bb5 55%, #d9a441 100%)', accent: '#7a4bb5' },
+    shopUrl: 'https://www.violetlovedesign.com/',
+    shopLabel: 'Visit the Gallery',
+    rating: 'New',
+  },
+  {
     id: 'alas-kitchen',
     name: "Ala's Kitchen — Get Smashed",
     categorySlug: 'foodtrucks',
