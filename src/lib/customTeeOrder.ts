@@ -1,15 +1,16 @@
 /**
  * customTeeOrder.ts — Rasta Rooster custom tee order pricing.
  *
- * Direct-to-community custom apparel: customer picks garment, print
- * locations, and fulfillment; we quote a price and take a design request.
- * No live payment collection here — orders land in Supabase for admin
+ * Direct-to-community custom apparel: customer picks garment, up to three
+ * print spots (front/back/sleeve) each with a size and their own design
+ * image, and fulfillment; we quote a price and take a design request. No
+ * live payment collection here — orders land in Supabase for admin
  * follow-up (screen print / heat transfer / DTG), same as vendor applications.
  */
 
 export type ShirtType = 'standard_tee' | 'heavy_cotton' | 'hoodie';
-export type PrintLocation = 'front' | 'back';
-export type Fulfillment = 'pahoa_pickup' | 'hawaii_ship';
+export type PrintLocation = 'front' | 'back' | 'sleeve';
+export type PrintSize = 'small' | 'medium' | 'large';
 
 export interface GarmentOption {
   value: ShirtType;
@@ -23,12 +24,54 @@ export const GARMENT_OPTIONS: GarmentOption[] = [
   { value: 'hoodie', label: 'Hoodie', basePrice: 45.0 },
 ];
 
+export interface ShirtColorOption {
+  value: string;
+  label: string;
+  hex: string;
+}
+
+export const SHIRT_COLORS: ShirtColorOption[] = [
+  { value: 'white', label: 'White', hex: '#f5f5f0' },
+  { value: 'black', label: 'Black', hex: '#1a1a1a' },
+  { value: 'natural', label: 'Natural', hex: '#e8dcc4' },
+  { value: 'navy', label: 'Navy', hex: '#1e2a4a' },
+  { value: 'red', label: 'Red', hex: '#b3261e' },
+  { value: 'forest', label: 'Forest Green', hex: '#2d4a2d' },
+];
+
+export interface PrintLocationOption {
+  value: PrintLocation;
+  label: string;
+}
+
+export const PRINT_LOCATIONS: PrintLocationOption[] = [
+  { value: 'front', label: 'Front' },
+  { value: 'back', label: 'Back' },
+  { value: 'sleeve', label: 'Sleeve' },
+];
+
+export interface PrintSizeOption {
+  value: PrintSize;
+  label: string;
+  inches: number;
+  /** Max print-area width as a fraction of the garment's front/back width, for the mockup. */
+  widthFrac: number;
+}
+
+export const PRINT_SIZES: PrintSizeOption[] = [
+  { value: 'large', label: 'Large — 9"', inches: 9, widthFrac: 0.62 },
+  { value: 'medium', label: 'Medium — 6"', inches: 6, widthFrac: 0.42 },
+  { value: 'small', label: 'Small — 3"', inches: 3, widthFrac: 0.22 },
+];
+
 export interface FulfillmentOption {
   value: Fulfillment;
   label: string;
   description: string;
   fee: number;
 }
+
+export type Fulfillment = 'pahoa_pickup' | 'hawaii_ship';
 
 const HAWAII_SHIP_FEE = 7.5;
 
@@ -47,8 +90,19 @@ export const FULFILLMENT_OPTIONS: FulfillmentOption[] = [
   },
 ];
 
-/** Extra fee for printing a second location (e.g. front + back). */
+/** Extra fee per print spot beyond the first (front/back/sleeve — size doesn't change price yet). */
 export const EXTRA_PRINT_LOCATION_FEE = 8.0;
+
+/** One print spot: where on the garment, how big, and the artist's design image. */
+export interface PrintSpec {
+  location: PrintLocation;
+  size: PrintSize;
+  /** Local object URL for instant preview — always set once a file is picked. */
+  previewUrl: string;
+  /** Hosted URL once the upload finishes; null while still uploading. */
+  imageUrl: string | null;
+  uploading: boolean;
+}
 
 const BASE_PRICES: Record<ShirtType, number> = Object.fromEntries(
   GARMENT_OPTIONS.map(g => [g.value, g.basePrice]),
@@ -60,7 +114,7 @@ const FULFILLMENT_FEES: Record<Fulfillment, number> = Object.fromEntries(
 
 export interface CustomTeeOrderInput {
   shirtType: ShirtType;
-  printLocations: PrintLocation[];
+  printSpotCount: number;
   fulfillment: Fulfillment;
   quantity: number;
 }
@@ -79,12 +133,13 @@ function round2(n: number): number {
 /** Calculate final cost for a Rasta Rooster custom tee order. */
 export function calculateCustomTeeOrder({
   shirtType = 'standard_tee',
-  printLocations = ['front'],
+  printSpotCount = 1,
   fulfillment = 'pahoa_pickup',
   quantity = 1,
 }: Partial<CustomTeeOrderInput>): CustomTeeOrderQuote {
   const safeQuantity = Math.max(1, Math.floor(quantity) || 1);
-  const extraPrintFee = printLocations.length > 1 ? EXTRA_PRINT_LOCATION_FEE : 0;
+  const safeSpots = Math.max(1, Math.floor(printSpotCount) || 1);
+  const extraPrintFee = Math.max(0, safeSpots - 1) * EXTRA_PRINT_LOCATION_FEE;
   const shipping = FULFILLMENT_FEES[fulfillment];
   const pricePerItem = BASE_PRICES[shirtType] + extraPrintFee;
   const subtotal = pricePerItem * safeQuantity;

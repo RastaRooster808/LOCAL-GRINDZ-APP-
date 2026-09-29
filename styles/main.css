@@ -380,6 +380,23 @@ footer {
 .custom-tee-quote { background: #f7f7f7; border-radius: var(--radius); padding: 1rem; margin: 0.5rem 0; }
 .custom-tee-quote-row { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 0.2rem 0; color: var(--muted); }
 .custom-tee-quote-total { font-weight: 800; color: var(--r-ink, #222); font-size: 1.05rem; border-top: 1px solid #ddd; margin-top: 0.4rem; padding-top: 0.5rem; }
+
+/* ── Custom Tee: mockup + color/spot pickers ─────────── */
+.ct-mockup-row { display: flex; gap: 1rem; justify-content: center; padding: 1rem 0; flex-wrap: wrap; }
+.ct-mockup { text-align: center; width: 140px; }
+.ct-mockup-svg { width: 100%; height: auto; background: #fafafa; border-radius: var(--radius); border: 1px solid #e5e5e5; }
+.ct-mockup-label { font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; }
+.ct-color-picker { display: flex; gap: 0.5rem; margin-top: 0.4rem; flex-wrap: wrap; }
+.ct-color-choice { width: 2.2rem; height: 2.2rem; border-radius: 50%; border: 2px solid #d8d8d8; cursor: pointer; padding: 0; }
+.ct-color-choice--active { border-color: var(--lava, #E63946); box-shadow: 0 0 0 2px #fff inset; }
+.ct-spots { border: 1px solid #e0e0e0; border-radius: var(--radius); padding: 0.9rem; margin: 0.5rem 0; }
+.ct-spots legend { font-size: 0.85rem; font-weight: 700; padding: 0 0.3rem; }
+.ct-spot-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0; flex-wrap: wrap; }
+.ct-spot-toggle { flex-direction: row; align-items: center; gap: 0.4rem; font-weight: normal; min-width: 90px; }
+.ct-spot-toggle input { width: auto; }
+.ct-spot-status { font-size: 0.78rem; color: var(--muted); }
+.ct-spot-status--error { color: var(--lava, #c0392b); font-weight: 600; }
+.ct-spot-hint { font-size: 0.75rem; color: var(--muted); margin: 0.4rem 0 0; }
 .custom-tee-quote-note { font-size: 0.75rem; color: var(--muted); margin-top: 0.5rem; }
 
 /* ── Phase 3: Admin dashboard ────────────────────────── */

@@ -2,17 +2,79 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { trackEvent } from '../lib/analytics';
+import { compressImage } from '../components/ui/ImageUpload';
 import {
   GARMENT_OPTIONS,
+  SHIRT_COLORS,
+  PRINT_LOCATIONS,
+  PRINT_SIZES,
   FULFILLMENT_OPTIONS,
-  EXTRA_PRINT_LOCATION_FEE,
   calculateCustomTeeOrder,
   type ShirtType,
   type PrintLocation,
+  type PrintSize,
+  type PrintSpec,
   type Fulfillment,
 } from '../lib/customTeeOrder';
 
 const SIZES = ['S', 'M', 'L', 'XL', '2XL', '3XL'];
+
+// Flat mockup geometry — a stylized tee silhouette, not a photo. Each print
+// spot gets a fixed box on the silhouette; PRINT_SIZES.widthFrac scales the
+// image within it.
+const TEE_PATH = 'M60,10 L80,10 Q100,26 120,10 L140,10 L172,42 L150,64 L138,52 L138,232 L62,232 L62,52 L50,64 L28,42 Z';
+const SPOT_BOX: Record<PrintLocation, { cx: number; cy: number; w: number; h: number }> = {
+  front: { cx: 100, cy: 130, w: 66, h: 90 },
+  back: { cx: 100, cy: 130, w: 66, h: 90 },
+  sleeve: { cx: 42, cy: 68, w: 30, h: 36 },
+};
+
+function TeeMockup({ label, color, spots, forLocation }: {
+  label: string;
+  color: string;
+  spots: PrintSpec[];
+  /** Which non-sleeve location this panel represents ('front' or 'back'). Sleeve always shows too. */
+  forLocation: 'front' | 'back';
+}) {
+  const visible = spots.filter(s => s.location === forLocation || s.location === 'sleeve');
+  return (
+    <div className="ct-mockup">
+      <svg viewBox="0 0 200 240" className="ct-mockup-svg" role="img" aria-label={`${label} mockup`}>
+        <defs>
+          {visible.map(s => {
+            const box = SPOT_BOX[s.location];
+            const sizeOpt = PRINT_SIZES.find(p => p.value === s.size)!;
+            const w = box.w * sizeOpt.widthFrac, h = box.h * sizeOpt.widthFrac;
+            return (
+              <clipPath id={`clip-${forLocation}-${s.location}`} key={s.location}>
+                <rect x={box.cx - w / 2} y={box.cy - h / 2} width={w} height={h} rx={2} />
+              </clipPath>
+            );
+          })}
+        </defs>
+        <path d={TEE_PATH} fill={color} stroke="#00000022" strokeWidth={1.5} />
+        {visible.map(s => {
+          const box = SPOT_BOX[s.location];
+          const sizeOpt = PRINT_SIZES.find(p => p.value === s.size)!;
+          const w = box.w * sizeOpt.widthFrac, h = box.h * sizeOpt.widthFrac;
+          return (
+            <image
+              key={s.location}
+              href={s.previewUrl}
+              x={box.cx - w / 2}
+              y={box.cy - h / 2}
+              width={w}
+              height={h}
+              preserveAspectRatio="xMidYMid slice"
+              clipPath={`url(#clip-${forLocation}-${s.location})`}
+            />
+          );
+        })}
+      </svg>
+      <p className="ct-mockup-label">{label}</p>
+    </div>
+  );
+}
 
 export function CustomTee() {
   const [submitted, setSubmitted] = useState(false);
@@ -21,8 +83,8 @@ export function CustomTee() {
 
   const [shirtType, setShirtType] = useState<ShirtType>('standard_tee');
   const [shirtSize, setShirtSize] = useState('M');
-  const [shirtColor, setShirtColor] = useState('');
-  const [printLocations, setPrintLocations] = useState<PrintLocation[]>(['front']);
+  const [shirtColor, setShirtColor] = useState(SHIRT_COLORS[0].value);
+  const [spots, setSpots] = useState<PrintSpec[]>([]);
   const [fulfillment, setFulfillment] = useState<Fulfillment>('pahoa_pickup');
   const [quantity, setQuantity] = useState(1);
   const [designNotes, setDesignNotes] = useState('');
@@ -30,32 +92,64 @@ export function CustomTee() {
   const [shippingAddress, setShippingAddress] = useState('');
   const [email, setEmail] = useState('');
 
+  const colorHex = SHIRT_COLORS.find(c => c.value === shirtColor)?.hex ?? '#f5f5f0';
   const quote = useMemo(
-    () => calculateCustomTeeOrder({ shirtType, printLocations, fulfillment, quantity }),
-    [shirtType, printLocations, fulfillment, quantity],
+    () => calculateCustomTeeOrder({ shirtType, printSpotCount: Math.max(1, spots.length), fulfillment, quantity }),
+    [shirtType, spots.length, fulfillment, quantity],
   );
+  const anyUploading = spots.some(s => s.uploading);
+  const anyFailed = spots.some(s => !s.uploading && !s.imageUrl);
+  const sessionId = useMemo(() => crypto.randomUUID(), []);
 
-  function togglePrintLocation(loc: PrintLocation) {
-    setPrintLocations(prev => {
-      if (prev.includes(loc)) {
-        if (prev.length === 1) return prev; // keep at least one
-        return prev.filter(l => l !== loc);
-      }
-      return [...prev, loc];
-    });
+  function locationActive(loc: PrintLocation) {
+    return spots.some(s => s.location === loc);
+  }
+
+  async function toggleLocation(loc: PrintLocation, file: File | null) {
+    if (!file) {
+      setSpots(prev => prev.filter(s => s.location !== loc));
+      return;
+    }
+    const previewUrl = URL.createObjectURL(file);
+    const defaultSize: PrintSize = loc === 'sleeve' ? 'small' : 'large';
+    setSpots(prev => [...prev.filter(s => s.location !== loc), { location: loc, size: defaultSize, previewUrl, imageUrl: null, uploading: true }]);
+
+    try {
+      const compressed = await compressImage(file, 1200, 1200);
+      const path = `custom-tee-designs/${sessionId}/${loc}.webp`;
+      const { error } = await supabase.storage.from('vendor-assets').upload(path, compressed, {
+        contentType: 'image/webp',
+        upsert: true,
+      });
+      if (error) throw error;
+      const { data } = supabase.storage.from('vendor-assets').getPublicUrl(path);
+      setSpots(prev => prev.map(s => s.location === loc ? { ...s, imageUrl: `${data.publicUrl}?t=${Date.now()}`, uploading: false } : s));
+    } catch (err) {
+      console.error('Design upload failed', err);
+      setSpots(prev => prev.map(s => s.location === loc ? { ...s, uploading: false } : s));
+      setError(`Upload failed for the ${loc} design. Try again, or remove it and continue without.`);
+    }
+  }
+
+  function setSpotSize(loc: PrintLocation, size: PrintSize) {
+    setSpots(prev => prev.map(s => s.location === loc ? { ...s, size } : s));
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
+    if (anyUploading) { setError('Still uploading a design — one sec and try again.'); return; }
+    if (anyFailed) { setError('One of your designs failed to upload — retry it or uncheck that spot before submitting.'); return; }
     setSubmitting(true);
     const fd = new FormData(e.currentTarget);
 
+    const printSpecs = spots.map(s => ({ location: s.location, size: s.size, image_url: s.imageUrl }));
     const { error } = await supabase.from('custom_tee_orders').insert({
       shirt_type: shirtType,
-      shirt_color: shirtColor || null,
+      shirt_color: shirtColor,
       shirt_size: shirtSize,
-      print_locations: printLocations,
+      print_locations: spots.map(s => s.location),
+      print_specs: printSpecs,
       design_notes: designNotes || null,
       reference_image_url: referenceUrl || null,
       fulfillment,
@@ -102,15 +196,20 @@ export function CustomTee() {
         <div className="apply-intro">
           <h2>Custom Tee Request — Pāhoa, Hawaiʻi</h2>
           <p>
-            Design your own tee with Rasta Rooster flash art, custom text, or a photo you send
-            us. Pick up free in Pāhoa or get it shipped anywhere on the Big Island.
+            Upload your own design, place it on the tee, and see it before you send it —
+            free pickup in Pāhoa or shipped anywhere on the Big Island, printed locally.
           </p>
           <ul className="apply-benefits">
             <li>Garment-dyed tees, heavy cotton tees, and hoodies</li>
-            <li>Front print, or front + back for one flat add-on fee</li>
+            <li>Upload art for front, back, and/or sleeve — each its own size</li>
             <li>Free Pāhoa pickup — no shipping fee</li>
             <li>We'll confirm your design and price before anything goes to print</li>
           </ul>
+        </div>
+
+        <div className="ct-mockup-row">
+          <TeeMockup label="Front" color={colorHex} spots={spots} forLocation="front" />
+          <TeeMockup label="Back" color={colorHex} spots={spots} forLocation="back" />
         </div>
 
         <section>
@@ -129,48 +228,82 @@ export function CustomTee() {
               </select>
             </label>
 
-            <label>Color (optional)
-              <input value={shirtColor} onChange={e => setShirtColor(e.target.value)} placeholder="Black, White, Natural…" />
-            </label>
-
             <label>
-              Print Locations
-              <span className="custom-tee-checkbox-row">
-                <label className="custom-tee-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={printLocations.includes('front')}
-                    onChange={() => togglePrintLocation('front')}
-                  /> Front
-                </label>
-                <label className="custom-tee-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={printLocations.includes('back')}
-                    onChange={() => togglePrintLocation('back')}
-                  /> Back (+${EXTRA_PRINT_LOCATION_FEE.toFixed(2)})
-                </label>
+              Color
+              <span className="ct-color-picker">
+                {SHIRT_COLORS.map(c => (
+                  <button
+                    type="button"
+                    key={c.value}
+                    className={`ct-color-choice${shirtColor === c.value ? ' ct-color-choice--active' : ''}`}
+                    style={{ background: c.hex }}
+                    onClick={() => setShirtColor(c.value)}
+                    aria-label={c.label}
+                    aria-pressed={shirtColor === c.value}
+                    title={c.label}
+                  />
+                ))}
               </span>
             </label>
 
+            <fieldset className="ct-spots">
+              <legend>Your Design — Front, Back, and/or Sleeve</legend>
+              {PRINT_LOCATIONS.map(loc => {
+                const spot = spots.find(s => s.location === loc.value);
+                const availableSizes = loc.value === 'sleeve' ? PRINT_SIZES.filter(p => p.value === 'small') : PRINT_SIZES;
+                return (
+                  <div className="ct-spot-row" key={loc.value}>
+                    <label className="ct-spot-toggle">
+                      <input
+                        type="checkbox"
+                        checked={locationActive(loc.value)}
+                        onChange={e => {
+                          if (!e.target.checked) { toggleLocation(loc.value, null); return; }
+                          const input = document.createElement('input');
+                          input.type = 'file'; input.accept = 'image/*';
+                          input.onchange = () => { const f = input.files?.[0]; if (f) toggleLocation(loc.value, f); };
+                          input.click();
+                        }}
+                      /> {loc.label}
+                    </label>
+                    {spot && (
+                      <>
+                        <select
+                          value={spot.size}
+                          onChange={e => setSpotSize(loc.value, e.target.value as PrintSize)}
+                          disabled={availableSizes.length === 1}
+                        >
+                          {availableSizes.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                        </select>
+                        <span className={`ct-spot-status${!spot.uploading && !spot.imageUrl ? ' ct-spot-status--error' : ''}`}>
+                          {spot.uploading ? 'Uploading…' : spot.imageUrl ? '✓ Ready' : '⚠ Upload failed — retry'}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+              <p className="ct-spot-hint">Front and back can go up to 9". Sleeves are 3".</p>
+            </fieldset>
+
             <label>
-              Design Notes
+              Design Notes (optional)
               <textarea
-                rows={4}
+                rows={3}
                 maxLength={500}
                 value={designNotes}
                 onChange={e => setDesignNotes(e.target.value)}
-                placeholder="Rasta Rooster flash art, custom text, Pūna district callout, or describe a photo you'll send us…"
+                placeholder="Placement tweaks, colors to avoid, anything we should know…"
               />
               <span className="char-count">{designNotes.length}/500</span>
             </label>
 
-            <label>Reference Art Link (optional)
+            <label>Inspiration Link (optional)
               <input
                 type="url"
                 value={referenceUrl}
                 onChange={e => setReferenceUrl(e.target.value)}
-                placeholder="Link to a photo or design reference (Instagram, Google Drive, etc.)"
+                placeholder="A Pinterest board, Instagram post, etc. — separate from your uploaded art"
               />
             </label>
 
@@ -232,8 +365,8 @@ export function CustomTee() {
             </section>
 
             {error && <p className="error-msg">{error}</p>}
-            <button type="submit" className="btn-primary" disabled={submitting}>
-              {submitting ? 'Submitting…' : 'Request This Tee'}
+            <button type="submit" className="btn-primary" disabled={submitting || anyUploading || anyFailed}>
+              {submitting ? 'Submitting…' : anyUploading ? 'Uploading design…' : 'Request This Tee'}
             </button>
           </form>
         </section>

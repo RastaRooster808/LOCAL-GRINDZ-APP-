@@ -4,6 +4,58 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Custom Tee: real design uploads + a live mockup (2026-09-29)
+
+### Added — artists upload their own art and see it on the tee before sending
+- `/custom-tee` now takes real image uploads per print spot — **front, back,
+  and/or sleeve** — instead of just a text link. Each spot has its own size:
+  **large (9")** and **medium (6")** for front/back, **small (3")** for
+  sleeves (sleeve size is locked to 3" — a 9" sleeve print isn't real).
+- A flat SVG mockup (`TeeMockup` in `CustomTee.tsx`) renders live above the
+  form: front + back panels in the selected shirt color (6-swatch picker,
+  `SHIRT_COLORS`), each uploaded design clipped into its print-spot box at
+  the chosen size. Not photorealistic — a stylized flat preview, same
+  category of tool as the "dozens of apps doing it" the user pointed to.
+- Uploads go to the existing public `vendor-assets` bucket under a new
+  `custom-tee-designs/` prefix (`docs/migrations/phase-5d-custom-tee-print-specs.sql`)
+  rather than standing up a new bucket — same constrained-path anon-upload
+  pattern already used for review photos.
+- `custom_tee_orders` gets a new `print_specs jsonb` column (location, size,
+  image URL per spot); `custom-tee-notify`'s email now lists each design
+  file's link so whoever's printing can open them directly.
+- Pricing: base price + $8 per print spot beyond the first (was already the
+  model for front+back; now covers up to 3 spots). Size doesn't change price
+  yet — no new tier was asked for, so none was invented.
+
+### Bug caught and fixed before shipping
+- First pass showed **"✓ Ready" even when the upload had actually failed** —
+  the status badge only checked "not currently uploading," not
+  whether a file URL actually came back. Caught this by testing a real
+  upload in a browser (this sandbox can't reach Supabase, so it reliably
+  fails here) and seeing the mismatch: red error text below, green "Ready"
+  above it. Fixed: status now reads the real outcome (`⚠ Upload failed —
+  retry` when `imageUrl` is null), and submit is disabled whenever any spot
+  failed, not just while one's still uploading — so a broken order can't go
+  out with a missing print file.
+
+### Not applied yet — this session's Supabase connection is broken
+- Every DB tool (`execute_sql`, `list_tables`, …) is failing
+  `password authentication failed` this session, for both the normal and
+  read-only roles — a connection/credential issue on this session's Supabase
+  MCP link, not a code problem. **The migration above has NOT been applied
+  to the live project.** Until it is, the live `/custom-tee` page will fail
+  to insert orders with print spots (missing `print_specs` column) and every
+  upload will fail (missing storage policy) — same failure mode I just
+  fixed the UI to show honestly rather than hide.
+- Once the connection is working again: apply
+  `phase-5d-custom-tee-print-specs.sql`, then do one real end-to-end test
+  (upload a design, submit, confirm the email lists the file link) before
+  trusting this at the booth.
+- Committed to the working branch, not merged to `main` — this shouldn't go
+  live until the migration's applied and a real upload has been verified.
+
+---
+
 ## [Unreleased] — Uncle Robert's landing page: real market detail (2026-08-29)
 
 ### Changed

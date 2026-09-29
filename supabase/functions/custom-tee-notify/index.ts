@@ -57,19 +57,27 @@ Deno.serve(async (req) => {
 
   const shirtLabel = SHIRT_LABELS[order.shirt_type as string] ?? (order.shirt_type as string);
   const fulfillmentLabel = FULFILLMENT_LABELS[order.fulfillment as string] ?? (order.fulfillment as string);
+  const printSpecs = Array.isArray(order.print_specs) ? order.print_specs as { location: string; size: string; image_url: string | null }[] : [];
   const printLocations = Array.isArray(order.print_locations) ? (order.print_locations as string[]).join(' + ') : order.print_locations;
   const total = Number(order.total ?? 0).toFixed(2);
+
+  const printSpecsHtml = printSpecs.length
+    ? `<li><strong>Design files:</strong><ul>${printSpecs.map(s =>
+        `<li>${s.location} (${s.size})${s.image_url ? `: <a href="${s.image_url}">${s.image_url}</a>` : ' — no file uploaded'}</li>`,
+      ).join('')}</ul></li>`
+    : '';
 
   const html = `
     <p>New custom tee request — Rasta Rooster</p>
     <ul>
       <li><strong>Garment:</strong> ${shirtLabel}${order.shirt_size ? `, size ${order.shirt_size}` : ''}${order.shirt_color ? `, ${order.shirt_color}` : ''}</li>
-      <li><strong>Print:</strong> ${printLocations}</li>
+      <li><strong>Print spots:</strong> ${printLocations}</li>
+      ${printSpecsHtml}
       <li><strong>Quantity:</strong> ${order.quantity}</li>
       <li><strong>Fulfillment:</strong> ${fulfillmentLabel}${order.shipping_address ? `<br>${order.shipping_address}` : ''}</li>
       <li><strong>Estimated total:</strong> $${total}</li>
       ${order.design_notes ? `<li><strong>Design notes:</strong> ${order.design_notes}</li>` : ''}
-      ${order.reference_image_url ? `<li><strong>Reference art:</strong> <a href="${order.reference_image_url}">${order.reference_image_url}</a></li>` : ''}
+      ${order.reference_image_url ? `<li><strong>Inspiration link:</strong> <a href="${order.reference_image_url}">${order.reference_image_url}</a></li>` : ''}
     </ul>
     <p><strong>Customer:</strong> ${order.customer_name} — ${order.customer_email}${order.customer_phone ? ` — ${order.customer_phone}` : ''}</p>
     <p style="color:#888;font-size:12px">Order ID: ${order.id} · ${SITE_URL}</p>
