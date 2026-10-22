@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - claude/phase-2-completion-check-j9i9wk
   workflow_dispatch:
 
 permissions:
@@ -37,7 +36,7 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Upload artifact
-        # Only upload when on main — deploy job below won't run on feature branches
+        # Workflow only runs on main now; guard kept as a safety net
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:
