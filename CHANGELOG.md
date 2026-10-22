@@ -4,6 +4,56 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — The command center: diagnosis and prototype (2026-10-22)
+
+### Added
+- **Command-center prototype** — one state model projected for three audiences
+  (operator, vendor, customer), switchable in place:
+  <https://claude.ai/artifact/K4MqCB6KxLb6wLJ3K7RYQr>
+- `docs/COMMAND_CENTER.md` — the diagnosis, the signal model, where AI earns its
+  place and where it must not go, and a six-step build order.
+
+### The diagnosis, measured
+The app is organised around what got built, not around who is looking. Two
+numbers make it concrete:
+
+- **Ten of twenty routes are reachable only by typing the URL** — `/events`,
+  `/protea`, `/blissings`, `/raffle`, `/rasta-rooster`, `/kingdom-tokens`,
+  `/kullacoin`, `/piano`, `/signature`, `/admin`. Landing links to seven. There
+  is no hallway.
+- **The vendor dashboard has twelve tabs.** A tab bar is the user choosing where
+  to look; a command center has already decided.
+
+Nothing in the product asks who you are or what you should do next — which is
+why it reads as a pile of screens rather than a workspace.
+
+### The model
+A **signal** carries severity, consequence, owner, action and audience. Most are
+derived by query, not stored. Personalization is then a *projection* of one
+model, not a parallel set of pages — which is what the prototype's persona
+switch actually implements.
+
+### Where AI belongs, stated plainly
+Not in deciding what is broken: ranking and blocking must be deterministic, and
+a model that occasionally omits "your database is down" is worse than a `case`
+statement that never does. The prototype contains no model at all; its apparent
+intelligence is state-awareness. A model earns its place in conversational
+onboarding (replacing the `/apply` form), draft-only content, the pgvector
+search already sitting unused in `phase-4n-ai-search.sql`, and summarising a
+week over signals the rules produced.
+
+### This promotes Stage 1 from "should" to "must"
+Nine read sites discard their `error` (`ROADMAP_TO_COMPLETION.md`, Stage 1).
+Build a command center on that and an outage renders as *"Nothing needs you
+right now."* A surface that says all clear while the database is down is worse
+than no surface, because people stop checking it. **Error handling has to land
+before the home route learns to reassure anyone.**
+
+### Nothing built
+Design and prototype only. No source changed, no route added, no model called.
+
+---
+
 ## [Unreleased] — Welcome packet: KaRas Freshly Baked (2026-10-22)
 
 ### Added
