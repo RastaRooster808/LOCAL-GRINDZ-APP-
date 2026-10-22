@@ -1,8 +1,17 @@
 -- Phase 5.g — KaRas Freshly Baked: her own email on the record.
 --
--- NOT YET APPLIED. Project pqzygehnnojdttmqadrz was restoring from an INACTIVE
--- (paused) state when this was written, and the choice between Option A and
--- Option B below is the operator's, not the code's.
+-- DECIDED 2026-10-22 — NEITHER OPTION APPLIED, by the operator's choice.
+-- karaste122@yahoo.com is for sending her the welcome packet and nothing else.
+-- It is NOT going in the database: her listing keeps no public email, and her
+-- dashboard stays on the bankspham5+karas@gmail.com login provisioned
+-- 2026-07-21. The address lives only in docs/WELCOME_PACKET_KARAS.md.
+--
+-- This file is kept, still inert, because the question comes back every time a
+-- vendor hands over a real address — and because Option B's step order is the
+-- part people get wrong. Nothing here runs until someone uncomments it.
+--
+-- (Project pqzygehnnojdttmqadrz was also restoring from an INACTIVE state when
+-- this was written, so nothing could have been applied regardless.)
 --
 -- Her address — karaste122@yahoo.com — can land in either of two columns, and
 -- they do completely different things. Phase 4.9 set the convention:

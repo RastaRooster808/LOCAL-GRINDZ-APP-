@@ -39,7 +39,7 @@ Four more checks, in order of how badly each fails:
    `vendor_monthly_statements` view behind the Billing tab. Queries are in
    `docs/migrations/phase-5g-karas-contact-and-login.sql`. If they're missing,
    her save fails silently and the packet has promised something that doesn't work.
-4. **Decide what her email is for** — see *Two options* below.
+4. ~~Decide what her email is for~~ — **settled, see below.** Nothing to apply.
 
 ---
 
@@ -78,20 +78,30 @@ later billing 5% is the kind of thing that ends a relationship with a neighbour.
 
 ---
 
-## Two options for karaste122@yahoo.com
+## Her email: settled
 
-Phase 4.9 set the convention: *"`email` stays the auth login identity; public
-contact goes in new columns."* So her address can go in two places that do very
-different things. Both are written out, commented, in
-`docs/migrations/phase-5g-karas-contact-and-login.sql`. **Neither is applied.**
+**Decided 2026-10-22: karaste122@yahoo.com is for sending her the packet, and
+nothing else.** It does not go in the database. Her listing carries no public
+email, and her dashboard stays on the `bankspham5+karas@gmail.com` login
+provisioned 2026-07-21. The address lives in this file only.
 
-### Option A — public contact (`contact_email`)
+That is the right default for an address a vendor handed over in passing: it was
+given so we could reach her, not so we could publish it or rebuild her access
+around it. Either of those is a bigger change than she agreed to, and both can
+be made later in one statement if she asks.
+
+The two alternatives stay written out and inert in
+`docs/migrations/phase-5g-karas-contact-and-login.sql`, because the question
+returns with every vendor who hands over a real address — and because Option B's
+step order is the part that goes wrong.
+
+### Option A, not taken — public contact (`contact_email`)
 Shows on her storefront's contact block next to phone and socials
 (`Storefront.tsx:223`). No auth change; her existing login keeps working.
 **Consider first:** this publishes a personal-looking yahoo address to the open
 internet. Worth her explicit yes.
 
-### Option B — her own dashboard login (`email`)
+### Option B, not taken — her own dashboard login (`email`)
 The Violet Love Designs pattern. Vendor RLS matches
 `vendors.email = auth.email()`, so changing `email` is what moves the dashboard
 from the operator alias to KaRa herself.
@@ -113,8 +123,11 @@ it is a decision and not a default.
 
 ## Draft email — for the operator to send
 
-Not sent. No mail was addressed, drafted in Gmail, or delivered from this
-session. Fill the two bracketed fields and it is ready.
+**The operator sends this one** — decided 2026-10-22. Nothing was addressed,
+drafted in Gmail, or delivered from this session, and nothing will be. A first
+note to a neighbour reads better from a person than from an assistant, and
+sending it by hand means the storefront link gets clicked once before it is
+pasted. Fill the two bracketed fields and it is ready.
 
 > **Subject: You're on Local Grindz — here's your bake stand packet**
 >

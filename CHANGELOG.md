@@ -44,8 +44,18 @@ Both read things no migration in this repo creates — `vendors.paypal_handle`,
 they are absent on the live DB her save fails silently, per Stage 1 of
 `ROADMAP_TO_COMPLETION.md`.
 
+### Decided 2026-10-22
+- **Her email is for sending the packet and nothing else** — it does not go in
+  the database. Her listing carries no public email and her dashboard stays on
+  the `bankspham5+karas@gmail.com` login provisioned 2026-07-21. Right default
+  for an address handed over in passing: it was given so we could reach her, not
+  so we could publish it or rebuild her access around it. Both alternatives stay
+  inert in the phase-5g file for whenever a vendor asks.
+- **The operator sends the welcome email**, by hand, from the draft.
+
 ### Not done, on purpose
-- **Nothing was emailed.** No mail addressed, drafted or sent from this session.
+- **Nothing was emailed.** No mail addressed, drafted or sent from this session,
+  and none will be.
 - **Nothing was applied to the database.** Project `pqzygehnnojdttmqadrz` was
   restoring from `INACTIVE`, and the packet should not reach her while it is
   down — her storefront would render as "no vendors."
