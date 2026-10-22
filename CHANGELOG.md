@@ -4,6 +4,49 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Roadmap to first users, measured against live data (2026-10-22)
+
+### Added
+- `docs/ROADMAP_TO_FIRST_USERS.md` — six gates from here to a stranger paying a
+  vendor, written against the live database rather than the seed files.
+
+### The two numbers that set the sequence
+- **0 orders ever.** The order → accept → pay → complete path has never been
+  walked by a human. It is the only path that makes money and the only one never
+  exercised.
+- **1 vendor is open** — Ala's Kitchen, right now. The open/closed mechanism
+  works in production.
+
+### Corrections to earlier entries in this changelog
+- **"No vendor has ever been open" is no longer true.** It described the seed
+  data (`phase-4-1-seed-vendors.sql:26` hardcodes `'closed'`) and was repeated in
+  `ROADMAP_TO_COMPLETION.md`, `COMMAND_CENTER.md` and PR #40. Ala's Kitchen shows
+  `open_now = 1` on the live database.
+- **The schema drift warnings are resolved.** `vendor_monthly_statements` exists
+  and the `vendors.paypal_handle` / `venmo_handle` / `cashapp_handle` /
+  `preferred_payment` columns exist on `pqzygehnnojdttmqadrz`. The phase-5g
+  caution that they might be missing was right to check and wrong in outcome —
+  a vendor saving a payment handle will work.
+- **KaRa's live menu is four sourdough loaves** (classic $12; jalapeño cheddar,
+  blueberry lemon, double chocolate $15), none flagged sold out — not the seven
+  seed items. The cinnamon-roll apology in `WELCOME_PACKET_KARAS.md` is for a
+  problem she does not have. **That packet must not be sent until rewritten.**
+
+### A live defect this surfaced
+`main` does not carry the `hasMenu` guard — it lives only in PR #40. **Uncle
+Robert's and Violet Love Designs each have zero menu items and each render an
+empty menu above a working order form on the live site today.** A customer can
+place an order nobody can fill. Merging #40 fixes it.
+
+### Already-known defect, now on the critical path
+The customer "I've sent the payment" button writes `payment_status='marked_paid'`
+as an anon user with no anon UPDATE policy, so the write is denied and the button
+only changes local UI (`phase-4-3-vendor-auth-rls.sql`). Harmless while nobody
+uses it; the first real order makes it a lie told to a customer. Fix or remove it
+before Gate 1.
+
+---
+
 ## [Unreleased] — The command center: diagnosis and prototype (2026-10-22)
 
 ### Added
