@@ -4,6 +4,51 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Roadmap to completion (2026-10-22)
+
+### Added
+- `docs/ROADMAP_TO_COMPLETION.md` — seven stages from *built* to *done*, with a
+  testable definition of done and an owner per task.
+
+### Why this is not another feature roadmap
+`docs/PHASE_4_ROADMAP.md` holds the feature vision and most of it is already
+built — orders, loyalty, referrals, messaging, push, AI search, raffles, image
+storage, admin console, map. What is missing is different in kind, and four
+findings from the survey set the order:
+
+- **Supabase project `pqzygehnnojdttmqadrz` is `INACTIVE`** as of 2026-10-22.
+  Every data-driven surface is talking to a paused database. Free-tier projects
+  pause after about a week idle, so this recurs until it is decided.
+- **A database outage renders as a lie.** `src/pages/Directory.tsx:79`
+  destructures `{ data }` and discards `error`, so an unreachable Supabase
+  produces "No vendors in this category yet — local vendors can join free."
+  Six vendors exist. The pattern repeats at 9 call sites across 7 pages,
+  including all three public discovery surfaces; 8 other sites do handle `error`.
+- **No vendor has ever been open.** `phase-4-1-seed-vendors.sql:26` hardcodes
+  `'closed'`, and every later seed does the same, so the Open Now filter, the
+  map's status pins and the open badge have never had a true positive.
+- **There are no tests in the repository** and CI runs `npm run build` only. The
+  281 assertions quoted in PR #40 were real and caught every bug it lists, but
+  they were scratch files bundled with esbuild and ran ad hoc — unreproducible
+  by anyone else, and no barrier to reintroducing those bugs.
+
+### Also noted
+- `@supabase/server` is a dependency with zero imports in `src/`.
+- `CHANGELOG.md` carries 68 consecutive `[Unreleased]` headings against a
+  `package.json` version of `4.0.0`; there is no tag and no release.
+- Entry chunk is 527.73 kB raw / 149.55 kB gzip, above Vite's warning. The
+  Lighthouse targets in `PHASE_4_ROADMAP.md` have never been measured.
+- Stages 0 and 2 are mostly not code — a dashboard click, a call to Inoch, a
+  confirmed address for Violet, a password sent out of band. The code is ahead
+  of the business groundwork.
+
+### Open decision for the operator
+Whether the music suite (KullaCoin, Smart Piano, Signature Song, the harmonic
+colour engine) ships inside Local Grindz or splits out. It blocks nothing, but
+"complete" has a different finish line under each answer.
+
+---
+
 ## [Unreleased] — Vendor: Violet Love Designs, with her own dashboard (2026-09-18)
 
 ### Added
