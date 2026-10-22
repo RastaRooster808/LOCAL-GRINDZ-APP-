@@ -1,0 +1,86 @@
+-- Phase 5.g — KaRas Freshly Baked: her own email on the record.
+--
+-- NOT YET APPLIED. Project pqzygehnnojdttmqadrz was restoring from an INACTIVE
+-- (paused) state when this was written, and the choice between Option A and
+-- Option B below is the operator's, not the code's.
+--
+-- Her address — karaste122@yahoo.com — can land in either of two columns, and
+-- they do completely different things. Phase 4.9 set the convention:
+--   "`email` stays the auth login identity; public contact goes in new columns."
+--
+-- Pick ONE. They are not alternatives in spirit — B includes A — but applying B
+-- without meaning to hands over her dashboard, and applying A without meaning
+-- to publishes her personal address.
+
+-- ─────────────────────────────────────────────────────────────────────────
+-- OPTION A — public contact only (no auth change, reversible)
+-- ─────────────────────────────────────────────────────────────────────────
+-- Renders on her storefront's contact block alongside phone/Facebook/Instagram
+-- (Storefront.tsx:223). Her login stays bankspham5+karas@gmail.com, which is
+-- already provisioned and working, so nothing about access changes.
+--
+-- CONSIDER FIRST: this makes the address publicly visible to anyone on the
+-- internet. A yahoo.com address is usually personal. Confirm with her that she
+-- wants it on a public page before running this.
+
+-- update public.vendors
+--   set contact_email = 'karaste122@yahoo.com'
+--   where slug = 'karas-freshly-baked';
+
+-- ─────────────────────────────────────────────────────────────────────────
+-- OPTION B — move the dashboard to her (auth change, needs a human step)
+-- ─────────────────────────────────────────────────────────────────────────
+-- This is the Violet Love Designs pattern: vendor RLS matches
+-- `vendors.email = auth.email()`, so changing `email` is what transfers the
+-- dashboard from the operator alias to the vendor herself.
+--
+-- ORDER MATTERS. Run step 1 in the Supabase Auth admin FIRST. If you change
+-- the row before the auth user exists, her old login stops matching and the new
+-- one does not exist yet — she is locked out in the gap.
+--
+--   1. Supabase Auth admin → add user karaste122@yahoo.com with a temporary
+--      password. Never committed here (phase-4-3 holds the same rule).
+--   2. Then run the two statements below.
+--   3. Send her the temporary password out of band — not in the welcome email,
+--      and not in the same channel as the packet link.
+--   4. Decide what happens to the old bankspham5+karas@gmail.com auth user.
+--      Leaving it in place is harmless once no vendor row matches it, but it is
+--      dead weight; removing it is cleaner. Operator's call.
+
+-- update public.vendors
+--   set email = 'karaste122@yahoo.com',
+--       contact_email = coalesce(contact_email, 'karaste122@yahoo.com')
+--   where slug = 'karas-freshly-baked';
+--
+-- update public.vendors v
+--   set user_id = u.id
+--   from auth.users u
+--   where v.slug = 'karas-freshly-baked' and v.email = u.email;
+
+-- ─────────────────────────────────────────────────────────────────────────
+-- VERIFY (safe to run now; reads only)
+-- ─────────────────────────────────────────────────────────────────────────
+-- select slug, email, contact_email, user_id, phone, is_active
+--   from public.vendors where slug = 'karas-freshly-baked';
+
+-- ─────────────────────────────────────────────────────────────────────────
+-- UNRELATED BUT BLOCKING — schema drift to check while you are in here
+-- ─────────────────────────────────────────────────────────────────────────
+-- The welcome packet tells KaRa she can save a payment handle and read a
+-- billing statement. Both read columns/views that NO migration in this repo
+-- creates, so they may only exist on the live DB — or not at all:
+--
+--   vendors.paypal_handle, vendors.venmo_handle, vendors.cashapp_handle,
+--   vendors.preferred_payment   -- written by VendorDashboard.tsx:704-707
+--   view/table vendor_monthly_statements
+--                               -- read by VendorDashboard.tsx:181
+--
+-- Run this before sending her anything that promises those features:
+--
+-- select column_name from information_schema.columns
+--   where table_schema = 'public' and table_name = 'vendors'
+--     and column_name in ('paypal_handle','venmo_handle','cashapp_handle','preferred_payment');
+-- select to_regclass('public.vendor_monthly_statements');
+--
+-- If the columns are missing, her "save payment handle" silently fails — the
+-- dashboard discards the error (see docs/ROADMAP_TO_COMPLETION.md, Stage 1).

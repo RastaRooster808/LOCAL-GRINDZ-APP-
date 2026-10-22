@@ -4,6 +4,58 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Welcome packet: KaRas Freshly Baked (2026-10-22)
+
+### Added
+- **Vendor welcome packet for KaRas Freshly Baked** — published as a page so it
+  opens on a phone at the bake stand and a correction is a republish, not a
+  re-send: <https://claude.ai/artifact/7LfLREaiXCukC9cX8rdmAG>
+- `docs/WELCOME_PACKET_KARAS.md` — the record, the pre-send checks, the draft
+  email for the operator, and her listing as it stands.
+- `docs/migrations/phase-5g-karas-contact-and-login.sql` — **commented out and
+  not applied.** Her address, karaste122@yahoo.com, can go in `contact_email`
+  (public on her storefront, no auth change) or `email` (transfers her dashboard
+  off the operator alias, the Violet pattern). Phase 4.9 set that convention;
+  which one applies is the operator's call, so both are written out and neither
+  runs.
+
+### The cinnamon-roll correction
+`phase-4-1-seed-vendors.sql:46` flags her Cinnamon Rolls `available = false`,
+commented *"available=false demonstrates the Sold Out indicator"*. Her public
+listing has been telling customers she is sold out of cinnamon rolls since July
+because the seed needed a demo row. The packet says so plainly, attributes it to
+us, and tells her how to clear it.
+
+### No fee rate appears in the packet
+Deliberate — the repo contradicts itself and a vendor must not be the one to
+discover that. `REVENUE_MODEL.md:38` says **3%** above $500/month;
+`src/lib/payments.ts:7` says **5%**; no fee logic exists in `src/` at all, and
+`platform_fee_due` is read from a view no migration here defines. The packet
+commits only to what is verifiable: the free tier is permanent, nothing is taken
+from orders today, and any change arrives in writing first. **Resolve 3% vs 5%
+before any vendor is quoted a number.**
+
+### Schema drift this surfaced
+The packet promises she can save a payment handle and see a billing statement.
+Both read things no migration in this repo creates — `vendors.paypal_handle`,
+`venmo_handle`, `cashapp_handle`, `preferred_payment`
+(`VendorDashboard.tsx:704-707`) and `vendor_monthly_statements`
+(`VendorDashboard.tsx:181`). Verification queries are in the phase-5g file. If
+they are absent on the live DB her save fails silently, per Stage 1 of
+`ROADMAP_TO_COMPLETION.md`.
+
+### Not done, on purpose
+- **Nothing was emailed.** No mail addressed, drafted or sent from this session.
+- **Nothing was applied to the database.** Project `pqzygehnnojdttmqadrz` was
+  restoring from `INACTIVE`, and the packet should not reach her while it is
+  down — her storefront would render as "no vendors."
+- **The packet link is private** until shared from the page's Share menu.
+- **Her storefront URL is unverified** — `rastarooster808.github.io` and the
+  Pages API are both egress-blocked here, so the likely URL is recorded as
+  likely, not confirmed.
+
+---
+
 ## [Unreleased] — Roadmap to completion (2026-10-22)
 
 ### Added
