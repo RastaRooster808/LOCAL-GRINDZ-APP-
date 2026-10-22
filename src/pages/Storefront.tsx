@@ -182,6 +182,10 @@ export function Storefront() {
   }
 
   const categories = [...new Set(menu.map(i => i.category))];
+  // Some listings are venues, not kitchens — a farmers market hosts vendors and
+  // has nothing of its own to order. Showing an empty Menu and a "Place Order"
+  // form on one of those invites an order nobody can fill.
+  const hasMenu = menu.length > 0;
 
   if (notFound) {
     return (
@@ -238,9 +242,9 @@ export function Storefront() {
       <nav className="bottom-nav">
         <a href="#location">Location</a>
         <a href="#specials">Specials</a>
-        <a href="#menu">Menu</a>
+        {hasMenu && <a href="#menu">Menu</a>}
         {photos.length > 0 && <a href="#gallery">Photos</a>}
-        <a href="#order">Order</a>
+        {hasMenu && <a href="#order">Order</a>}
         <a href="#reviews">Reviews</a>
       </nav>
 
@@ -294,6 +298,7 @@ export function Storefront() {
         )}
 
         {/* Menu */}
+        {hasMenu && (
         <section id="menu">
           <h2>Menu</h2>
           {categories.map(cat => (
@@ -315,8 +320,10 @@ export function Storefront() {
             </div>
           ))}
         </section>
+        )}
 
         {/* Order */}
+        {hasMenu && (
         <section id="order">
           <h2>Your Order</h2>
           {cart.length === 0
@@ -450,6 +457,7 @@ export function Storefront() {
             <button type="submit" className="btn-primary">Place Order</button>
           </form>
         </section>
+        )}
 
         {/* Reviews */}
         <section id="reviews">

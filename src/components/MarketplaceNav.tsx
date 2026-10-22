@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { label: 'Events', to: '/events' },
   { label: 'KullaCoin', to: '/kullacoin' },
   { label: 'Kula Mele', to: '/signature' },
+  { label: 'Piano', to: '/piano' },
   { label: 'Profile', to: '/account' },
 ];
 

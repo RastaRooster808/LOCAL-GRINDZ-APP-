@@ -4,6 +4,818 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Gate 0: an outage now reads as an outage (2026-10-22)
+
+### Fixed — all nine swallowed-error sites
+`.then(({ data }) => ...)` discarded `error` at nine call sites across seven
+pages. An unreachable database returned `data === null`, every caller read that
+as "no rows", and the directory told visitors **"No vendors in this category yet
+— local vendors can join free"** while six vendors existed. During the pause
+earlier this month, that is what the site said.
+
+Now routed through `src/lib/load.ts`:
+- `settle()` — never discards `error`; maps backend codes and network wording to
+  "We could not reach the kitchen right now."
+- `guard()` — **covers the second failure mode.** Testing found the first fix
+  incomplete: when the fetch *rejects* (DNS, TLS, offline, proxy) `.then()` never
+  runs at all, so `setLoading(false)` never fires and the page spins forever.
+  `guard()` catches both paths.
+- `isGenuinelyEmpty()` — empty and broken are different states.
+
+### The directory no longer invites you to fill a gap that isn't there
+The "Local vendor? Join the marketplace free" nudge was shown whenever the list
+was empty — including when it was empty because the read failed. It is now
+suppressed during an error.
+
+### The vendor dashboard no longer spins forever
+`VendorDashboard` rendered "Loading vendor…" indefinitely if the vendor lookup
+failed. A vendor signing in during an outage saw a spinner with no explanation.
+It now distinguishes three outcomes: loaded, backend unreachable (with retry),
+and **no vendor row for this email** — which is a different sentence, and the one
+a mis-addressed invite actually produces.
+
+### Verified against the built app in headless Chromium
+Four outcomes, each rendering distinctly:
+
+| scenario | renders vendor | "no vendors yet" | outage message | join nudge | retry |
+|---|---|---|---|---|---|
+| rows returned | yes | no | no | no | — |
+| genuinely empty (200, `[]`) | no | **yes** | no | **yes** | — |
+| server error (500) | no | no | **yes** | no | yes |
+| network rejected | no | no | **yes** | no | yes |
+
+### Known, not fixed
+`supabase-js` retries with backoff, so a hard network failure spins for
+**6–10 seconds** before the error appears. Correct, but a long time to watch a
+spinner. A client-side timeout would cut it; out of scope for this change.
+
+### Still outstanding in Gate 0
+- **Merge PR #40** — `main` still lacks the `hasMenu` guard, so Uncle Robert's
+  and Violet Love Designs each render an order form nobody can fill.
+- **Decide the Supabase free-tier pause.**
+- `deploy.yml` still names this feature branch in its push triggers. Left in
+  place deliberately: removing it now would stop CI reporting on this PR before
+  it merges. Clean up immediately after.
+
+---
+
+## [Unreleased] — Roadmap to first users, measured against live data (2026-10-22)
+
+### Added
+- `docs/ROADMAP_TO_FIRST_USERS.md` — six gates from here to a stranger paying a
+  vendor, written against the live database rather than the seed files.
+
+### The two numbers that set the sequence
+- **0 orders ever.** The order → accept → pay → complete path has never been
+  walked by a human. It is the only path that makes money and the only one never
+  exercised.
+- **1 vendor is open** — Ala's Kitchen, right now. The open/closed mechanism
+  works in production.
+
+### Corrections to earlier entries in this changelog
+- **"No vendor has ever been open" is no longer true.** It described the seed
+  data (`phase-4-1-seed-vendors.sql:26` hardcodes `'closed'`) and was repeated in
+  `ROADMAP_TO_COMPLETION.md`, `COMMAND_CENTER.md` and PR #40. Ala's Kitchen shows
+  `open_now = 1` on the live database.
+- **The schema drift warnings are resolved.** `vendor_monthly_statements` exists
+  and the `vendors.paypal_handle` / `venmo_handle` / `cashapp_handle` /
+  `preferred_payment` columns exist on `pqzygehnnojdttmqadrz`. The phase-5g
+  caution that they might be missing was right to check and wrong in outcome —
+  a vendor saving a payment handle will work.
+- **KaRa's live menu is four sourdough loaves** (classic $12; jalapeño cheddar,
+  blueberry lemon, double chocolate $15), none flagged sold out — not the seven
+  seed items. The cinnamon-roll apology in `WELCOME_PACKET_KARAS.md` is for a
+  problem she does not have. **That packet must not be sent until rewritten.**
+
+### A live defect this surfaced
+`main` does not carry the `hasMenu` guard — it lives only in PR #40. **Uncle
+Robert's and Violet Love Designs each have zero menu items and each render an
+empty menu above a working order form on the live site today.** A customer can
+place an order nobody can fill. Merging #40 fixes it.
+
+### Already-known defect, now on the critical path
+The customer "I've sent the payment" button writes `payment_status='marked_paid'`
+as an anon user with no anon UPDATE policy, so the write is denied and the button
+only changes local UI (`phase-4-3-vendor-auth-rls.sql`). Harmless while nobody
+uses it; the first real order makes it a lie told to a customer. Fix or remove it
+before Gate 1.
+
+---
+
+## [Unreleased] — The command center: diagnosis and prototype (2026-10-22)
+
+### Added
+- **Command-center prototype** — one state model projected for three audiences
+  (operator, vendor, customer), switchable in place:
+  <https://claude.ai/artifact/K4MqCB6KxLb6wLJ3K7RYQr>
+- `docs/COMMAND_CENTER.md` — the diagnosis, the signal model, where AI earns its
+  place and where it must not go, and a six-step build order.
+
+### The diagnosis, measured
+The app is organised around what got built, not around who is looking. Two
+numbers make it concrete:
+
+- **Ten of twenty routes are reachable only by typing the URL** — `/events`,
+  `/protea`, `/blissings`, `/raffle`, `/rasta-rooster`, `/kingdom-tokens`,
+  `/kullacoin`, `/piano`, `/signature`, `/admin`. Landing links to seven. There
+  is no hallway.
+- **The vendor dashboard has twelve tabs.** A tab bar is the user choosing where
+  to look; a command center has already decided.
+
+Nothing in the product asks who you are or what you should do next — which is
+why it reads as a pile of screens rather than a workspace.
+
+### The model
+A **signal** carries severity, consequence, owner, action and audience. Most are
+derived by query, not stored. Personalization is then a *projection* of one
+model, not a parallel set of pages — which is what the prototype's persona
+switch actually implements.
+
+### Where AI belongs, stated plainly
+Not in deciding what is broken: ranking and blocking must be deterministic, and
+a model that occasionally omits "your database is down" is worse than a `case`
+statement that never does. The prototype contains no model at all; its apparent
+intelligence is state-awareness. A model earns its place in conversational
+onboarding (replacing the `/apply` form), draft-only content, the pgvector
+search already sitting unused in `phase-4n-ai-search.sql`, and summarising a
+week over signals the rules produced.
+
+### This promotes Stage 1 from "should" to "must"
+Nine read sites discard their `error` (`ROADMAP_TO_COMPLETION.md`, Stage 1).
+Build a command center on that and an outage renders as *"Nothing needs you
+right now."* A surface that says all clear while the database is down is worse
+than no surface, because people stop checking it. **Error handling has to land
+before the home route learns to reassure anyone.**
+
+### Nothing built
+Design and prototype only. No source changed, no route added, no model called.
+
+---
+
+## [Unreleased] — Welcome packet: KaRas Freshly Baked (2026-10-22)
+
+### Added
+- **Vendor welcome packet for KaRas Freshly Baked** — published as a page so it
+  opens on a phone at the bake stand and a correction is a republish, not a
+  re-send: <https://claude.ai/artifact/7LfLREaiXCukC9cX8rdmAG>
+- `docs/WELCOME_PACKET_KARAS.md` — the record, the pre-send checks, the draft
+  email for the operator, and her listing as it stands.
+- `docs/migrations/phase-5g-karas-contact-and-login.sql` — **commented out and
+  not applied.** Her address, karaste122@yahoo.com, can go in `contact_email`
+  (public on her storefront, no auth change) or `email` (transfers her dashboard
+  off the operator alias, the Violet pattern). Phase 4.9 set that convention;
+  which one applies is the operator's call, so both are written out and neither
+  runs.
+
+### The cinnamon-roll correction
+`phase-4-1-seed-vendors.sql:46` flags her Cinnamon Rolls `available = false`,
+commented *"available=false demonstrates the Sold Out indicator"*. Her public
+listing has been telling customers she is sold out of cinnamon rolls since July
+because the seed needed a demo row. The packet says so plainly, attributes it to
+us, and tells her how to clear it.
+
+### No fee rate appears in the packet
+Deliberate — the repo contradicts itself and a vendor must not be the one to
+discover that. `REVENUE_MODEL.md:38` says **3%** above $500/month;
+`src/lib/payments.ts:7` says **5%**; no fee logic exists in `src/` at all, and
+`platform_fee_due` is read from a view no migration here defines. The packet
+commits only to what is verifiable: the free tier is permanent, nothing is taken
+from orders today, and any change arrives in writing first. **Resolve 3% vs 5%
+before any vendor is quoted a number.**
+
+### Schema drift this surfaced
+The packet promises she can save a payment handle and see a billing statement.
+Both read things no migration in this repo creates — `vendors.paypal_handle`,
+`venmo_handle`, `cashapp_handle`, `preferred_payment`
+(`VendorDashboard.tsx:704-707`) and `vendor_monthly_statements`
+(`VendorDashboard.tsx:181`). Verification queries are in the phase-5g file. If
+they are absent on the live DB her save fails silently, per Stage 1 of
+`ROADMAP_TO_COMPLETION.md`.
+
+### Decided 2026-10-22
+- **Her email is for sending the packet and nothing else** — it does not go in
+  the database. Her listing carries no public email and her dashboard stays on
+  the `bankspham5+karas@gmail.com` login provisioned 2026-07-21. Right default
+  for an address handed over in passing: it was given so we could reach her, not
+  so we could publish it or rebuild her access around it. Both alternatives stay
+  inert in the phase-5g file for whenever a vendor asks.
+- **The operator sends the welcome email**, by hand, from the draft.
+
+### Not done, on purpose
+- **Nothing was emailed.** No mail addressed, drafted or sent from this session,
+  and none will be.
+- **Nothing was applied to the database.** Project `pqzygehnnojdttmqadrz` was
+  restoring from `INACTIVE`, and the packet should not reach her while it is
+  down — her storefront would render as "no vendors."
+- **The packet link is private** until shared from the page's Share menu.
+- **Her storefront URL is unverified** — `rastarooster808.github.io` and the
+  Pages API are both egress-blocked here, so the likely URL is recorded as
+  likely, not confirmed.
+
+---
+
+## [Unreleased] — Roadmap to completion (2026-10-22)
+
+### Added
+- `docs/ROADMAP_TO_COMPLETION.md` — seven stages from *built* to *done*, with a
+  testable definition of done and an owner per task.
+
+### Why this is not another feature roadmap
+`docs/PHASE_4_ROADMAP.md` holds the feature vision and most of it is already
+built — orders, loyalty, referrals, messaging, push, AI search, raffles, image
+storage, admin console, map. What is missing is different in kind, and four
+findings from the survey set the order:
+
+- **Supabase project `pqzygehnnojdttmqadrz` is `INACTIVE`** as of 2026-10-22.
+  Every data-driven surface is talking to a paused database. Free-tier projects
+  pause after about a week idle, so this recurs until it is decided.
+- **A database outage renders as a lie.** `src/pages/Directory.tsx:79`
+  destructures `{ data }` and discards `error`, so an unreachable Supabase
+  produces "No vendors in this category yet — local vendors can join free."
+  Six vendors exist. The pattern repeats at 9 call sites across 7 pages,
+  including all three public discovery surfaces; 8 other sites do handle `error`.
+- **No vendor has ever been open.** `phase-4-1-seed-vendors.sql:26` hardcodes
+  `'closed'`, and every later seed does the same, so the Open Now filter, the
+  map's status pins and the open badge have never had a true positive.
+- **There are no tests in the repository** and CI runs `npm run build` only. The
+  281 assertions quoted in PR #40 were real and caught every bug it lists, but
+  they were scratch files bundled with esbuild and ran ad hoc — unreproducible
+  by anyone else, and no barrier to reintroducing those bugs.
+
+### Also noted
+- `@supabase/server` is a dependency with zero imports in `src/`.
+- `CHANGELOG.md` carries 68 consecutive `[Unreleased]` headings against a
+  `package.json` version of `4.0.0`; there is no tag and no release.
+- Entry chunk is 527.73 kB raw / 149.55 kB gzip, above Vite's warning. The
+  Lighthouse targets in `PHASE_4_ROADMAP.md` have never been measured.
+- Stages 0 and 2 are mostly not code — a dashboard click, a call to Inoch, a
+  confirmed address for Violet, a password sent out of band. The code is ahead
+  of the business groundwork.
+
+### Open decision for the operator
+Whether the music suite (KullaCoin, Smart Piano, Signature Song, the harmonic
+colour engine) ships inside Local Grindz or splits out. It blocks nothing, but
+"complete" has a different finish line under each answer.
+
+---
+
+## [Unreleased] — Vendor: Violet Love Designs, with her own dashboard (2026-09-18)
+
+### Added
+- **Violet Love Designs** (Pāhoa) under Artists & Makers — coconut and lauhala
+  weaving, fine art, prints and island jewelry, with a featured card linking to
+  violetlovedesign.com. `cuisine_type` is `Art & Lauhala Weaving`, which matches
+  the `makers` category on `art` and nothing else.
+- `docs/migrations/phase-5f-seed-violet-love-designs.sql` — idempotent seed.
+- `docs/VIOLET_LOVE_DESIGNS.md` — the listing, the cooperative notes, and the
+  login steps.
+
+### Changed — the email convention, deliberately
+Every prior vendor uses a `bankspham5+slug@gmail.com` alias, which keeps the
+dashboard with the operator. **This row carries the artist's own address**,
+`violetpainstheworld@gmail.com`, because vendor RLS matches on
+`vendors.email = auth.email()` and `vendors.user_id` backfills from it. That is
+what gives her the `/vendor` dashboard.
+
+**The login is not created here and cannot be.** The app uses
+`signInWithPassword`, so a vendor login is an auth user with a password,
+provisioned through the Supabase Auth admin — committing one would mean
+committing a credential. Steps are in `docs/VIOLET_LOVE_DESIGNS.md`.
+
+### Cooperative efforts — the reason this one is different
+- **Lau Hui** — the shop frames its trade as supporting the Big Island community
+  of weavers through a collective, not a single maker.
+- **Violet Loves Art Gallery** at Puna Kai exists to give artists "an opportunity
+  to build collaborative wealth in a healthy and supportive space" — it shows and
+  sells other artists' work, runs workshops and hosts seasonal shows.
+- **The craft is taught**: lauhala Saturdays, coconut Sundays, beginner acrylics.
+
+This is the only listing that is a business *and* a venue for other makers — the
+closest thing in the directory to Local Grindz's own model. Uncle Robert's plays
+that role for food; this plays it for art.
+
+### Not confirmed
+Street address and phone come from directory listings read **through search**:
+violetlovedesign.com and the Puna Kai tenant page are both blocked by this
+environment's egress proxy, so neither was read first-hand. Gallery hours are
+unknown and the location is seeded `closed`. No prices are recorded, so no
+`menu_items` — the storefront hides Menu and Place Order for a vendor with none.
+
+### Notes
+- **The database write is still pending.** The Supabase MCP connector is failing
+  auth (`28P01: password authentication failed for user "postgres"`) on even a
+  plain `SELECT`, so the seed has not been applied. Run
+  `phase-5f-seed-violet-love-designs.sql` when the connector recovers.
+- Verified with 21 assertions: 9 in Node (the cuisine matches `makers` and only
+  `makers`, the card is filed correctly, points at their site, and doesn't leak
+  into other categories) and 12 in headless Chromium (card renders with tagline
+  and badges, link opens in a new tab, storefront shows the gallery address and
+  class days with **no** Menu, no Place Order, and no invented price anywhere).
+
+---
+
+## [Unreleased] — Merge main: Uncle Robert's keeps one front door (2026-09-04)
+
+`main` gained a dedicated Uncle Robert's landing page (PR #39) while this branch
+carried a featured marketplace card for the same venue. Two front doors to one
+place is worse than either alone, so **the featured card is removed** and the
+landing page stands.
+
+### Changed
+- Removed the Uncle Robert's entry from `FEATURED_VENDORS`. The vendor row stays,
+  so they still appear in the Markets category and the directory — it is only the
+  premium card that goes.
+- The browser suite now asserts the venue is *listed* and that no featured card
+  exists for it, rather than asserting the card renders.
+
+### Notes
+- `CHANGELOG.md` was the only merge conflict; `src/App.tsx` and `src/index.css`
+  merged cleanly and the `/uncle-roberts` route is not duplicated.
+- The landing page carries the address, Facebook link and Wednesday-market
+  details that this branch had deliberately left NULL. The vendor row's own
+  fields are untouched here — worth filling in from the page later, with the
+  location status left `closed` because a Wednesday-night market is not open
+  continuously and that badge means "open right now".
+
+---
+
+## [Unreleased] — Carrier colour derived from the harmonic series (2026-09-04)
+
+### Added
+- **`src/lib/carrierColor.ts`** — a carrier's colour is calculated from where
+  its harmonic falls, not assigned by index. Hue is the pitch class
+  (frac(log₂ k)), lightness is the octave (⌊log₂ k⌋) across the engine's
+  existing band, chroma is whatever survives gamut mapping. `harmonics.ts`
+  remains the only thing that turns a number into a colour; this only decides
+  what to ask it for.
+- **`docs/carrier-palette-64.{json,css,svg}`** — the 64-carrier palette as data,
+  CSS custom properties, and a drop-in 8×8 grid with an interval legend.
+- **`docs/HARMONIC_COLOR_CODE.md`** — the rule and what follows from it.
+
+### Why
+The Blazek Grid v4 diagram colours carriers in four index blocks (H1–H8 cyan …
+H33–H64 magenta). H1, H2, H4, H8, H16, H32 and H64 are **the same note seven
+octaves apart** — that scheme spreads them across all four blocks, and splits
+H3/H6/H12/H24/H48, a single pitch class, across three colours. The mapping was
+positional wearing a harmonic name.
+
+Derived, the families are the intervals: 0° is the fundamental and its octaves,
+211° the perfect fifth (H3, H6, H12, H24, H48), 116° the major third
+(H5, H10, H20, H40), 291° the harmonic seventh (H7, H14, H28, H56).
+
+### Notes
+- Frequencies use true ratios, not equal temperament, so the palette is as out
+  of tune with a piano as the harmonic series genuinely is: H3 at 702 cents not
+  700, H7 31 cents flat of the tempered seventh, H11 48.7 cents off — the
+  "alphorn fa" sitting between F and F♯. `centsFromEqual` carries that per
+  carrier rather than hiding it.
+- Verified with 22 assertions: octave relatives share a hue and separate by
+  lightness, lightness stays inside `LIGHTNESS_BAND`, all 64 stay in gamut and
+  visually distinct, the just intervals land on their exact cent values, and
+  a fractional or zero harmonic is refused.
+
+---
+
+## [Unreleased] — Brightness is the axis that decides it (2026-08-27)
+
+A fifth take — a real groove rather than isolated takes — settled what "make the
+two sounds different" actually means.
+
+### Measured
+The groove's onsets fall into two interleaved groups:
+
+| group | hits | centroid | high-frequency share | velocity |
+|---|---|---|---|---|
+| bright | 7 | 3194 Hz | 0.32 | 95 |
+| dark | 15 | 891 Hz | 0.06 | 119 |
+
+A **3.6× brightness gap**, and the groups hold together — 9 of 10 held-out hits
+stay on the right side. Against that, the pair that behaved like a coin flip had
+both sounds at 200–470 Hz with no high-frequency content whatsoever. This take
+is also the first to contain genuinely bright sounds at all: high-frequency
+share reaches 0.32 here against 0.00–0.12 across every earlier take.
+
+### Added
+- **`TriggerModel.brightness()`** — mean spectral centroid per trained sound.
+- The panel now **names the problem** when a pair scores badly: *"both are about
+  equally bright (310Hz and 405Hz)"*, rather than leaving "make them more
+  different" to be interpreted. Two sounds within 2× of each other in centroid
+  are, in practice, one sound to the classifier.
+
+### Notes
+- This vindicates the original "low puh against sharp tss" advice that was
+  softened earlier. Softening it was right on the evidence then available — the
+  first take contained no bright sounds at all — but the underlying instinct was
+  sound: bright against dark is the pair that works.
+- Verified with 4 new assertions plus all nine suites re-run green.
+
+---
+
+## [Unreleased] — Four beatbox takes: two triggers work, four don't (2026-08-27)
+
+### Added
+- **`TriggerModel.crossValidate()`** and a verdict line in the voice panel. It
+  holds out each recorded take, refits on the rest, and checks whether the take
+  is still called correctly — then says plainly whether the two trained sounds
+  are easy or hard to tell apart, at training time rather than mid-performance.
+  Measured against four real takes it correlates **0.80** with held-out accuracy;
+  mean confidence, the obvious alternative, manages 0.49 and is actively
+  misleading at the top — the pair with the highest confidence (35%) was among
+  the worst performers (67%). Threshold set at 55%, calibrated on those takes.
+
+### Measured
+Four beatbox recordings, one sound each, trained on alternate takes:
+
+| pair | held-out accuracy |
+|---|---|
+| 1 vs 3 | 93% |
+| 1 vs 4 | 88% |
+| 2 vs 3 | 80% |
+| 2 vs 4 | 73% |
+| 1 vs 2 | 67% |
+| 3 vs 4 | 55% |
+
+All four at once: 42%, against 25% chance. Take 1 was identified 9/10; takes
+2–4 were barely told apart from each other, overlapping in every feature —
+pitch 83–190Hz, centroid 200–470Hz, no high-frequency content. Small samples
+(10–16 scored hits per pair), so the ordering matters more than the exact
+figures.
+
+### Not adopted
+- **Attack/decay envelope features.** The obvious next idea after pitch failed:
+  a single 46ms snapshot cannot see how a sound starts or evolves. Net gain
+  about 1%, but it *hurt* the pairs that already worked (93% → 87%, 88% → 75%)
+  to help the worst one. Rejected.
+- Together with the pitch attempt recorded earlier, that is two feature ideas
+  tested and dropped on evidence. The answer to "these two sounds get confused"
+  is to pick more distinct sounds, which is what the app now says.
+
+---
+
+## [Unreleased] — Correction: the tuner was not making octave errors (2026-08-27)
+
+The previous entry diagnosed ~9% harmonic errors in two acapella takes as a YIN
+octave-error bug caused by too short an analysis window. **That diagnosis was
+wrong.** The recordings are choir songs.
+
+### What is actually true
+- **The detector is monophonic.** YIN finds one period. Given many voices at
+  different pitches it tracks whichever part dominates and switches between them
+  — which reads as octave and fifth jumps. That is the algorithm working as
+  designed, not failing.
+- The evidence was already in the suite and was overlooked: synthesized solo
+  voices from E2 to C4 resolved perfectly at the *old* 2048 window. A solo voice
+  produces 0–1% harmonic slips at either size.
+- What polyphony destroys is consistency, and the interval decides how badly.
+  Frames agreeing with their neighbours: solo tenor 86%, two voices an octave
+  apart 78%, two voices **a fifth apart 13%**, four-part chord 63%. An octave
+  pair stays periodic at the lower fundamental so YIN copes; a fifth is periodic
+  at neither, so it thrashes.
+- **Analysing a choir needs polyphonic multi-F0 detection** — a substantially
+  harder problem, and not something the tuner should be stretched to cover. The
+  signature sign-in is one person singing alone, which is the case it is for.
+
+### What still stands
+- **The FFT difference function.** O(W log W) instead of O(W²), 0.94ms per
+  4096-sample frame against 6.6ms, checked against the direct computation to a
+  relative error under 1e-9. That is a real speedup regardless of window size.
+- **The 4096-sample window** — kept, but for *stability*, not for octave errors.
+  A longer window averages more periods, which a real voice needs. Solo-voice
+  frames agreeing with their neighbours: 65% → 89% under heavy noise and
+  vibrato, 84% → 92% when quiet, 74% → 82% down at E2.
+  It is **not** strictly better: with very heavy vibrato the longer window
+  smears the pitch and harmonic slips rose from 0% to 5%. Latency doubles to
+  93ms. If the tuner ever feels slow to bloom, 2048 is the trade to make.
+
+### Added
+- Tests pinning the monophonic limit in place, so it is not re-diagnosed as a
+  bug: a solo voice tracks consistently and slips <2%; two voices a fifth apart
+  break tracking outright. The octave-pair case is deliberately *not* used as
+  the demonstration, because YIN handles it correctly.
+
+---
+
+## [Unreleased] — YIN was making octave errors on low voices (2026-08-27)
+
+Two real acapella takes exposed something the synthesized validation could not.
+
+### Fixed
+- **~9% of pitch frames were landing an exact octave, fifth or twelfth from
+  their neighbours** — YIN locking onto a harmonic rather than the fundamental.
+  The track was otherwise very steady (median frame-to-frame movement 0.11
+  semitones), so this was clean tracking of the wrong partial, about one frame
+  in eleven, clustered at the low end of the voice.
+  The cause was window length: at the tuner's 2048 samples, YIN's comparison
+  window is 1024 samples — under two periods of an 80Hz voice. The thirteen
+  colour-keys never exposed it because they sit at C4–A5, where the same window
+  holds 12 to 40 periods.
+- **`src/pages/SignatureSong.tsx` now analyses 4096 samples**, halving the error
+  rate (8.7% → 4.6% and 9.0% → 5.2% across the two takes) for 93ms of latency.
+
+### Changed
+- **YIN's difference function now goes through an FFT.** Computing d(tau)
+  directly is O(W²), which is what pinned the window at 2048 in the first place;
+  via FFT it is O(W log W) — **0.94ms per 4096-sample frame instead of 6.6ms**,
+  comfortably inside a 512-sample hop. This is what made the larger window
+  affordable at all.
+  `differenceFunctionDirect` is kept in the source as the reference the fast
+  path is checked against, to a relative error under 1e-9.
+- **`src/lib/fft.ts`** — the FFT and Hann window lifted out of
+  `vocalTrigger.ts` so the pitch detector can share them. `fft` now accepts
+  `Float64Array`, because d(tau) = P₁ + P₂ − 2r cancels large sums and float32
+  handles that poorly.
+
+### Measured
+| window | latency | frames agreeing | harmonic errors |
+|---|---|---|---|
+| 2048 | 46ms | 80.9% / 66.1% | 8.7% / 9.0% |
+| 4096 | 93ms | 89.8% / 80.6% | 4.6% / 5.2% |
+| 8192 | 186ms | 95.5% / 93.0% | 2.3% / 2.1% |
+
+8192 is better again and now affordable, but 186ms is enough lag to make the
+flower feel slow to bloom. Left at 4096.
+
+### Notes
+- The thirteen colour-keys still resolve 13/13 at both 2048 and 4096 — the
+  change does not disturb what was already validated. E2–C4 (MIDI 40–60), the
+  range where the errors lived, now resolves fully at both sizes too.
+- Verified with 8 new assertions in Node plus all eight existing suites re-run
+  green (225 assertions total).
+
+---
+
+## [Unreleased] — Voice triggers measured against a real voice (2026-08-27)
+
+### Fixed
+- **A phantom onset fired one settle-window after every real hit.**
+  `VocalInput` stopped feeding the onset detector while waiting for a sound's
+  body to fill the window, so its reference spectrum went stale; when it
+  resumed it compared a frame from *before* the sound against one *after* and
+  read that jump as a fresh onset. The rms gate hid these — they arrived with
+  every feature zero — but they still burned the refractory window, and on a
+  noisy tail they would have fired for real. Found by running a real recording
+  through the engine, not by reading the code.
+  Covered by a regression test checked against the bug: with the fix reverted,
+  six sounds produce **twelve** hits.
+
+### Changed
+- The voice panel no longer prescribes "puh" and "tss" as though they were
+  required. Real beatboxing turned out to be voiced and mid-band rather than
+  sibilant, so the panel now says plainly that any two sounds work as long as
+  they differ from each other and are made the same way each time.
+
+### Measured
+A 5.7s beatbox take run through the real engine:
+- 23 onsets, 21 above the gate; the two discarded were trailing velocity-1 sounds.
+- The sounds separate — k-means silhouette **0.51** at k=3, 0.46 at k=2.
+- Trained on the front of each sound, scored on held-out audible hits:
+  **5/5 correct**, mean confidence 32%.
+- 66% of the energy sat in 300–1000 Hz, with `highRatio` 0.00–0.12 on every hit.
+  Not band-limiting — energy runs to 16kHz — the voice simply put nothing there.
+
+### Not adopted
+- **Adding pitch to the feature vector.** It looked like the obvious win: every
+  hit had a detectable pitch and the classifier ignored it. Measured on the same
+  held-out hits, accuracy was unchanged (5/5) and mean confidence **fell from
+  32% to 19%** — pitch varies more *within* one sound (295–384 Hz across takes)
+  than it does between sounds, so it inflates within-class spread. Recorded here
+  because the idea is tempting enough that someone will try it again.
+
+---
+
+## [Unreleased] — Voice triggers: beatboxing into the chord wheel (2026-08-27)
+
+Dubler does two separable things, and only one of them was missing. YIN already
+answered *what note is this* for the Kula Mele tuner. What it could not do is
+beatboxing, because a kick and a hi-hat have **no pitch to find** — what
+separates them is when they start and what their noise looks like.
+
+### Added
+- **`src/lib/vocalTrigger.ts`** — the percussive half. A dependency-free radix-2
+  FFT, rectified spectral flux onset detection against an adaptive threshold,
+  six spectral features, and a nearest-centroid classifier trained on your own
+  takes. Nothing is pretrained: a stranger's kick drum is not yours.
+- **`src/lib/vocalInput.ts`** — microphone plumbing. Requests
+  `echoCancellation`, `noiseSuppression` and `autoGainControl` all **off**: they
+  flatten exactly the transients this depends on, and AGC would erase the
+  loudness that becomes velocity. Exposes `pushBlock()` so the whole listener
+  can be driven from a file or a test without a browser.
+- **`src/lib/pitch.ts`** — YIN moved out of `src/pages/SignatureSong.tsx`
+  verbatim, so the tuner and the trigger engine share one detector instead of
+  drifting apart.
+- **Voice triggers on `/#/piano`** — your voice plays the rhythm, the wheel
+  still picks the harmony. Train a bass sound and a chord sound, then beatbox
+  the groove while your hand moves across the chords; the two targets map onto
+  the `BASS_HEAD` / `CHORD_BODY` zones the wheel already had. Training persists
+  in `localStorage`.
+- **`docs/VOCAL_TRIGGERS.md`** — what it does, how it hears you, and its limits.
+
+### Fixed (all found by testing, none by reading)
+- **A lone hit fired zero times.** The onset detector skipped its first four
+  frames as warm-up, which silently ate any sound made in the first ~50ms after
+  the mic opened — including, reliably, the first hit of a count-in. The
+  adaptive threshold's `floor` already guarded an empty history, so the extra
+  frames bought nothing.
+- **A deep "puh" measured a 4kHz spectral centroid** — brighter than the hi-hat
+  it has to be told apart from. A magnitude-weighted centroid is dominated by
+  the broadband noise floor every real microphone carries: spread across a
+  thousand bins, even a quiet one outweighs a single loud low partial. Weighting
+  by power instead, the same kick measures **88Hz**, its actual fundamental.
+- **Kicks double-triggered.** A real kick sweeps downward in pitch, which keeps
+  lighting up new bins as it falls, and rectified flux reads that as a second
+  onset. Fixed with re-arm hysteresis — flux must subside below 60% of the
+  threshold before another onset can fire. 17 detections for 16 hits → 16.
+- **Onsets were reported up to 44ms early**, because the frame's *start* was
+  reported rather than the first sample that frame added. Timing error across a
+  16-hit bar went from −34…−44ms to **−8.6…+2.0ms**.
+- **A shared button class wore the wrong name.** The voice panel reused
+  `.sp-lib-btn`, so "Enable microphone" and "Load" became indistinguishable —
+  which broke the sample-loader suite. Renamed to `.sp-btn` / `.sp-btn-quiet`,
+  and both suites now scope their selectors to their own panel.
+
+### Notes
+- Loudness is deliberately excluded from classification and used only for
+  velocity: how hard you hit is not part of what makes a kick a kick, and
+  folding it in makes a quiet kick classify as a hi-hat. Verified — a kick at
+  0.02 gain and the same kick at 1.4 gain both still classify as a kick.
+- Nearest-centroid rather than a neural net, on purpose: with a dozen takes it
+  trains instantly in the browser, cannot overfit a handful of examples, and
+  when it is wrong the feature table shows why.
+- Verified with 64 new assertions — 33 over the DSP in Node (FFT against a
+  direct DFT; **90/90 held-out takes** classified correctly, trained on seeds
+  1–8 and scored on 100–129), 15 driving the real listener through a stub
+  AudioContext (**32/32** of a four-bar groove fired and identified correctly),
+  and 16 in headless Chromium against a **fake microphone** playing a real WAV,
+  where takes accumulated from live audio, survived a reload, and a trigger
+  fired and made sound. All seven existing suites re-run green.
+- One test-side fault worth naming: the hi-hat synthesizer used for training
+  data fed its high-pass back off its own *output* rather than its input, so the
+  "hi-hat" came out no brighter than the snare. That was the test's fault, not
+  the engine's.
+
+---
+
+## [Unreleased] — Vendor: Uncle Robert's, and venues without menus (2026-08-26)
+
+### Added
+- **Uncle Robert's Awa Bar & Farmers Market** (Kalapana) as a `vendors` row in
+  the Markets category, plus a featured card linking out to
+  uncleroberts.website. Matches the category on both `market` and `farm`.
+- `docs/migrations/phase-5e-seed-uncle-roberts.sql` — idempotent seed, verified
+  by running it twice against the live database with no duplicate rows.
+
+### Changed
+- **`src/pages/Storefront.tsx` hides the Menu and Place Order sections, and
+  their nav links, when a vendor has no menu items.** Uncle Robert's is a venue
+  that hosts food vendors, not a kitchen with a menu of its own; before this it
+  would have rendered an empty Menu and a working "Place Order" form, inviting
+  an order nobody could fill. The guard is general, so any future venue listing
+  gets the same treatment.
+
+### Not recorded, because it could not be confirmed
+`uncleroberts.website` is blocked by this environment's network egress proxy —
+via WebFetch and curl alike — so nothing was read from it. Street address,
+market nights, hours, phone, contact email and socials are all left NULL rather
+than written from memory, and the location is seeded `closed` rather than
+asserting the market is on tonight. The description carries only what is
+long-established about the place. Confirm with the ʻohana before promoting it.
+
+### Notes
+- The card's button uses `https://uncleroberts.website/`. The `#google_vignette`
+  fragment on the shared link is Google's ad interstitial, not part of the
+  address, so it is stripped.
+- No photograph on the card — none available that is ours to use — so a lava-and-
+  ocean gradient carries it, as with Inoch's Ital.
+- Verified with 20 assertions in headless Chromium against the real rows: the
+  card renders under Markets with its tagline and badges, its button points at
+  their own site and opens in a new tab, the venue storefront shows Location,
+  Specials and Reviews with **no** Menu or Order section and no Place Order
+  button, and — the regression that mattered, since this touched shared code —
+  Inoch's Ital still renders its full menu, its Order section and its nav links
+  unchanged.
+- Anon-role read confirmed in SQL: the vendor and its location are visible, with
+  zero menu items.
+
+---
+
+## [Unreleased] — Vendor: Inoch's Ital (2026-08-26)
+
+### Added
+- **Inoch's Ital** — a Caribbean ital (plant-based) mobile kitchen — as a full
+  vendor: a `vendors` row with three menu items and a location, plus a featured
+  card under Food Trucks in `src/lib/marketplace.ts`.
+  - Menu read off the truck's own hand-painted board: Veggie Burger $9,
+    Breadfruit Fries $7, Red Lentil Curry Soup $8.
+  - The card carries no photograph. The only image available is someone else's
+    Facebook photo, so the truck's red/gold/green paint is rendered as the
+    card's gradient instead.
+- `docs/migrations/phase-5d-seed-inochs-ital.sql` — idempotent seed, following
+  the `phase-4-1-seed-vendors.sql` pattern. Verified idempotent by running it
+  twice against the live database: no duplicate rows.
+- `'caribbean'` added to the Food Trucks category matches, so Caribbean vendors
+  are found by cuisine alone. Deliberately **not** `'ital'` — as an `ilike`
+  substring it would also match "Italian" and "digital".
+
+### Not recorded, because nobody has confirmed it
+Neighborhood, street address, hours, phone, contact email, socials and payment
+handles are all left NULL rather than guessed, and the location is seeded
+`closed` rather than asserting the truck is open somewhere. The source is a
+Facebook post from July 2025 — over a year old — and Inoch has not been
+contacted. Fill these in and flip the location to `open` before promoting it.
+
+### Notes
+- `menu_items.category` is stored **singular** (`main`, `side`, `soup`):
+  `src/pages/Storefront.tsx` renders `{category}s`, so `Mains` would display as
+  "Mainss". Caught in the browser, not by reading — the first insert used plural
+  categories and rendered MAINSS / SIDESS / SOUPSS.
+  The same quirk affects two existing vendors (Ala's `Burgers` → "Burgerss",
+  Golden Shot `Wellness` → "Wellnesss"). Left alone: their menu labels are not
+  mine to rename.
+- Verified with 10 assertions in headless Chromium against the real rows —
+  the featured card renders under Food Trucks with its tagline and badges, the
+  storefront loads the vendor with all three items at the right prices, the
+  menu headings read Mains / Sides / Soups, and no invented address or hours
+  appear anywhere on the page.
+- Anon-role read confirmed in SQL: RLS exposes the vendor, its 3 menu items and
+  its location. Category matching confirmed against the exact `ilike` set the
+  Directory sends — matches on `vegan` and `caribbean`.
+
+---
+
+## [Unreleased] — Smart Piano: real recordings, fetched a note at a time (2026-08-24)
+
+Brings the Smart Piano chord wheel onto the current branch and gives it a path
+to real instruments. The wheel itself is unchanged — eight columns, bass head and
+chord body, computed velocity, four autoplay patterns.
+
+### Added
+- **`src/lib/sampleLoader.ts`** — a sample library fetched a file at a time and
+  only when a note actually needs one. The rule that shapes it is that
+  `acquire()` is *synchronous and never waits*: it returns a decoded recording if
+  one is in hand, otherwise `null` — meaning "synthesize this one" — while the
+  download starts behind it, so the next strike of that key is the real
+  instrument. No spinner, no silence, no all-or-nothing gigabyte.
+  - Neighbouring notes share one recording, pitch-shifted, so 30 files cover all
+    88 keys. `max_stretch_semitones` is a quality floor: past it the loader
+    declines and the note is synthesized rather than sounding like a chipmunk.
+  - Recordings are level-matched to the engine's own rendered layer on decode.
+    FluidR3's notes sit 14–24 dB below it, so without this, loading a real piano
+    would make the instrument almost inaudible.
+  - A 404 is permanent and never retried; a network error retries three times
+    with backoff. A failed manifest, a dead host or a missing file each mean
+    synthesis for the notes they affect — never a broken page.
+  - `validateManifest()` reports every problem at once rather than failing on
+    the first, and warns about velocity ranges no layer covers.
+- **`tools/piano/make-manifest.mjs`** — builds a manifest by reading a folder of
+  samples. Understands `C4.mp3`, `A#3v12.ogg`, `piano-Db4-v1.wav` and bare MIDI
+  numbers, and *lists* every file whose name it could not read a pitch from
+  rather than dropping it silently.
+- **`public/piano/fluidr3.manifest.json`** — a working instrument with nothing to
+  download or host. FluidR3_GM (MIT, Frank Wen) is served from
+  `raw.githubusercontent.com` with `access-control-allow-origin: *`, verified by
+  request. 30 zones, ~740 KB for the full range, ~250 KB for the chord wheel.
+- **An Instrument panel** on `/#/piano` showing notes ready, fetching,
+  unavailable and bytes, and displaying the library's attribution line — which is
+  how a CC-BY library stays honestly used. "Use synthesis" goes back at any time.
+- **`docs/SAMPLE_LIBRARY.md`** — start-to-finish instructions for Salamander
+  Grand Piano, the manifest format, level matching, and troubleshooting.
+
+### Changed
+- `PianoEngine.noteOn` asks the library before falling back to its rendered
+  layers, and reports which it used. `renderLayer` is now a module-level export,
+  because its loudness is the reference every recording is matched to and that
+  deserves to be measurable in a test.
+
+### Fixed (found by testing, not by reading)
+- **Loading a real library made the piano nearly inaudible.** FluidR3's files
+  peak near 0.09 against the rendered layer's 0.45 — measured, not assumed. Fixed
+  by matching loudness on decode. Matching *peak* was tried first and still left
+  recordings ~10 dB soft: a struck string is a sharp transient over a quiet
+  decay, so RMS is what the ear is actually reporting.
+- A failed manifest load reported the raw JSON parser exception
+  (`Unexpected token '<'`), because a single-page host answers an unknown path
+  with `index.html`. It now says the server returned a web page, not JSON.
+- A failed load showed an error while the previously-loaded library was still
+  playing, with no indication of that. It now names what is still playing.
+
+### Notes
+- `public/piano/*/` is gitignored: manifests are committed, audio is not.
+- Verified with 131 assertions: 60 in Node over the pure logic (validation,
+  selection, stretch limits, chord voicings, autoplay patterns, polyphony), 35
+  over the library's async behaviour (laziness, in-flight dedupe, permanent 404s,
+  retry, gap reporting, unload, normalization), 4 decoding all 30 real MP3s
+  offline to confirm every note lands within 2× of the synthesized layer's
+  loudness and none can clip, and 32 in headless Chromium against real MP3s —
+  confirming a synthesized chord sounds before any file is fetched, that nothing
+  is fetched until Load is pressed, that a soft strike reads velocity 40 against
+  120 for a hard one, that playing all eight chords after prefetch downloads
+  nothing further, and that the piano keeps playing after a manifest fails.
+- One test finding was a *measurement* fault rather than a code fault: polling an
+  `AnalyserNode` on a 20 ms timer misses a 5 ms piano transient under automation,
+  giving peaks that swung 4× between runs. The meter now sees every sample, and
+  the level claim is asserted offline where timing cannot affect it.
+
+---
 ## [Unreleased] — Uncle Robert's landing page: real market detail (2026-08-29)
 
 ### Changed

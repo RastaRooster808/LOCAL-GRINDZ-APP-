@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Raffle as RaffleType } from '../lib/types';
 import { trackEvent } from '../lib/analytics';
+import { settle, type SupabaseResult } from '../lib/load';
+import { LoadError } from '../components/ui/LoadError';
 
 /**
  * Raffle.tsx — monthly community drawing.
@@ -19,6 +21,7 @@ const MAX_TICKETS = 50;
 export function Raffle() {
   const [raffle, setRaffle] = useState<RaffleType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -30,7 +33,13 @@ export function Raffle() {
 
   useEffect(() => {
     supabase.from('raffles').select('*').eq('slug', RAFFLE_SLUG).eq('is_active', true).maybeSingle()
-      .then(({ data }) => { setRaffle((data as RaffleType) ?? null); setLoading(false); });
+      .then(res => res, err => ({ data: null, error: { message: String(err?.message ?? err) } }))
+      .then(res => {
+        const { data, error } = settle(res as SupabaseResult<RaffleType>, null as RaffleType | null);
+        setRaffle(data);
+        setLoadError(error);
+        setLoading(false);
+      });
   }, []);
 
   const unitPrice = raffle ? Number(raffle.price) : 1;

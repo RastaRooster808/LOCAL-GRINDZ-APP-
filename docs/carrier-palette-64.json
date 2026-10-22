@@ -1,0 +1,1352 @@
+{
+  "generated_by": "src/lib/carrierColor.ts",
+  "rule": "hue = pitch class from log2(k); lightness = octave; chroma = max in sRGB gamut",
+  "fundamental_hz": 261.6255653005986,
+  "fundamental_note": "C4",
+  "carriers": [
+    {
+      "harmonic": 1,
+      "frequencyHz": 261.6255653005986,
+      "octave": 0,
+      "pitchClassCents": 0,
+      "nearestSemitone": 0,
+      "centsFromEqual": 0,
+      "hue": 0,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.6,
+        "c": 0.2433,
+        "h": 0,
+        "hex": "#e7007a",
+        "rgb": {
+          "r": 231,
+          "g": 0,
+          "b": 122
+        }
+      }
+    },
+    {
+      "harmonic": 2,
+      "frequencyHz": 523.2511306011972,
+      "octave": 1,
+      "pitchClassCents": 0,
+      "nearestSemitone": 0,
+      "centsFromEqual": 0,
+      "hue": 0,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.6433,
+        "c": 0.2609,
+        "h": 0,
+        "hex": "#fd0087",
+        "rgb": {
+          "r": 253,
+          "g": 0,
+          "b": 135
+        }
+      }
+    },
+    {
+      "harmonic": 3,
+      "frequencyHz": 784.8766959017959,
+      "octave": 1,
+      "pitchClassCents": 701.96,
+      "nearestSemitone": 7,
+      "centsFromEqual": 1.96,
+      "hue": 210.59,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.6433,
+        "c": 0.1115,
+        "h": 210.5865,
+        "hex": "#009fb3",
+        "rgb": {
+          "r": 0,
+          "g": 159,
+          "b": 179
+        }
+      }
+    },
+    {
+      "harmonic": 4,
+      "frequencyHz": 1046.5022612023945,
+      "octave": 2,
+      "pitchClassCents": 0,
+      "nearestSemitone": 0,
+      "centsFromEqual": 0,
+      "hue": 0,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.6867,
+        "c": 0.2224,
+        "h": 0,
+        "hex": "#ff4b95",
+        "rgb": {
+          "r": 255,
+          "g": 75,
+          "b": 149
+        }
+      }
+    },
+    {
+      "harmonic": 5,
+      "frequencyHz": 1308.1278265029932,
+      "octave": 2,
+      "pitchClassCents": 386.31,
+      "nearestSemitone": 4,
+      "centsFromEqual": -13.69,
+      "hue": 115.89,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.6867,
+        "c": 0.1569,
+        "h": 115.8941,
+        "hex": "#96a500",
+        "rgb": {
+          "r": 150,
+          "g": 165,
+          "b": 0
+        }
+      }
+    },
+    {
+      "harmonic": 6,
+      "frequencyHz": 1569.7533918035917,
+      "octave": 2,
+      "pitchClassCents": 701.96,
+      "nearestSemitone": 7,
+      "centsFromEqual": 1.96,
+      "hue": 210.59,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.6867,
+        "c": 0.119,
+        "h": 210.5865,
+        "hex": "#00adc3",
+        "rgb": {
+          "r": 0,
+          "g": 173,
+          "b": 195
+        }
+      }
+    },
+    {
+      "harmonic": 7,
+      "frequencyHz": 1831.3789571041902,
+      "octave": 2,
+      "pitchClassCents": 968.83,
+      "nearestSemitone": 10,
+      "centsFromEqual": -31.17,
+      "hue": 290.65,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.6867,
+        "c": 0.1789,
+        "h": 290.6478,
+        "hex": "#9c82ff",
+        "rgb": {
+          "r": 156,
+          "g": 130,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 8,
+      "frequencyHz": 2093.004522404789,
+      "octave": 3,
+      "pitchClassCents": 0,
+      "nearestSemitone": 0,
+      "centsFromEqual": 0,
+      "hue": 0,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.73,
+        "c": 0.182,
+        "h": 0,
+        "hex": "#ff6fa3",
+        "rgb": {
+          "r": 255,
+          "g": 111,
+          "b": 163
+        }
+      }
+    },
+    {
+      "harmonic": 9,
+      "frequencyHz": 2354.6300877053877,
+      "octave": 3,
+      "pitchClassCents": 203.91,
+      "nearestSemitone": 2,
+      "centsFromEqual": 3.91,
+      "hue": 61.17,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.73,
+        "c": 0.1693,
+        "h": 61.173,
+        "hex": "#f28a00",
+        "rgb": {
+          "r": 242,
+          "g": 138,
+          "b": 0
+        }
+      }
+    },
+    {
+      "harmonic": 10,
+      "frequencyHz": 2616.2556530059865,
+      "octave": 3,
+      "pitchClassCents": 386.31,
+      "nearestSemitone": 4,
+      "centsFromEqual": -13.69,
+      "hue": 115.89,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.73,
+        "c": 0.1667,
+        "h": 115.8941,
+        "hex": "#a4b300",
+        "rgb": {
+          "r": 164,
+          "g": 179,
+          "b": 0
+        }
+      }
+    },
+    {
+      "harmonic": 11,
+      "frequencyHz": 2877.8812183065847,
+      "octave": 3,
+      "pitchClassCents": 551.32,
+      "nearestSemitone": 6,
+      "centsFromEqual": -48.68,
+      "hue": 165.4,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.73,
+        "c": 0.1527,
+        "h": 165.3954,
+        "hex": "#00c590",
+        "rgb": {
+          "r": 0,
+          "g": 197,
+          "b": 144
+        }
+      }
+    },
+    {
+      "harmonic": 12,
+      "frequencyHz": 3139.5067836071835,
+      "octave": 3,
+      "pitchClassCents": 701.96,
+      "nearestSemitone": 7,
+      "centsFromEqual": 1.96,
+      "hue": 210.59,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.73,
+        "c": 0.1265,
+        "h": 210.5865,
+        "hex": "#00bcd4",
+        "rgb": {
+          "r": 0,
+          "g": 188,
+          "b": 212
+        }
+      }
+    },
+    {
+      "harmonic": 13,
+      "frequencyHz": 3401.132348907782,
+      "octave": 3,
+      "pitchClassCents": 840.53,
+      "nearestSemitone": 8,
+      "centsFromEqual": 40.53,
+      "hue": 252.16,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.73,
+        "c": 0.1439,
+        "h": 252.1583,
+        "hex": "#5facff",
+        "rgb": {
+          "r": 95,
+          "g": 172,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 14,
+      "frequencyHz": 3662.7579142083805,
+      "octave": 3,
+      "pitchClassCents": 968.83,
+      "nearestSemitone": 10,
+      "centsFromEqual": -31.17,
+      "hue": 290.65,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.73,
+        "c": 0.1514,
+        "h": 290.6478,
+        "hex": "#a895ff",
+        "rgb": {
+          "r": 168,
+          "g": 149,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 15,
+      "frequencyHz": 3924.3834795089792,
+      "octave": 3,
+      "pitchClassCents": 1088.27,
+      "nearestSemitone": 11,
+      "centsFromEqual": -11.73,
+      "hue": 326.48,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.73,
+        "c": 0.2719,
+        "h": 326.4806,
+        "hex": "#f952ff",
+        "rgb": {
+          "r": 249,
+          "g": 82,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 16,
+      "frequencyHz": 4186.009044809578,
+      "octave": 4,
+      "pitchClassCents": 0,
+      "nearestSemitone": 0,
+      "centsFromEqual": 0,
+      "hue": 0,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.7733,
+        "c": 0.1454,
+        "h": 0,
+        "hex": "#ff8bb1",
+        "rgb": {
+          "r": 255,
+          "g": 139,
+          "b": 177
+        }
+      }
+    },
+    {
+      "harmonic": 17,
+      "frequencyHz": 4447.634610110176,
+      "octave": 4,
+      "pitchClassCents": 104.96,
+      "nearestSemitone": 1,
+      "centsFromEqual": 4.96,
+      "hue": 31.49,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.7733,
+        "c": 0.1342,
+        "h": 31.4866,
+        "hex": "#ff937f",
+        "rgb": {
+          "r": 255,
+          "g": 147,
+          "b": 127
+        }
+      }
+    },
+    {
+      "harmonic": 18,
+      "frequencyHz": 4709.260175410775,
+      "octave": 4,
+      "pitchClassCents": 203.91,
+      "nearestSemitone": 2,
+      "centsFromEqual": 3.91,
+      "hue": 61.17,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.7733,
+        "c": 0.1651,
+        "h": 61.173,
+        "hex": "#ff992d",
+        "rgb": {
+          "r": 255,
+          "g": 153,
+          "b": 45
+        }
+      }
+    },
+    {
+      "harmonic": 19,
+      "frequencyHz": 4970.885740711374,
+      "octave": 4,
+      "pitchClassCents": 297.51,
+      "nearestSemitone": 3,
+      "centsFromEqual": -2.49,
+      "hue": 89.25,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.7733,
+        "c": 0.1581,
+        "h": 89.2539,
+        "hex": "#ddaf00",
+        "rgb": {
+          "r": 221,
+          "g": 175,
+          "b": 0
+        }
+      }
+    },
+    {
+      "harmonic": 20,
+      "frequencyHz": 5232.511306011973,
+      "octave": 4,
+      "pitchClassCents": 386.31,
+      "nearestSemitone": 4,
+      "centsFromEqual": -13.69,
+      "hue": 115.89,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.7733,
+        "c": 0.1766,
+        "h": 115.8941,
+        "hex": "#b1c200",
+        "rgb": {
+          "r": 177,
+          "g": 194,
+          "b": 0
+        }
+      }
+    },
+    {
+      "harmonic": 21,
+      "frequencyHz": 5494.136871312571,
+      "octave": 4,
+      "pitchClassCents": 470.78,
+      "nearestSemitone": 5,
+      "centsFromEqual": -29.22,
+      "hue": 141.23,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.7733,
+        "c": 0.2558,
+        "h": 141.2343,
+        "hex": "#30da00",
+        "rgb": {
+          "r": 48,
+          "g": 218,
+          "b": 0
+        }
+      }
+    },
+    {
+      "harmonic": 22,
+      "frequencyHz": 5755.7624366131695,
+      "octave": 4,
+      "pitchClassCents": 551.32,
+      "nearestSemitone": 6,
+      "centsFromEqual": -48.68,
+      "hue": 165.4,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.7733,
+        "c": 0.1618,
+        "h": 165.3954,
+        "hex": "#00d59c",
+        "rgb": {
+          "r": 0,
+          "g": 213,
+          "b": 156
+        }
+      }
+    },
+    {
+      "harmonic": 23,
+      "frequencyHz": 6017.388001913769,
+      "octave": 4,
+      "pitchClassCents": 628.27,
+      "nearestSemitone": 6,
+      "centsFromEqual": 28.27,
+      "hue": 188.48,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.7733,
+        "c": 0.1343,
+        "h": 188.4823,
+        "hex": "#00d0c6",
+        "rgb": {
+          "r": 0,
+          "g": 208,
+          "b": 198
+        }
+      }
+    },
+    {
+      "harmonic": 24,
+      "frequencyHz": 6279.013567214367,
+      "octave": 4,
+      "pitchClassCents": 701.96,
+      "nearestSemitone": 7,
+      "centsFromEqual": 1.96,
+      "hue": 210.59,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.7733,
+        "c": 0.1341,
+        "h": 210.5865,
+        "hex": "#00cbe5",
+        "rgb": {
+          "r": 0,
+          "g": 203,
+          "b": 229
+        }
+      }
+    },
+    {
+      "harmonic": 25,
+      "frequencyHz": 6540.639132514965,
+      "octave": 4,
+      "pitchClassCents": 772.63,
+      "nearestSemitone": 8,
+      "centsFromEqual": -27.37,
+      "hue": 231.79,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.7733,
+        "c": 0.141,
+        "h": 231.7882,
+        "hex": "#3bc4ff",
+        "rgb": {
+          "r": 59,
+          "g": 196,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 26,
+      "frequencyHz": 6802.264697815564,
+      "octave": 4,
+      "pitchClassCents": 840.53,
+      "nearestSemitone": 8,
+      "centsFromEqual": 40.53,
+      "hue": 252.16,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.7733,
+        "c": 0.1188,
+        "h": 252.1583,
+        "hex": "#7cbaff",
+        "rgb": {
+          "r": 124,
+          "g": 186,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 27,
+      "frequencyHz": 7063.890263116163,
+      "octave": 4,
+      "pitchClassCents": 905.87,
+      "nearestSemitone": 9,
+      "centsFromEqual": 5.87,
+      "hue": 271.76,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.7733,
+        "c": 0.115,
+        "h": 271.7595,
+        "hex": "#9bb1ff",
+        "rgb": {
+          "r": 155,
+          "g": 177,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 28,
+      "frequencyHz": 7325.515828416761,
+      "octave": 4,
+      "pitchClassCents": 968.83,
+      "nearestSemitone": 10,
+      "centsFromEqual": -31.17,
+      "hue": 290.65,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.7733,
+        "c": 0.1248,
+        "h": 290.6478,
+        "hex": "#b5a7ff",
+        "rgb": {
+          "r": 181,
+          "g": 167,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 29,
+      "frequencyHz": 7587.14139371736,
+      "octave": 4,
+      "pitchClassCents": 1029.58,
+      "nearestSemitone": 10,
+      "centsFromEqual": 29.58,
+      "hue": 308.87,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.7733,
+        "c": 0.1532,
+        "h": 308.8732,
+        "hex": "#d298ff",
+        "rgb": {
+          "r": 210,
+          "g": 152,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 30,
+      "frequencyHz": 7848.7669590179585,
+      "octave": 4,
+      "pitchClassCents": 1088.27,
+      "nearestSemitone": 11,
+      "centsFromEqual": -11.73,
+      "hue": 326.48,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.7733,
+        "c": 0.2236,
+        "h": 326.4806,
+        "hex": "#fc78ff",
+        "rgb": {
+          "r": 252,
+          "g": 120,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 31,
+      "frequencyHz": 8110.392524318558,
+      "octave": 4,
+      "pitchClassCents": 1145.04,
+      "nearestSemitone": 11,
+      "centsFromEqual": 45.04,
+      "hue": 343.51,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.7733,
+        "c": 0.1729,
+        "h": 343.5107,
+        "hex": "#ff84d1",
+        "rgb": {
+          "r": 255,
+          "g": 132,
+          "b": 209
+        }
+      }
+    },
+    {
+      "harmonic": 32,
+      "frequencyHz": 8372.018089619156,
+      "octave": 5,
+      "pitchClassCents": 0,
+      "nearestSemitone": 0,
+      "centsFromEqual": 0,
+      "hue": 0,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1122,
+        "h": 0,
+        "hex": "#ffa4c0",
+        "rgb": {
+          "r": 255,
+          "g": 164,
+          "b": 192
+        }
+      }
+    },
+    {
+      "harmonic": 33,
+      "frequencyHz": 8633.643654919755,
+      "octave": 5,
+      "pitchClassCents": 53.27,
+      "nearestSemitone": 1,
+      "centsFromEqual": -46.73,
+      "hue": 15.98,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.104,
+        "h": 15.9819,
+        "hex": "#ffa7ac",
+        "rgb": {
+          "r": 255,
+          "g": 167,
+          "b": 172
+        }
+      }
+    },
+    {
+      "harmonic": 34,
+      "frequencyHz": 8895.269220220353,
+      "octave": 5,
+      "pitchClassCents": 104.96,
+      "nearestSemitone": 1,
+      "centsFromEqual": 4.96,
+      "hue": 31.49,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.104,
+        "h": 31.4866,
+        "hex": "#ffaa99",
+        "rgb": {
+          "r": 255,
+          "g": 170,
+          "b": 153
+        }
+      }
+    },
+    {
+      "harmonic": 35,
+      "frequencyHz": 9156.894785520952,
+      "octave": 5,
+      "pitchClassCents": 155.14,
+      "nearestSemitone": 2,
+      "centsFromEqual": -44.86,
+      "hue": 46.54,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1115,
+        "h": 46.5419,
+        "hex": "#ffac84",
+        "rgb": {
+          "r": 255,
+          "g": 172,
+          "b": 132
+        }
+      }
+    },
+    {
+      "harmonic": 36,
+      "frequencyHz": 9418.52035082155,
+      "octave": 5,
+      "pitchClassCents": 203.91,
+      "nearestSemitone": 2,
+      "centsFromEqual": 3.91,
+      "hue": 61.17,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1288,
+        "h": 61.173,
+        "hex": "#ffaf67",
+        "rgb": {
+          "r": 255,
+          "g": 175,
+          "b": 103
+        }
+      }
+    },
+    {
+      "harmonic": 37,
+      "frequencyHz": 9680.145916122148,
+      "octave": 5,
+      "pitchClassCents": 251.34,
+      "nearestSemitone": 3,
+      "centsFromEqual": -48.66,
+      "hue": 75.4,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1627,
+        "h": 75.4032,
+        "hex": "#ffb228",
+        "rgb": {
+          "r": 255,
+          "g": 178,
+          "b": 40
+        }
+      }
+    },
+    {
+      "harmonic": 38,
+      "frequencyHz": 9941.771481422747,
+      "octave": 5,
+      "pitchClassCents": 297.51,
+      "nearestSemitone": 3,
+      "centsFromEqual": -2.49,
+      "hue": 89.25,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1669,
+        "h": 89.2539,
+        "hex": "#eebc00",
+        "rgb": {
+          "r": 238,
+          "g": 188,
+          "b": 0
+        }
+      }
+    },
+    {
+      "harmonic": 39,
+      "frequencyHz": 10203.397046723347,
+      "octave": 5,
+      "pitchClassCents": 342.48,
+      "nearestSemitone": 3,
+      "centsFromEqual": 42.48,
+      "hue": 102.74,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1716,
+        "h": 102.7448,
+        "hex": "#d9c600",
+        "rgb": {
+          "r": 217,
+          "g": 198,
+          "b": 0
+        }
+      }
+    },
+    {
+      "harmonic": 40,
+      "frequencyHz": 10465.022612023946,
+      "octave": 5,
+      "pitchClassCents": 386.31,
+      "nearestSemitone": 4,
+      "centsFromEqual": -13.69,
+      "hue": 115.89,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1865,
+        "h": 115.8941,
+        "hex": "#bed000",
+        "rgb": {
+          "r": 190,
+          "g": 208,
+          "b": 0
+        }
+      }
+    },
+    {
+      "harmonic": 41,
+      "frequencyHz": 10726.648177324543,
+      "octave": 5,
+      "pitchClassCents": 429.06,
+      "nearestSemitone": 4,
+      "centsFromEqual": 29.06,
+      "hue": 128.72,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.2158,
+        "h": 128.7187,
+        "hex": "#97dc00",
+        "rgb": {
+          "r": 151,
+          "g": 220,
+          "b": 0
+        }
+      }
+    },
+    {
+      "harmonic": 42,
+      "frequencyHz": 10988.273742625142,
+      "octave": 5,
+      "pitchClassCents": 470.78,
+      "nearestSemitone": 5,
+      "centsFromEqual": -29.22,
+      "hue": 141.23,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.2701,
+        "h": 141.2343,
+        "hex": "#34ea00",
+        "rgb": {
+          "r": 52,
+          "g": 234,
+          "b": 0
+        }
+      }
+    },
+    {
+      "harmonic": 43,
+      "frequencyHz": 11249.899307925742,
+      "octave": 5,
+      "pitchClassCents": 511.52,
+      "nearestSemitone": 5,
+      "centsFromEqual": 11.52,
+      "hue": 153.46,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.2083,
+        "h": 153.4553,
+        "hex": "#00e880",
+        "rgb": {
+          "r": 0,
+          "g": 232,
+          "b": 128
+        }
+      }
+    },
+    {
+      "harmonic": 44,
+      "frequencyHz": 11511.524873226339,
+      "octave": 5,
+      "pitchClassCents": 551.32,
+      "nearestSemitone": 6,
+      "centsFromEqual": -48.68,
+      "hue": 165.4,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1708,
+        "h": 165.3954,
+        "hex": "#00e5a8",
+        "rgb": {
+          "r": 0,
+          "g": 229,
+          "b": 168
+        }
+      }
+    },
+    {
+      "harmonic": 45,
+      "frequencyHz": 11773.150438526938,
+      "octave": 5,
+      "pitchClassCents": 590.22,
+      "nearestSemitone": 6,
+      "centsFromEqual": -9.78,
+      "hue": 177.07,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1514,
+        "h": 177.0671,
+        "hex": "#00e2c1",
+        "rgb": {
+          "r": 0,
+          "g": 226,
+          "b": 193
+        }
+      }
+    },
+    {
+      "harmonic": 46,
+      "frequencyHz": 12034.776003827537,
+      "octave": 5,
+      "pitchClassCents": 628.27,
+      "nearestSemitone": 6,
+      "centsFromEqual": 28.27,
+      "hue": 188.48,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1418,
+        "h": 188.4823,
+        "hex": "#00e0d5",
+        "rgb": {
+          "r": 0,
+          "g": 224,
+          "b": 213
+        }
+      }
+    },
+    {
+      "harmonic": 47,
+      "frequencyHz": 12296.401569128135,
+      "octave": 5,
+      "pitchClassCents": 665.51,
+      "nearestSemitone": 7,
+      "centsFromEqual": -34.49,
+      "hue": 199.65,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1389,
+        "h": 199.652,
+        "hex": "#00dde6",
+        "rgb": {
+          "r": 0,
+          "g": 221,
+          "b": 230
+        }
+      }
+    },
+    {
+      "harmonic": 48,
+      "frequencyHz": 12558.027134428734,
+      "octave": 5,
+      "pitchClassCents": 701.96,
+      "nearestSemitone": 7,
+      "centsFromEqual": 1.96,
+      "hue": 210.59,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1416,
+        "h": 210.5865,
+        "hex": "#00dbf6",
+        "rgb": {
+          "r": 0,
+          "g": 219,
+          "b": 246
+        }
+      }
+    },
+    {
+      "harmonic": 49,
+      "frequencyHz": 12819.652699729333,
+      "octave": 5,
+      "pitchClassCents": 737.65,
+      "nearestSemitone": 7,
+      "centsFromEqual": 37.65,
+      "hue": 221.3,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1316,
+        "h": 221.2955,
+        "hex": "#46d6ff",
+        "rgb": {
+          "r": 70,
+          "g": 214,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 50,
+      "frequencyHz": 13081.27826502993,
+      "octave": 5,
+      "pitchClassCents": 772.63,
+      "nearestSemitone": 8,
+      "centsFromEqual": -27.37,
+      "hue": 231.79,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1122,
+        "h": 231.7882,
+        "hex": "#70d0ff",
+        "rgb": {
+          "r": 112,
+          "g": 208,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 51,
+      "frequencyHz": 13342.90383033053,
+      "octave": 5,
+      "pitchClassCents": 806.91,
+      "nearestSemitone": 8,
+      "centsFromEqual": 6.91,
+      "hue": 242.07,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1009,
+        "h": 242.0731,
+        "hex": "#87cbff",
+        "rgb": {
+          "r": 135,
+          "g": 203,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 52,
+      "frequencyHz": 13604.529395631129,
+      "octave": 5,
+      "pitchClassCents": 840.53,
+      "nearestSemitone": 8,
+      "centsFromEqual": 40.53,
+      "hue": 252.16,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.0945,
+        "h": 252.1583,
+        "hex": "#96c7ff",
+        "rgb": {
+          "r": 150,
+          "g": 199,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 53,
+      "frequencyHz": 13866.154960931726,
+      "octave": 5,
+      "pitchClassCents": 873.5,
+      "nearestSemitone": 9,
+      "centsFromEqual": -26.5,
+      "hue": 262.05,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.0916,
+        "h": 262.0514,
+        "hex": "#a3c4ff",
+        "rgb": {
+          "r": 163,
+          "g": 196,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 54,
+      "frequencyHz": 14127.780526232325,
+      "octave": 5,
+      "pitchClassCents": 905.87,
+      "nearestSemitone": 9,
+      "centsFromEqual": 5.87,
+      "hue": 271.76,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.0914,
+        "h": 271.7595,
+        "hex": "#aec0ff",
+        "rgb": {
+          "r": 174,
+          "g": 192,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 55,
+      "frequencyHz": 14389.406091532925,
+      "octave": 5,
+      "pitchClassCents": 937.63,
+      "nearestSemitone": 9,
+      "centsFromEqual": 37.63,
+      "hue": 281.29,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.0939,
+        "h": 281.2895,
+        "hex": "#b8bcff",
+        "rgb": {
+          "r": 184,
+          "g": 188,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 56,
+      "frequencyHz": 14651.031656833522,
+      "octave": 5,
+      "pitchClassCents": 968.83,
+      "nearestSemitone": 10,
+      "centsFromEqual": -31.17,
+      "hue": 290.65,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.0992,
+        "h": 290.6478,
+        "hex": "#c2b8ff",
+        "rgb": {
+          "r": 194,
+          "g": 184,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 57,
+      "frequencyHz": 14912.657222134121,
+      "octave": 5,
+      "pitchClassCents": 999.47,
+      "nearestSemitone": 10,
+      "centsFromEqual": -0.53,
+      "hue": 299.84,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.108,
+        "h": 299.8404,
+        "hex": "#cdb3ff",
+        "rgb": {
+          "r": 205,
+          "g": 179,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 58,
+      "frequencyHz": 15174.28278743472,
+      "octave": 5,
+      "pitchClassCents": 1029.58,
+      "nearestSemitone": 10,
+      "centsFromEqual": 29.58,
+      "hue": 308.87,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1216,
+        "h": 308.8732,
+        "hex": "#daadff",
+        "rgb": {
+          "r": 218,
+          "g": 173,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 59,
+      "frequencyHz": 15435.90835273532,
+      "octave": 5,
+      "pitchClassCents": 1059.17,
+      "nearestSemitone": 11,
+      "centsFromEqual": -40.83,
+      "hue": 317.75,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1427,
+        "h": 317.7515,
+        "hex": "#e9a5ff",
+        "rgb": {
+          "r": 233,
+          "g": 165,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 60,
+      "frequencyHz": 15697.533918035917,
+      "octave": 5,
+      "pitchClassCents": 1088.27,
+      "nearestSemitone": 11,
+      "centsFromEqual": -11.73,
+      "hue": 326.48,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1772,
+        "h": 326.4806,
+        "hex": "#fd97ff",
+        "rgb": {
+          "r": 253,
+          "g": 151,
+          "b": 255
+        }
+      }
+    },
+    {
+      "harmonic": 61,
+      "frequencyHz": 15959.159483336516,
+      "octave": 5,
+      "pitchClassCents": 1116.88,
+      "nearestSemitone": 11,
+      "centsFromEqual": 16.88,
+      "hue": 335.07,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1526,
+        "h": 335.0654,
+        "hex": "#ff9bea",
+        "rgb": {
+          "r": 255,
+          "g": 155,
+          "b": 234
+        }
+      }
+    },
+    {
+      "harmonic": 62,
+      "frequencyHz": 16220.785048637115,
+      "octave": 5,
+      "pitchClassCents": 1145.04,
+      "nearestSemitone": 11,
+      "centsFromEqual": 45.04,
+      "hue": 343.51,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1333,
+        "h": 343.5107,
+        "hex": "#ff9fd9",
+        "rgb": {
+          "r": 255,
+          "g": 159,
+          "b": 217
+        }
+      }
+    },
+    {
+      "harmonic": 63,
+      "frequencyHz": 16482.410613937715,
+      "octave": 5,
+      "pitchClassCents": 1172.74,
+      "nearestSemitone": 0,
+      "centsFromEqual": -27.26,
+      "hue": 351.82,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.8167,
+        "c": 0.1206,
+        "h": 351.8208,
+        "hex": "#ffa2cb",
+        "rgb": {
+          "r": 255,
+          "g": 162,
+          "b": 203
+        }
+      }
+    },
+    {
+      "harmonic": 64,
+      "frequencyHz": 16744.036179238312,
+      "octave": 6,
+      "pitchClassCents": 0,
+      "nearestSemitone": 0,
+      "centsFromEqual": 0,
+      "hue": 0,
+      "color": {
+        "space": "OKLCH",
+        "l": 0.86,
+        "c": 0.0819,
+        "h": 0,
+        "hex": "#ffbbcf",
+        "rgb": {
+          "r": 255,
+          "g": 187,
+          "b": 207
+        }
+      }
+    }
+  ]
+}
