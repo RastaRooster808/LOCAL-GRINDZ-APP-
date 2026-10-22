@@ -11,6 +11,8 @@ import { FEATURED_VENDORS } from '../lib/marketplace';
 import { PromoRotator } from '../components/PromoRotator';
 import { SponsorSpots } from '../components/SponsorSpots';
 import { trackEvent } from '../lib/analytics';
+import { settle, type SupabaseResult } from '../lib/load';
+import { LoadError } from '../components/ui/LoadError';
 
 interface Announcement {
   id: string;
@@ -136,6 +138,7 @@ function FeaturedCarousel({ vendors }: { vendors: Vendor[] }) {
 
 export function Landing() {
   const [openVendors, setOpenVendors] = useState<Vendor[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [featuredVendors, setFeaturedVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -152,7 +155,7 @@ export function Landing() {
       .or(`expires_at.is.null,expires_at.gt.${now}`)
       .order('created_at', { ascending: false })
       .limit(3)
-      .then(({ data }) => setAnnouncements((data as Announcement[]) || []));
+      .then(res => setAnnouncements(settle(res as SupabaseResult<Announcement[]>, [] as Announcement[]).data));
   }, []);
 
   useEffect(() => {
@@ -161,8 +164,11 @@ export function Landing() {
       .select('id, slug, name, cuisine_type, description, neighborhood, photo_url, logo_url, locations(name, status), vendor_features(feature_expires_at, tier)')
       .eq('is_active', true)
       .order('name')
-      .then(({ data }) => {
-        const vendors = (data as Vendor[]) || [];
+      .then(res => res, err => ({ data: null, error: { message: String(err?.message ?? err) } }))
+      .then(res => {
+        const settled = settle(res as SupabaseResult<Vendor[]>, [] as Vendor[]);
+        setLoadError(settled.error);
+        const vendors = settled.data;
         const now = new Date();
         const isActive = (v: Vendor) => v.vendor_features?.some(f => new Date(f.feature_expires_at) > now);
         setOpenVendors(vendors.filter(v => v.locations?.some(l => l.status === 'open')));

@@ -6,6 +6,8 @@ import { SearchBar } from '../components/ui/SearchBar';
 import { MarketplaceNav } from '../components/MarketplaceNav';
 import { FeaturedVendorCard } from '../components/FeaturedVendorCard';
 import { getCategory, getFeaturedForCategory } from '../lib/marketplace';
+import { guard, type SupabaseResult } from '../lib/load';
+import { LoadError } from '../components/ui/LoadError';
 
 const CUISINES = ['All', 'Burger', 'Plate', 'Seafood', 'Vegan', 'Coffee', 'Dessert'];
 
@@ -58,6 +60,8 @@ export function Directory() {
 
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [cuisine, setCuisine] = useState('All');
   const [openOnly, setOpenOnly] = useState(false);
 
@@ -76,8 +80,9 @@ export function Directory() {
     }
     if (showCuisineChips && cuisine !== 'All') query = query.ilike('cuisine_type', cuisine);
 
-    query.then(({ data }) => {
-      let results = (data as Vendor[]) || [];
+    guard(query as PromiseLike<SupabaseResult<Vendor[]>>, [] as Vendor[]).then(({ data, error }) => {
+      setLoadError(error);
+      let results = data;
       if (openOnly) results = results.filter(v => v.locations?.some(l => l.status === 'open'));
       // Featured first
       results.sort((a, b) => {
@@ -88,9 +93,11 @@ export function Directory() {
       setVendors(results);
       setLoading(false);
     });
-  }, [catSlug, cuisine, openOnly]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [catSlug, cuisine, openOnly, reloadKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const emptyMessage = catSlug === 'featured' && featuredHere.length > 0
+  const emptyMessage = loadError
+    ? null
+    : catSlug === 'featured' && featuredHere.length > 0
     ? null
     : vendors.length === 0
       ? catSlug === 'flowers'
@@ -148,11 +155,15 @@ export function Directory() {
         {catSlug !== 'featured' && (
           loading
             ? <p className="loading-msg">Loading vendors…</p>
-            : vendors.length > 0
-              ? <div className="vendor-grid">{vendors.map(v => <VendorCard key={v.id} v={v} />)}</div>
-              : <p className="empty-msg">{emptyMessage ?? 'No vendors match your filters.'}</p>
+            : loadError
+              ? <LoadError message={loadError} onRetry={() => { setLoadError(null); setReloadKey(k => k + 1); }} />
+              : vendors.length > 0
+                ? <div className="vendor-grid">{vendors.map(v => <VendorCard key={v.id} v={v} />)}</div>
+                : <p className="empty-msg">{emptyMessage ?? 'No vendors match your filters.'}</p>
         )}
-        {catSlug !== 'featured' && vendors.length === 0 && !loading && (
+        {/* Never invite someone to fill a gap that only exists because the read
+            failed. The nudge is for a genuinely empty category, not an outage. */}
+        {catSlug !== 'featured' && vendors.length === 0 && !loading && !loadError && (
           <p className="join-nudge"><Link to="/apply">Local vendor? Join the marketplace free →</Link></p>
         )}
       </main>

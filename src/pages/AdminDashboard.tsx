@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 import type { VendorApplication, Vendor, Review, Raffle } from '../lib/types';
+import { settle, type SupabaseResult } from '../lib/load';
 
 interface RaffleEntry {
   id: string;
@@ -69,7 +70,7 @@ export function AdminDashboard() {
   useEffect(() => {
     if (!user) { setIsAdmin(null); return; }
     supabase.from('admins').select('id').eq('id', user.id).single()
-      .then(({ data }) => setIsAdmin(!!data));
+      .then(res => setIsAdmin(!!settle(res as SupabaseResult<unknown>, null).data));
   }, [user]);
 
   useEffect(() => {

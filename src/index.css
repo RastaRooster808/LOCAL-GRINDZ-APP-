@@ -2642,3 +2642,19 @@
   color: #4a5a4a; font-variant-numeric: tabular-nums; }
 .sp-voice-verdict { margin: 0.5rem 0 0; font-size: 0.85rem; color: #2f6f4e; max-width: 62ch; }
 .sp-voice-verdict.is-poor { color: #9e3b2f; }
+
+/* ── Load failure: empty and broken must never look the same ─────────── */
+.load-error {
+  background: rgba(220, 38, 38, 0.06);
+  border: 1px solid rgba(220, 38, 38, 0.28);
+  border-left: 3px solid #b91c1c;
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  margin: 1rem 0;
+}
+.load-error-msg { margin: 0 0 0.35rem; font-weight: 600; color: #7f1d1d; }
+.load-error-hint { margin: 0 0 0.75rem; font-size: 0.88rem; color: #6b5c5c; }
+@media (prefers-color-scheme: dark) {
+  .load-error-msg { color: #fca5a5; }
+  .load-error-hint { color: #c4b5b5; }
+}

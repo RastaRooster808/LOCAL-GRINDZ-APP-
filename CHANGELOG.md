@@ -4,6 +4,61 @@ All notable changes to Local Grindz are documented here.
 
 ---
 
+## [Unreleased] — Gate 0: an outage now reads as an outage (2026-10-22)
+
+### Fixed — all nine swallowed-error sites
+`.then(({ data }) => ...)` discarded `error` at nine call sites across seven
+pages. An unreachable database returned `data === null`, every caller read that
+as "no rows", and the directory told visitors **"No vendors in this category yet
+— local vendors can join free"** while six vendors existed. During the pause
+earlier this month, that is what the site said.
+
+Now routed through `src/lib/load.ts`:
+- `settle()` — never discards `error`; maps backend codes and network wording to
+  "We could not reach the kitchen right now."
+- `guard()` — **covers the second failure mode.** Testing found the first fix
+  incomplete: when the fetch *rejects* (DNS, TLS, offline, proxy) `.then()` never
+  runs at all, so `setLoading(false)` never fires and the page spins forever.
+  `guard()` catches both paths.
+- `isGenuinelyEmpty()` — empty and broken are different states.
+
+### The directory no longer invites you to fill a gap that isn't there
+The "Local vendor? Join the marketplace free" nudge was shown whenever the list
+was empty — including when it was empty because the read failed. It is now
+suppressed during an error.
+
+### The vendor dashboard no longer spins forever
+`VendorDashboard` rendered "Loading vendor…" indefinitely if the vendor lookup
+failed. A vendor signing in during an outage saw a spinner with no explanation.
+It now distinguishes three outcomes: loaded, backend unreachable (with retry),
+and **no vendor row for this email** — which is a different sentence, and the one
+a mis-addressed invite actually produces.
+
+### Verified against the built app in headless Chromium
+Four outcomes, each rendering distinctly:
+
+| scenario | renders vendor | "no vendors yet" | outage message | join nudge | retry |
+|---|---|---|---|---|---|
+| rows returned | yes | no | no | no | — |
+| genuinely empty (200, `[]`) | no | **yes** | no | **yes** | — |
+| server error (500) | no | no | **yes** | no | yes |
+| network rejected | no | no | **yes** | no | yes |
+
+### Known, not fixed
+`supabase-js` retries with backoff, so a hard network failure spins for
+**6–10 seconds** before the error appears. Correct, but a long time to watch a
+spinner. A client-side timeout would cut it; out of scope for this change.
+
+### Still outstanding in Gate 0
+- **Merge PR #40** — `main` still lacks the `hasMenu` guard, so Uncle Robert's
+  and Violet Love Designs each render an order form nobody can fill.
+- **Decide the Supabase free-tier pause.**
+- `deploy.yml` still names this feature branch in its push triggers. Left in
+  place deliberately: removing it now would stop CI reporting on this PR before
+  it merges. Clean up immediately after.
+
+---
+
 ## [Unreleased] — Roadmap to first users, measured against live data (2026-10-22)
 
 ### Added

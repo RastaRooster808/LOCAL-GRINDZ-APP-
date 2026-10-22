@@ -4,6 +4,8 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { supabase } from '../lib/supabase';
 import type { Vendor } from '../lib/types';
+import { settle, type SupabaseResult } from '../lib/load';
+import { LoadError } from '../components/ui/LoadError';
 
 // Fix Leaflet default icon paths broken by bundlers
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
@@ -76,6 +78,7 @@ export function Map() {
   const [openOnly, setOpenOnly] = useState(false);
   const [cuisineFilter, setCuisineFilter] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Load vendors once
   useEffect(() => {
@@ -84,8 +87,11 @@ export function Map() {
       .select('id, slug, name, cuisine_type, description, neighborhood, photo_url, logo_url, is_active, locations(id, name, address, status, hours)')
       .eq('is_active', true)
       .order('name')
-      .then(({ data }) => {
-        setVendors((data as Vendor[]) || []);
+      .then(res => res, err => ({ data: null, error: { message: String(err?.message ?? err) } }))
+      .then(res => {
+        const { data, error } = settle(res as SupabaseResult<Vendor[]>, [] as Vendor[]);
+        setVendors(data);
+        setLoadError(error);
         setLoading(false);
       });
   }, []);

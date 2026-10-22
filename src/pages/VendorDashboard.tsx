@@ -13,6 +13,8 @@ import {
   Chart, BarController, BarElement, LineController, LineElement, PointElement,
   CategoryScale, LinearScale, Tooltip, Legend,
 } from 'chart.js';
+import { settle, type SupabaseResult } from '../lib/load';
+import { LoadError } from '../components/ui/LoadError';
 
 Chart.register(BarController, BarElement, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -33,6 +35,9 @@ interface MonthlyStatement {
 export function VendorDashboard() {
   const { user, loading: authLoading, signIn, signOut } = useAuth();
   const [vendor, setVendor] = useState<Vendor | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [vendorMissing, setVendorMissing] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [tab, setTab] = useState<Tab>('orders');
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -74,7 +79,13 @@ export function VendorDashboard() {
       .select('*')
       .eq('email', user.email)
       .single()
-      .then(({ data }) => {
+      .then(res => res, err => ({ data: null, error: { message: String(err?.message ?? err) } }))
+      .then(res => {
+        const { data, error } = settle(res as SupabaseResult<Vendor>, null as Vendor | null);
+        // Three outcomes, not two: loaded, backend unreachable, or no vendor row
+        // for this email. The last two must not both render as "Loading…".
+        setLoadError(error);
+        setVendorMissing(!error && !data);
         if (data) {
           // Lazy backfill: link auth.uid() the first time this vendor logs in
           if (!data.user_id) {
@@ -89,7 +100,7 @@ export function VendorDashboard() {
           loadPhotos(data.id);
         }
       });
-  }, [user]);
+  }, [user, reloadKey]);
 
   async function loadPhotos(vid: string) {
     const { data } = await supabase
@@ -183,7 +194,7 @@ export function VendorDashboard() {
       .eq('vendor_id', vendor.id)
       .order('statement_month', { ascending: false })
       .limit(12)
-      .then(({ data }) => setStatements((data as MonthlyStatement[]) || []));
+      .then(res => setStatements(settle(res as SupabaseResult<MonthlyStatement[]>, [] as MonthlyStatement[]).data));
   }, [tab, vendor?.id]);
 
   // QR Codes — generate all variants when entering the tab
@@ -280,7 +291,26 @@ export function VendorDashboard() {
     );
   }
 
-  if (!vendor) return <div className="vendor-body"><p className="loading-msg" style={{ padding: '2rem' }}>Loading vendor…</p></div>;
+  if (!vendor) {
+    if (loadError) return (
+      <div className="vendor-body" style={{ padding: '2rem' }}>
+        <LoadError message={loadError} onRetry={() => { setLoadError(null); setReloadKey(k => k + 1); }} />
+      </div>
+    );
+    if (vendorMissing) return (
+      <div className="vendor-body" style={{ padding: '2rem' }} role="alert">
+        <p className="loading-msg">
+          We could not find a vendor account for <strong>{user?.email}</strong>.
+        </p>
+        <p className="load-error-hint">
+          If you were told you have a dashboard, reply to the email that invited you —
+          the account may be under a different address.
+        </p>
+        <button type="button" className="btn-outline btn-sm" onClick={signOut}>Sign out</button>
+      </div>
+    );
+    return <div className="vendor-body"><p className="loading-msg" style={{ padding: '2rem' }}>Loading vendor…</p></div>;
+  }
 
   const newOrderCount = orders.filter(o => o.status === 'pending').length;
 

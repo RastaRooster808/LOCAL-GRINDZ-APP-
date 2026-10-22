@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { MarketplaceNav } from '../components/MarketplaceNav';
+import { settle, type SupabaseResult } from '../lib/load';
+import { LoadError } from '../components/ui/LoadError';
 
 interface AnnouncementRow {
   id: string;
@@ -14,6 +16,7 @@ interface AnnouncementRow {
 export function Events() {
   const [items, setItems] = useState<AnnouncementRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     supabase
@@ -22,8 +25,11 @@ export function Events() {
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(25)
-      .then(({ data }) => {
-        setItems((data as AnnouncementRow[]) || []);
+      .then(res => res, err => ({ data: null, error: { message: String(err?.message ?? err) } }))
+      .then(res => {
+        const { data, error } = settle(res as SupabaseResult<AnnouncementRow[]>, [] as AnnouncementRow[]);
+        setItems(data);
+        setLoadError(error);
         setLoading(false);
       });
   }, []);
